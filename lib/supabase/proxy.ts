@@ -29,15 +29,27 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  // Não rode código entre createServerClient e supabase.auth.getUser().
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protege as rotas do painel
-  if (request.nextUrl.pathname.startsWith("/painel") && !user) {
+  const path = request.nextUrl.pathname
+  const isAuthRoute = path.startsWith("/auth")
+  const isPainelRoute = path.startsWith("/painel")
+
+  console.log(`[middleware] path=${path} user=${user?.id ?? "null"}`)
+
+  if (isPainelRoute && !user) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
+    console.log("[middleware] → redirect to /auth/login")
+    return NextResponse.redirect(url)
+  }
+
+  if (isAuthRoute && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/painel"
+    console.log("[middleware] → redirect to /painel")
     return NextResponse.redirect(url)
   }
 

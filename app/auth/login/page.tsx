@@ -27,8 +27,8 @@ export default function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-      router.push("/painel")
       router.refresh()
+      window.location.href = "/painel"
     } catch (err: unknown) {
       setError(err instanceof Error ? "E-mail ou senha incorretos." : "Ocorreu um erro.")
     } finally {

@@ -10,7 +10,7 @@ import {
   Clock,
   MapPin,
   Phone,
-  Instagram,
+  Globe,
   CalendarCheck,
   Star,
   Award,
@@ -182,7 +182,7 @@ export function LandingPage({ barbeiros }: { barbeiros: Barbeiro[] }) {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <ContatoItem icon={MapPin} titulo="Endereço" texto={barbearia.endereco} href={barbearia.mapsUrl} acao="Como chegar" />
           <ContatoItem icon={Phone} titulo="WhatsApp" texto={barbearia.telefone} href={`https://wa.me/${barbearia.whatsapp}`} acao="Chamar no WhatsApp" />
-          <ContatoItem icon={Instagram} titulo="Instagram" texto={barbearia.instagram} href={barbearia.instagramUrl} acao="Seguir" />
+          <ContatoItem icon={Globe} titulo="Instagram" texto={barbearia.instagram} href={barbearia.instagramUrl} acao="Seguir" />
         </div>
         <div className="mt-12 rounded-2xl border border-primary/30 bg-primary/10 p-10 text-center">
           <h2 className="font-serif text-3xl font-bold">Pronto para renovar o visual?</h2>

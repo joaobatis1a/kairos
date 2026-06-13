@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { barbearia, servicos, formatarPreco } from "@/config/barbearia"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Phone, Instagram, Scissors, FileCode } from "lucide-react"
+import { MapPin, Phone, Link2, Scissors, FileCode } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -41,7 +41,7 @@ export default async function ConfigPage() {
           <Info icon={Scissors} label="Nome" valor={barbearia.nome} />
           <Info icon={MapPin} label="Endereço" valor={barbearia.endereco} />
           <Info icon={Phone} label="Telefone / WhatsApp" valor={barbearia.telefone} />
-          <Info icon={Instagram} label="Instagram" valor={barbearia.instagram} />
+          <Info icon={Link2} label="Instagram" valor={barbearia.instagram} />
         </CardContent>
       </Card>
 

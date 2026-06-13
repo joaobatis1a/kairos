@@ -34,8 +34,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
   const [pending, startTransition] = useTransition()
   const [removendo, setRemovendo] = useState<string | null>(null)
 
-  function handleCriar(e: React.FormEvent) {
-    e.preventDefault()
+  function handleCriar() {
     startTransition(async () => {
       const res = await criarBarbeiro({ nome, email, senha })
       if (!res.ok) {
@@ -79,11 +78,13 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
           <p className="text-muted-foreground">Gerencie os barbeiros da sua barbearia.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="h-4 w-4" /> Adicionar barbeiro
-            </Button>
-          </DialogTrigger>
+          <DialogTrigger
+            render={
+              <Button>
+                <UserPlus className="h-4 w-4" /> Adicionar barbeiro
+              </Button>
+          }
+        />
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">Novo barbeiro</DialogTitle>
@@ -91,7 +92,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
                 Crie o acesso do barbeiro. Ele entrará com este e-mail e senha.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCriar} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="nome">Nome</Label>
                 <Input id="nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
@@ -118,18 +119,18 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
-              <DialogFooter>
-                <Button type="submit" disabled={pending} className="w-full">
-                  {pending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Criando...
-                    </>
-                  ) : (
-                    "Criar barbeiro"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleCriar} disabled={pending} className="w-full">
+                {pending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Criando...
+                  </>
+                ) : (
+                  "Criar barbeiro"
+                )}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
