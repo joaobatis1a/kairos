@@ -15,9 +15,11 @@ import { cadastrarCliente } from "@/app/actions/conta"
 import { toast } from "sonner"
 import { Scissors, Loader2, ArrowLeft } from "lucide-react"
 import { barbearia } from "@/config/barbearia"
+import { cn } from "@/lib/utils"
 
 export default function CadastroPage() {
   const router = useRouter()
+  const [etapa, setEtapa] = useState<1 | 2>(1)
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
@@ -26,6 +28,18 @@ export default function CadastroPage() {
   const [erro, setErro] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [sucesso, setSucesso] = useState(false)
+
+  function handleContinuar(e: React.FormEvent) {
+    e.preventDefault()
+    setErro(null)
+
+    if (!nome.trim() || !email.trim() || !whatsapp.trim()) {
+      setErro("Preencha todos os campos.")
+      return
+    }
+
+    setEtapa(2)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -72,14 +86,26 @@ export default function CadastroPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-serif text-2xl">Criar conta</CardTitle>
-            <CardDescription>Crie sua conta para agendar e acompanhar seus horários.</CardDescription>
+            <CardDescription>
+              {sucesso
+                ? "Conta criada!"
+                : etapa === 1
+                  ? "Vamos começar com seus dados básicos."
+                  : "Agora, crie uma senha segura."}
+            </CardDescription>
+            {!sucesso && (
+              <div className="mt-2 flex gap-1.5">
+                <div className={cn("h-1 flex-1 rounded-full", "bg-primary")} />
+                <div className={cn("h-1 flex-1 rounded-full", etapa === 2 ? "bg-primary" : "bg-muted")} />
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             {sucesso ? (
               <p className="text-center text-sm text-muted-foreground">
-                Conta criada! Redirecionando para o login...
+                Redirecionando para o login...
               </p>
-            ) : (
+            ) : etapa === 1 ? (
               <>
                 <div className="flex flex-col gap-3">
                   <GoogleButton redirectPath="/conta" />
@@ -89,7 +115,7 @@ export default function CadastroPage() {
                   <span className="text-xs text-muted-foreground">ou</span>
                   <Separator className="flex-1" />
                 </div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleContinuar}>
                   <div className="flex flex-col gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="nome">Nome</Label>
@@ -115,36 +141,9 @@ export default function CadastroPage() {
                         onChange={(e) => setWhatsapp(e.target.value)}
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="senha">Senha</Label>
-                      <PasswordInput
-                        id="senha"
-                        required
-                        placeholder="Crie uma senha"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                      />
-                      <PasswordRequisitos senha={senha} />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="confirmarSenha">Confirmar senha</Label>
-                      <PasswordInput
-                        id="confirmarSenha"
-                        required
-                        placeholder="Repita a senha"
-                        value={confirmarSenha}
-                        onChange={(e) => setConfirmarSenha(e.target.value)}
-                      />
-                    </div>
                     {erro && <p className="text-sm text-destructive">{erro}</p>}
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" /> Criando conta...
-                        </>
-                      ) : (
-                        "Criar conta"
-                      )}
+                    <Button type="submit" className="w-full">
+                      Continuar
                     </Button>
                   </div>
                 </form>
@@ -155,6 +154,57 @@ export default function CadastroPage() {
                   </Link>
                 </p>
               </>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="senha">Senha</Label>
+                    <PasswordInput
+                      id="senha"
+                      required
+                      placeholder="Crie uma senha"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      autoFocus
+                    />
+                    <PasswordRequisitos senha={senha} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirmarSenha">Confirmar senha</Label>
+                    <PasswordInput
+                      id="confirmarSenha"
+                      required
+                      placeholder="Repita a senha"
+                      value={confirmarSenha}
+                      onChange={(e) => setConfirmarSenha(e.target.value)}
+                    />
+                  </div>
+                  {erro && <p className="text-sm text-destructive">{erro}</p>}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setErro(null)
+                        setEtapa(1)
+                      }}
+                      disabled={loading}
+                    >
+                      Voltar
+                    </Button>
+                    <Button type="submit" className="flex-1" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> Criando...
+                        </>
+                      ) : (
+                        "Criar conta"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </form>
             )}
           </CardContent>
         </Card>
