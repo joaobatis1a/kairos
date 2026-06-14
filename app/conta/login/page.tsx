@@ -11,7 +11,7 @@ import { PasswordInput } from "@/components/password-input"
 import { GoogleButton } from "@/components/google-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Scissors, Loader2 } from "lucide-react"
+import { Scissors, Loader2, ArrowLeft } from "lucide-react"
 import { barbearia } from "@/config/barbearia"
 
 export default function ContaLoginPage() {
@@ -36,16 +36,21 @@ export default function ContaLoginPage() {
     }
 
     router.refresh()
-    window.location.href = "/"
+    window.location.href = "/conta"
   }
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-6 flex items-center justify-center gap-2 text-foreground">
-          <Scissors className="h-6 w-6 text-primary" />
-          <span className="font-serif text-xl font-semibold">{barbearia.nome}</span>
-        </Link>
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-foreground">
+            <Scissors className="h-6 w-6 text-primary" />
+            <span className="font-serif text-xl font-semibold">{barbearia.nome}</span>
+          </Link>
+          <Link href="/" className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="font-serif text-2xl">Entrar</CardTitle>
