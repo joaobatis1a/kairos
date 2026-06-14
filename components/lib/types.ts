@@ -33,6 +33,7 @@ export type Agendamento = {
   created_at: string
 }
 
+// Agendamento com dados do barbeiro embutidos (join)
 export type AgendamentoComBarbeiro = Agendamento & {
   barbeiro?: Pick<Profile, "id" | "nome"> | null
 }

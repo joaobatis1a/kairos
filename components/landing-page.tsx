@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AgendamentoDialog } from "@/components/agendamento-dialog"
 import { barbearia, servicos, formatarPreco } from "@/config/barbearia"
-import type { Profile } from "@/lib/types"
+import type { Profile, Cliente } from "@/lib/types"
 import {
   Scissors,
   Clock,
@@ -15,11 +16,18 @@ import {
   Star,
   Award,
   Coffee,
+  User,
 } from "lucide-react"
 
 type Barbeiro = Pick<Profile, "id" | "nome">
 
-export function LandingPage({ barbeiros }: { barbeiros: Barbeiro[] }) {
+export function LandingPage({
+  barbeiros,
+  cliente,
+}: {
+  barbeiros: Barbeiro[]
+  cliente: Cliente | null
+}) {
   const [open, setOpen] = useState(false)
   const [servicoInicial, setServicoInicial] = useState<string | undefined>(undefined)
 
@@ -50,9 +58,26 @@ export function LandingPage({ barbeiros }: { barbeiros: Barbeiro[] }) {
               Contato
             </a>
           </nav>
-          <Button size="sm" onClick={() => abrirAgendamento()}>
-            <CalendarCheck className="h-4 w-4" /> Agendar
-          </Button>
+          <div className="flex items-center gap-2">
+            {cliente ? (
+              <Link
+                href="/conta"
+                className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-primary/50"
+              >
+                <User className="h-4 w-4 text-primary" />
+                <span className="hidden sm:inline">{cliente.nome.split(" ")[0] || "Minha conta"}</span>
+              </Link>
+            ) : (
+              <Button size="sm" variant="outline" asChild>
+                <Link href="/conta/login">
+                  <User className="h-4 w-4" /> Entrar
+                </Link>
+              </Button>
+            )}
+            <Button size="sm" onClick={() => abrirAgendamento()}>
+              <CalendarCheck className="h-4 w-4" /> Agendar
+            </Button>
+          </div>
         </div>
       </header>
 

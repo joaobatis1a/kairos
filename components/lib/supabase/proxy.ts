@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = path.startsWith("/auth")
   const isPainelRoute = path.startsWith("/painel")
 
+  // Rotas da área de cliente que NÃO exigem login
   const isContaPublicRoute =
     path === "/conta/login" ||
     path === "/conta/cadastro" ||
@@ -45,8 +46,10 @@ export async function updateSession(request: NextRequest) {
     path === "/conta/redefinir-senha" ||
     path.startsWith("/conta/callback")
 
+  // Rotas da área de cliente que exigem login (ex: /conta, /conta/perfil)
   const isContaPrivateRoute = path.startsWith("/conta") && !isContaPublicRoute
 
+  // --- Equipe (painel) ---
   if (isPainelRoute && !user) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
@@ -59,6 +62,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // --- Cliente (conta) ---
   if (isContaPrivateRoute && !user) {
     const url = request.nextUrl.clone()
     url.pathname = "/conta/login"
@@ -67,9 +71,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if ((path === "/conta/login" || path === "/conta/cadastro") && user) {
-  const url = request.nextUrl.clone()
-  url.pathname = "/"
-  return NextResponse.redirect(url)
+    const url = request.nextUrl.clone()
+    url.pathname = "/conta"
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse

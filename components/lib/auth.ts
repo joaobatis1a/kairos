@@ -25,6 +25,7 @@ export async function getPerfilOuRedirect(): Promise<Profile> {
   return profile as Profile
 }
 
+// Retorna o cliente logado ou redireciona para /conta/login
 export async function getClienteOuRedirect(): Promise<Cliente> {
   const supabase = await createClient()
   const {
@@ -48,6 +49,7 @@ export async function getClienteOuRedirect(): Promise<Cliente> {
   return cliente as Cliente
 }
 
+// Retorna o cliente logado (ou null) sem redirecionar — uso em páginas públicas
 export async function getClienteAtual(): Promise<Cliente | null> {
   const supabase = await createClient()
   const {
