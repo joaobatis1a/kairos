@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/password-input"
+import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { GoogleButton } from "@/components/google-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -29,6 +30,11 @@ export default function CadastroPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErro(null)
+
+    if (!senhaValida(senha)) {
+      setErro("A senha não atende aos requisitos mínimos.")
+      return
+    }
 
     if (senha !== confirmarSenha) {
       setErro("As senhas não coincidem.")
@@ -109,18 +115,17 @@ export default function CadastroPage() {
                       <PasswordInput
                         id="senha"
                         required
-                        minLength={6}
-                        placeholder="Mínimo 6 caracteres"
+                        placeholder="Crie uma senha"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
                       />
+                      <PasswordRequisitos senha={senha} />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="confirmarSenha">Confirmar senha</Label>
                       <PasswordInput
                         id="confirmarSenha"
                         required
-                        minLength={6}
                         placeholder="Repita a senha"
                         value={confirmarSenha}
                         onChange={(e) => setConfirmarSenha(e.target.value)}

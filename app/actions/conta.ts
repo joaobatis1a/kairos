@@ -5,6 +5,14 @@ import { enviarEmail } from "@/lib/email/resend"
 import { emailBoasVindas } from "@/lib/email/templates"
 import { barbearia } from "@/config/barbearia"
 
+function senhaValidaServidor(senha: string) {
+  const temTamanho = senha.length >= 8
+  const temMaiuscula = /[A-Z]/.test(senha)
+  const temNumero = /[0-9]/.test(senha)
+  const temEspecial = /[^A-Za-z0-9]/.test(senha)
+  return temTamanho && temMaiuscula && temNumero && temEspecial
+}
+
 type CadastroInput = {
   nome: string
   email: string
@@ -22,8 +30,12 @@ export async function cadastrarCliente(input: CadastroInput) {
     return { ok: false, error: "Preencha todos os campos." }
   }
 
-  if (senha.length < 6) {
-    return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
+  if (!senhaValidaServidor(senha)) {
+    return {
+      ok: false,
+      error:
+        "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, número e caractere especial.",
+    }
   }
 
   const supabase = await createClient()
@@ -46,7 +58,6 @@ export async function cadastrarCliente(input: CadastroInput) {
     return { ok: false, error: "Não foi possível criar sua conta. Tente novamente." }
   }
 
-  // Envia e-mail de boas-vindas (não bloqueia o cadastro se falhar)
   if (data.user?.email) {
     enviarEmail({
       to: data.user.email,
@@ -61,9 +72,7 @@ export async function cadastrarCliente(input: CadastroInput) {
 export async function solicitarRedefinicaoSenha(email: string) {
   const supabase = await createClient()
 
-  const origin =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://localhost:3000"
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
     redirectTo: `${origin}/conta/redefinir-senha`,
@@ -77,8 +86,12 @@ export async function solicitarRedefinicaoSenha(email: string) {
 }
 
 export async function redefinirSenha(novaSenha: string) {
-  if (novaSenha.length < 6) {
-    return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
+  if (!senhaValidaServidor(novaSenha)) {
+    return {
+      ok: false,
+      error:
+        "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, número e caractere especial.",
+    }
   }
 
   const supabase = await createClient()
