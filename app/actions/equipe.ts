@@ -145,3 +145,22 @@ export async function removerBarbeiro(id: string) {
   revalidatePath("/painel/equipe")
   return { ok: true }
 }
+
+// Alterna se o owner atende como barbeiro
+export async function alternarAtendeBarbeiro(valor: boolean) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: "Não autenticado." }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ atende_como_barbeiro: valor })
+    .eq("id", user.id)
+
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath("/painel/config")
+  return { ok: true }
+}

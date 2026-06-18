@@ -2,11 +2,14 @@ export type Role = "owner" | "barber"
 
 export type StatusAgendamento = "pendente" | "confirmado" | "cancelado"
 
+export type FormaPagamento = "pix" | "dinheiro" | "debito" | "credito"
+
 export type Profile = {
   id: string
   nome: string
   role: Role
   ativo: boolean
+  atende_como_barbeiro: boolean
   created_at: string
 }
 
@@ -30,6 +33,7 @@ export type Agendamento = {
   horario: string // HH:MM:SS
   status: StatusAgendamento
   observacoes: string | null
+  forma_pagamento: FormaPagamento | null
   created_at: string
 }
 

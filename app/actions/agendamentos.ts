@@ -2,14 +2,15 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { servicos } from "@/config/barbearia"
-import type { Profile } from "@/lib/types"
+import type { Profile, FormaPagamento } from "@/lib/types"
 
 // Lista barbeiros ativos (público)
+// Inclui: todos com role=barber ativos + owners que marcaram atende_como_barbeiro=true
 export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, nome")
+    .select("id, nome, role, atende_como_barbeiro")
     .eq("ativo", true)
     .order("nome")
 
@@ -17,7 +18,13 @@ export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">
     console.log("[v0] Erro ao buscar barbeiros:", error.message)
     return []
   }
-  return (data ?? []).filter((b) => b.nome && b.nome.trim().length > 0)
+
+  return (data ?? []).filter((b) => {
+    if (!b.nome || b.nome.trim().length === 0) return false
+    if (b.role === "barber") return true
+    if (b.role === "owner") return b.atende_como_barbeiro === true
+    return false
+  })
 }
 
 // Retorna os horários já ocupados de um barbeiro em uma data
@@ -34,7 +41,6 @@ export async function getHorariosOcupados(barbeiroId: string, data: string): Pro
     console.log("[v0] Erro ao buscar horários ocupados:", error.message)
     return []
   }
-  // normaliza para HH:MM
   return (ags ?? []).map((a) => (a.horario as string).slice(0, 5))
 }
 
@@ -46,6 +52,7 @@ type CriarAgendamentoInput = {
   data: string
   horario: string
   observacoes?: string
+  formaPagamento: FormaPagamento
 }
 
 export async function criarAgendamento(input: CriarAgendamentoInput) {
@@ -60,7 +67,6 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
   const supabase = await createClient()
 
-  // Verifica se o horário ainda está livre (evita corrida)
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")
@@ -83,6 +89,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     data: input.data,
     horario: input.horario,
     observacoes: input.observacoes?.trim() || null,
+    forma_pagamento: input.formaPagamento,
     status: "pendente",
   })
 

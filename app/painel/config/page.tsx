@@ -4,6 +4,7 @@ import { barbearia, servicos, formatarPreco } from "@/config/barbearia"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Phone, Link2, Scissors, FileCode } from "lucide-react"
+import { ToggleAtendeBarbeiro } from "@/components/painel/toggle-atende-barbeiro"
 
 export const dynamic = "force-dynamic"
 
@@ -17,6 +18,19 @@ export default async function ConfigPage() {
         <h1 className="font-serif text-3xl font-bold">Configurações</h1>
         <p className="text-muted-foreground">Dados do negócio, serviços e horários.</p>
       </div>
+
+      {/* Toggle: owner como barbeiro */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif">Minha agenda</CardTitle>
+          <CardDescription>
+            Defina se você também aparece como profissional disponível para agendamentos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ToggleAtendeBarbeiro atende={perfil.atende_como_barbeiro ?? false} />
+        </CardContent>
+      </Card>
 
       <Card className="border-primary/30 bg-primary/5">
         <CardContent className="flex items-start gap-3 p-4">
