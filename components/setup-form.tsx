@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { GoogleButton } from "@/components/google-button"
 import { Scissors, Loader2, ShieldCheck } from "lucide-react"
 import { barbearia } from "@/config/barbearia"
 import { toast } from "sonner"
@@ -58,8 +60,22 @@ export function SetupForm() {
               Crie a conta do administrador (dono). Esta etapa só aparece uma vez.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <CardContent className="flex flex-col gap-5">
+            {/* Opção Google */}
+            <GoogleButton
+              redirectPath="/painel"
+              setupOwner={true}
+              label="Configurar com Google"
+            />
+
+            <div className="flex items-center gap-2">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground">ou com e-mail</span>
+              <Separator className="flex-1" />
+            </div>
+
+            {/* Opção e-mail + senha */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="nome">Seu nome</Label>
                 <Input

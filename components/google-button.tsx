@@ -5,7 +5,18 @@ import { createClient } from "@/lib/supabase/client"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
-export function GoogleButton({ redirectPath = "/conta" }: { redirectPath?: string }) {
+interface GoogleButtonProps {
+  redirectPath?: string
+  /** Quando true, passa setup_owner=1 no callback — promove o usuário a owner se não houver nenhum */
+  setupOwner?: boolean
+  label?: string
+}
+
+export function GoogleButton({
+  redirectPath = "/conta",
+  setupOwner = false,
+  label = "Entrar com Google",
+}: GoogleButtonProps) {
   const [loading, setLoading] = useState(false)
 
   async function entrarComGoogle() {
@@ -13,10 +24,15 @@ export function GoogleButton({ redirectPath = "/conta" }: { redirectPath?: strin
     const supabase = createClient()
     const origin = window.location.origin
 
+    // Rota de callback: /auth/callback para equipe, /conta/callback para clientes
+    const callbackBase = redirectPath.startsWith("/conta")
+      ? `${origin}/conta/callback?next=${encodeURIComponent(redirectPath)}`
+      : `${origin}/auth/callback?next=${encodeURIComponent(redirectPath)}${setupOwner ? "&setup_owner=1" : ""}`
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/conta/callback?next=${encodeURIComponent(redirectPath)}`,
+        redirectTo: callbackBase,
       },
     })
   }
@@ -51,7 +67,7 @@ export function GoogleButton({ redirectPath = "/conta" }: { redirectPath?: strin
           />
         </svg>
       )}
-      Entrar com Google
+      {label}
     </Button>
   )
 }
