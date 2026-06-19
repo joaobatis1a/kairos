@@ -20,7 +20,8 @@ import {
   X,
 } from "lucide-react"
 
-export function PainelNav({ perfil }: { perfil: Profile }) {
+export function PainelNav({ perfil, nomeNegocio }: { perfil: Profile; nomeNegocio?: string }) {
+  const nome = nomeNegocio || barbearia.nome
   const pathname = usePathname()
   const [aberto, setAberto] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -43,7 +44,7 @@ export function PainelNav({ perfil }: { perfil: Profile }) {
     <div className="flex h-full flex-col gap-1">
       <div className="mb-4 flex items-center gap-2 px-2">
         <Scissors className="h-5 w-5 text-primary" />
-        <span className="font-serif text-lg font-semibold">{barbearia.nome}</span>
+        <span className="font-serif text-lg font-semibold">{nome}</span>
       </div>
 
       <div className="mb-3 rounded-lg border border-border bg-muted/40 p-3">
@@ -98,7 +99,7 @@ export function PainelNav({ perfil }: { perfil: Profile }) {
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur md:hidden">
         <div className="flex items-center gap-2">
           <Scissors className="h-5 w-5 text-primary" />
-          <span className="font-serif font-semibold">{barbearia.nome}</span>
+          <span className="font-serif font-semibold">{nome}</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setAberto(true)} aria-label="Abrir menu">
           <Menu className="h-5 w-5" />
