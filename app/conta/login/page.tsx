@@ -36,7 +36,7 @@ export default function ContaLoginPage() {
     }
 
     router.refresh()
-    window.location.href = "/conta"
+    window.location.href = "/"
   }
 
   return (
@@ -58,7 +58,7 @@ export default function ContaLoginPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">
-              <GoogleButton redirectPath="/conta" />
+              <GoogleButton redirectPath="/" />
             </div>
             <div className="my-5 flex items-center gap-2">
               <Separator className="flex-1" />

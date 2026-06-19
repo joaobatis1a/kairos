@@ -1,15 +1,13 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { servicos } from "@/config/barbearia"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
-// Lista barbeiros ativos (público)
 export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, nome")
+    .select("id, nome, role, atende_como_barbeiro")
     .eq("ativo", true)
     .order("nome")
 
@@ -17,10 +15,15 @@ export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">
     console.log("[v0] Erro ao buscar barbeiros:", error.message)
     return []
   }
-  return (data ?? []).filter((b) => b.nome && b.nome.trim().length > 0)
+
+  return (data ?? []).filter((b) => {
+    if (!b.nome || b.nome.trim().length === 0) return false
+    if (b.role === "barber") return true
+    if (b.role === "owner") return b.atende_como_barbeiro === true
+    return false
+  })
 }
 
-// Retorna os horários já ocupados de um barbeiro em uma data
 export async function getHorariosOcupados(barbeiroId: string, data: string): Promise<string[]> {
   const supabase = await createClient()
   const { data: ags, error } = await supabase
@@ -40,7 +43,9 @@ export async function getHorariosOcupados(barbeiroId: string, data: string): Pro
 type CriarAgendamentoInput = {
   clienteNome: string
   clienteWhatsapp: string
-  servicoId: string
+  servicoId: string       // uuid do banco
+  servicoNome: string
+  servicoPreco: number
   barbeiroId: string
   data: string
   horario: string
@@ -49,18 +54,12 @@ type CriarAgendamentoInput = {
 }
 
 export async function criarAgendamento(input: CriarAgendamentoInput) {
-  const servico = servicos.find((s) => s.id === input.servicoId)
-  if (!servico) {
-    return { ok: false, error: "Serviço inválido." }
-  }
-
   if (!input.clienteNome.trim() || !input.clienteWhatsapp.trim()) {
     return { ok: false, error: "Preencha nome e WhatsApp." }
   }
 
   const supabase = await createClient()
 
-  // Verifica se o horário ainda está livre (evita corrida)
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")
@@ -76,9 +75,9 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   const { error } = await supabase.from("agendamentos").insert({
     cliente_nome: input.clienteNome.trim(),
     cliente_whatsapp: input.clienteWhatsapp.trim(),
-    servico_id: servico.id,
-    servico_nome: servico.nome,
-    servico_preco: servico.preco,
+    servico_id: input.servicoId,
+    servico_nome: input.servicoNome,
+    servico_preco: input.servicoPreco,
     barbeiro_id: input.barbeiroId,
     data: input.data,
     horario: input.horario,

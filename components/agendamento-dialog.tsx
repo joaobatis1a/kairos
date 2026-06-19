@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { servicos, formatarPreco, horariosDisponiveis } from "@/config/barbearia"
+import { formatarPreco } from "@/config/barbearia"
+import type { ServicoDb, HorariosConfig } from "@/app/actions/config"
 import { getDiasDisponiveis, formatarDataExtenso } from "@/lib/datas"
 import { criarAgendamento, getHorariosOcupados } from "@/app/actions/agendamentos"
 import type { Profile, FormaPagamento } from "@/lib/types"
@@ -40,9 +41,11 @@ type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
   servicoInicialId?: string
+  servicos: ServicoDb[]
+  horariosConfig: HorariosConfig
 }
 
-const dias = getDiasDisponiveis(14)
+const diasTodos = getDiasDisponiveis(60)
 
 const FORMAS_PAGAMENTO: {
   id: FormaPagamento
@@ -63,7 +66,7 @@ const LABELS_PAGAMENTO: Record<FormaPagamento, string> = {
   credito: "Cartão de crédito",
 }
 
-export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicialId }: Props) {
+export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicialId, servicos, horariosConfig }: Props) {
   const [etapa, setEtapa] = useState(1)
   const [servicoId, setServicoId] = useState<string | null>(null)
   const [barbeiroId, setBarbeiroId] = useState<string | null>(null)
@@ -127,16 +130,23 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
     }
   }, [barbeiroId, data])
 
+  const dias = diasTodos.filter((d) => {
+    const diaSemana = new Date(d.value + "T12:00:00").getDay()
+    return horariosConfig.dias_abertos.includes(diaSemana)
+  })
+
   const servico = servicos.find((s) => s.id === servicoId)
   const barbeiro = barbeiros.find((b) => b.id === barbeiroId)
 
   function confirmar() {
-    if (!servicoId || !barbeiroId || !data || !horario || !formaPagamento) return
+    if (!servicoId || !barbeiroId || !data || !horario || !formaPagamento || !servico) return
     startTransition(async () => {
       const res = await criarAgendamento({
         clienteNome: nome,
         clienteWhatsapp: whatsapp,
         servicoId,
+        servicoNome: servico.nome,
+        servicoPreco: servico.preco,
         barbeiroId,
         data,
         horario,
@@ -215,7 +225,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                         <div>
                           <p className="font-medium leading-tight">{s.nome}</p>
                           <p className="text-sm text-muted-foreground">{s.descricao}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{s.duracaoMin} min</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{s.duracao_min} min</p>
                         </div>
                       </div>
                       <span className="shrink-0 font-semibold text-primary">
@@ -293,7 +303,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                         )}
                       </p>
                       <div className="grid grid-cols-4 gap-2">
-                        {horariosDisponiveis.map((h) => {
+                        {horariosConfig.horarios.sort().map((h) => {
                           const indisponivel = ocupados.includes(h)
                           return (
                             <button
