@@ -5,12 +5,11 @@ import { servicos } from "@/config/barbearia"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
 // Lista barbeiros ativos (público)
-// Inclui: todos com role=barber ativos + owners que marcaram atende_como_barbeiro=true
 export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, nome, role, atende_como_barbeiro")
+    .select("id, nome")
     .eq("ativo", true)
     .order("nome")
 
@@ -18,13 +17,7 @@ export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">
     console.log("[v0] Erro ao buscar barbeiros:", error.message)
     return []
   }
-
-  return (data ?? []).filter((b) => {
-    if (!b.nome || b.nome.trim().length === 0) return false
-    if (b.role === "barber") return true
-    if (b.role === "owner") return b.atende_como_barbeiro === true
-    return false
-  })
+  return (data ?? []).filter((b) => b.nome && b.nome.trim().length > 0)
 }
 
 // Retorna os horários já ocupados de um barbeiro em uma data
@@ -67,6 +60,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
   const supabase = await createClient()
 
+  // Verifica se o horário ainda está livre (evita corrida)
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")

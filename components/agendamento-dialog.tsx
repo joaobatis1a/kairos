@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { servicos, formatarPreco, horariosDisponiveis } from "@/config/barbearia"
 import { getDiasDisponiveis, formatarDataExtenso } from "@/lib/datas"
 import { criarAgendamento, getHorariosOcupados } from "@/app/actions/agendamentos"
-import type { Profile } from "@/lib/types"
+import type { Profile, FormaPagamento } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,6 +27,10 @@ import {
   ChevronLeft,
   Loader2,
   PartyPopper,
+  Wallet,
+  Banknote,
+  CreditCard,
+  Smartphone,
 } from "lucide-react"
 
 type Barbeiro = Pick<Profile, "id" | "nome">
@@ -40,6 +44,25 @@ type Props = {
 
 const dias = getDiasDisponiveis(14)
 
+const FORMAS_PAGAMENTO: {
+  id: FormaPagamento
+  label: string
+  icon: React.ElementType
+  desc: string
+}[] = [
+  { id: "pix", label: "PIX", icon: Smartphone, desc: "Transferência instantânea" },
+  { id: "dinheiro", label: "Dinheiro", icon: Banknote, desc: "Pagamento em espécie" },
+  { id: "debito", label: "Cartão de débito", icon: CreditCard, desc: "Débito na hora" },
+  { id: "credito", label: "Cartão de crédito", icon: CreditCard, desc: "Crédito à vista ou parcelado" },
+]
+
+const LABELS_PAGAMENTO: Record<FormaPagamento, string> = {
+  pix: "PIX",
+  dinheiro: "Dinheiro",
+  debito: "Cartão de débito",
+  credito: "Cartão de crédito",
+}
+
 export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicialId }: Props) {
   const [etapa, setEtapa] = useState(1)
   const [servicoId, setServicoId] = useState<string | null>(null)
@@ -49,6 +72,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
   const [nome, setNome] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [obs, setObs] = useState("")
+  const [formaPagamento, setFormaPagamento] = useState<FormaPagamento | null>(null)
   const [ocupados, setOcupados] = useState<string[]>([])
   const [carregandoHorarios, setCarregandoHorarios] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -65,6 +89,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
       setNome("")
       setWhatsapp("")
       setObs("")
+      setFormaPagamento(null)
       setConcluido(false)
     }
   }, [open, servicoInicialId])
@@ -106,7 +131,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
   const barbeiro = barbeiros.find((b) => b.id === barbeiroId)
 
   function confirmar() {
-    if (!servicoId || !barbeiroId || !data || !horario) return
+    if (!servicoId || !barbeiroId || !data || !horario || !formaPagamento) return
     startTransition(async () => {
       const res = await criarAgendamento({
         clienteNome: nome,
@@ -116,12 +141,12 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
         data,
         horario,
         observacoes: obs,
+        formaPagamento,
       })
       if (res.ok) {
         setConcluido(true)
       } else {
         toast.error(res.error ?? "Erro ao agendar")
-        // se o horário foi tomado, volta para a etapa de seleção
         if (res.error?.includes("preenchido")) {
           setHorario(null)
           setEtapa(3)
@@ -151,6 +176,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                 barbeiro={barbeiro?.nome}
                 data={data}
                 horario={horario}
+                formaPagamento={formaPagamento}
               />
             </div>
             <Button className="w-full" onClick={() => onOpenChange(false)}>
@@ -301,8 +327,46 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                 </div>
               )}
 
-              {/* Etapa 4: Dados do cliente */}
+              {/* Etapa 4: Forma de pagamento */}
               {etapa === 4 && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-muted-foreground">Como prefere pagar?</p>
+                  {FORMAS_PAGAMENTO.map((fp) => (
+                    <button
+                      key={fp.id}
+                      onClick={() => setFormaPagamento(fp.id)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:border-primary/60 hover:bg-muted/40",
+                        formaPagamento === fp.id ? "border-primary bg-muted/40" : "border-border",
+                      )}
+                    >
+                      <div className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+                        formaPagamento === fp.id ? "bg-primary text-primary-foreground" : "bg-primary/15 text-primary"
+                      )}>
+                        <fp.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-medium leading-tight">{fp.label}</p>
+                        <p className="text-sm text-muted-foreground">{fp.desc}</p>
+                      </div>
+                      {formaPagamento === fp.id && (
+                        <Check className="ml-auto h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                  <Button
+                    disabled={!formaPagamento}
+                    onClick={() => setEtapa(5)}
+                    className="w-full mt-2"
+                  >
+                    Continuar
+                  </Button>
+                </div>
+              )}
+
+              {/* Etapa 5: Dados do cliente */}
+              {etapa === 5 && (
                 <div className="flex flex-col gap-4">
                   <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
                     <Resumo
@@ -311,6 +375,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                       barbeiro={barbeiro?.nome}
                       data={data}
                       horario={horario}
+                      formaPagamento={formaPagamento}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -385,7 +450,8 @@ function Stepper({ etapa }: { etapa: number }) {
     { n: 1, icon: Scissors },
     { n: 2, icon: User },
     { n: 3, icon: CalendarDays },
-    { n: 4, icon: Clock },
+    { n: 4, icon: Wallet },
+    { n: 5, icon: Clock },
   ]
   return (
     <div className="flex items-center gap-1.5 pt-2">
@@ -421,12 +487,14 @@ function Resumo({
   barbeiro,
   data,
   horario,
+  formaPagamento,
 }: {
   servico?: string
   preco?: number
   barbeiro?: string
   data?: string | null
   horario?: string | null
+  formaPagamento?: FormaPagamento | null
 }) {
   return (
     <dl className="flex flex-col gap-1.5">
@@ -446,6 +514,12 @@ function Resumo({
         <dt className="text-muted-foreground">Horário</dt>
         <dd className="font-medium">{horario}</dd>
       </div>
+      {formaPagamento && (
+        <div className="flex justify-between gap-2">
+          <dt className="text-muted-foreground">Pagamento</dt>
+          <dd className="font-medium">{LABELS_PAGAMENTO[formaPagamento]}</dd>
+        </div>
+      )}
       {preco !== undefined && (
         <div className="mt-1 flex justify-between gap-2 border-t border-border pt-1.5">
           <dt className="text-muted-foreground">Valor</dt>

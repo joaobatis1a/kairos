@@ -9,7 +9,6 @@ export type Profile = {
   nome: string
   role: Role
   ativo: boolean
-  atende_como_barbeiro: boolean
   created_at: string
 }
 
