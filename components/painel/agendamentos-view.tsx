@@ -11,6 +11,7 @@ const filtrosStatus: { value: StatusAgendamento | "todos"; label: string }[] = [
   { value: "todos", label: "Todos" },
   { value: "pendente", label: "Pendentes" },
   { value: "confirmado", label: "Confirmados" },
+  { value: "finalizado", label: "Finalizados" },
   { value: "cancelado", label: "Cancelados" },
 ]
 

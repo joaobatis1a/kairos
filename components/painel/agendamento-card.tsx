@@ -26,19 +26,23 @@ import {
   Trash2,
   MessageCircle,
   Loader2,
+  CheckCheck,
+  Wallet,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const statusConfig: Record<StatusAgendamento, { label: string; classe: string }> = {
   pendente: { label: "Pendente", classe: "bg-primary/15 text-primary border-primary/30" },
-  confirmado: {
-    label: "Confirmado",
-    classe: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  },
-  cancelado: {
-    label: "Cancelado",
-    classe: "bg-destructive/15 text-destructive border-destructive/30",
-  },
+  confirmado: { label: "Confirmado", classe: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
+  finalizado: { label: "Finalizado", classe: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+  cancelado: { label: "Cancelado", classe: "bg-destructive/15 text-destructive border-destructive/30" },
+}
+
+const LABELS_PAGAMENTO: Record<string, string> = {
+  pix: "PIX",
+  dinheiro: "Dinheiro",
+  debito: "Cartão de débito",
+  credito: "Cartão de crédito",
 }
 
 export function AgendamentoCard({
@@ -74,7 +78,8 @@ export function AgendamentoCard({
     <div
       className={cn(
         "flex flex-col gap-3 rounded-xl border bg-card p-4 transition-colors",
-        ag.status === "cancelado" ? "border-border opacity-60" : "border-border",
+        ag.status === "cancelado" && "border-border opacity-60",
+        ag.status === "finalizado" && "border-emerald-500/20",
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -104,6 +109,12 @@ export function AgendamentoCard({
           <span>{ag.servico_nome}</span>
           <span className="text-primary">· {formatarPreco(Number(ag.servico_preco))}</span>
         </div>
+        {ag.forma_pagamento && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Wallet className="h-3.5 w-3.5" />
+            <span>{LABELS_PAGAMENTO[ag.forma_pagamento] ?? ag.forma_pagamento}</span>
+          </div>
+        )}
         {mostrarBarbeiro && ag.barbeiro?.nome && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <User className="h-3.5 w-3.5" />
@@ -127,18 +138,22 @@ export function AgendamentoCard({
       </div>
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-        {ag.status !== "confirmado" && ag.status !== "cancelado" && (
+        {/* Pendente → Confirmar */}
+        {ag.status === "pendente" && (
           <Button size="sm" disabled={pending} onClick={() => mudarStatus("confirmado")}>
             <Check className="h-3.5 w-3.5" /> Confirmar
           </Button>
         )}
-        {ag.status !== "cancelado" && (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={pending}
-            onClick={() => mudarStatus("cancelado")}
-          >
+        {/* Confirmado → Finalizar */}
+        {ag.status === "confirmado" && (
+          <Button size="sm" disabled={pending} onClick={() => mudarStatus("finalizado")}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <CheckCheck className="h-3.5 w-3.5" /> Finalizar
+          </Button>
+        )}
+        {/* Qualquer status não-cancelado → Cancelar */}
+        {ag.status !== "cancelado" && ag.status !== "finalizado" && (
+          <Button size="sm" variant="outline" disabled={pending} onClick={() => mudarStatus("cancelado")}>
             <X className="h-3.5 w-3.5" /> Cancelar
           </Button>
         )}

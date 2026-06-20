@@ -1,6 +1,6 @@
 export type Role = "owner" | "barber"
 
-export type StatusAgendamento = "pendente" | "confirmado" | "cancelado"
+export type StatusAgendamento = "pendente" | "confirmado" | "finalizado" | "cancelado"
 
 export type FormaPagamento = "pix" | "dinheiro" | "debito" | "credito"
 
@@ -9,6 +9,7 @@ export type Profile = {
   nome: string
   role: Role
   ativo: boolean
+  atende_como_barbeiro: boolean
   created_at: string
 }
 
