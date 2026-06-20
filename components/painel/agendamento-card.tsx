@@ -4,9 +4,11 @@ import { useState, useTransition } from "react"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 import { formatarPreco } from "@/config/barbearia"
 import { formatarDataExtenso } from "@/lib/datas"
-import { atualizarStatusAgendamento, excluirAgendamento } from "@/app/actions/painel"
+import { atualizarStatusAgendamento, excluirAgendamento, cancelarAgendamento } from "@/app/actions/painel"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -54,12 +56,34 @@ export function AgendamentoCard({
 }) {
   const [pending, startTransition] = useTransition()
   const [confirmarExclusao, setConfirmarExclusao] = useState(false)
+  const [modalCancelamento, setModalCancelamento] = useState(false)
+  const [motivoCancelamento, setMotivoCancelamento] = useState("")
 
   function mudarStatus(status: StatusAgendamento) {
     startTransition(async () => {
       const res = await atualizarStatusAgendamento(ag.id, status)
       if (!res.ok) toast.error(res.error ?? "Erro ao atualizar")
       else toast.success(`Agendamento ${statusConfig[status].label.toLowerCase()}.`)
+    })
+  }
+
+  function abrirCancelamento() {
+    setMotivoCancelamento("")
+    setModalCancelamento(true)
+  }
+
+  function confirmarCancelamento() {
+    if (!motivoCancelamento.trim()) {
+      toast.error("Informe o motivo do cancelamento.")
+      return
+    }
+    startTransition(async () => {
+      const res = await cancelarAgendamento(ag.id, motivoCancelamento.trim())
+      if (!res.ok) toast.error(res.error ?? "Erro ao cancelar.")
+      else {
+        toast.success("Agendamento cancelado.")
+        setModalCancelamento(false)
+      }
     })
   }
 
@@ -135,25 +159,27 @@ export function AgendamentoCard({
             {ag.observacoes}
           </p>
         )}
+        {ag.status === "cancelado" && ag.motivo_cancelamento && (
+          <p className="mt-1 rounded-md border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
+            Motivo: {ag.motivo_cancelamento}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-        {/* Pendente → Confirmar */}
         {ag.status === "pendente" && (
           <Button size="sm" disabled={pending} onClick={() => mudarStatus("confirmado")}>
             <Check className="h-3.5 w-3.5" /> Confirmar
           </Button>
         )}
-        {/* Confirmado → Finalizar */}
         {ag.status === "confirmado" && (
           <Button size="sm" disabled={pending} onClick={() => mudarStatus("finalizado")}
             className="bg-emerald-600 hover:bg-emerald-700 text-white">
             <CheckCheck className="h-3.5 w-3.5" /> Finalizar
           </Button>
         )}
-        {/* Qualquer status não-cancelado → Cancelar */}
         {ag.status !== "cancelado" && ag.status !== "finalizado" && (
-          <Button size="sm" variant="outline" disabled={pending} onClick={() => mudarStatus("cancelado")}>
+          <Button size="sm" variant="outline" disabled={pending} onClick={abrirCancelamento}>
             <X className="h-3.5 w-3.5" /> Cancelar
           </Button>
         )}
@@ -173,6 +199,36 @@ export function AgendamentoCard({
         </Button>
       </div>
 
+      {/* Modal cancelamento com motivo */}
+      <Dialog open={modalCancelamento} onOpenChange={setModalCancelamento}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cancelar agendamento</DialogTitle>
+            <DialogDescription>
+              Informe o motivo do cancelamento de <strong>{ag.cliente_nome}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 py-2">
+            <Label>Motivo</Label>
+            <Textarea
+              value={motivoCancelamento}
+              onChange={(e) => setMotivoCancelamento(e.target.value)}
+              placeholder="Ex: Cliente solicitou, horário indisponível..."
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalCancelamento(false)}>
+              Voltar
+            </Button>
+            <Button variant="destructive" onClick={confirmarCancelamento} disabled={pending || !motivoCancelamento.trim()}>
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar cancelamento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal exclusão */}
       <Dialog open={confirmarExclusao} onOpenChange={setConfirmarExclusao}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -194,3 +250,4 @@ export function AgendamentoCard({
     </div>
   )
 }
+

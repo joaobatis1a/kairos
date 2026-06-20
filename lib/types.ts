@@ -34,6 +34,7 @@ export type Agendamento = {
   status: StatusAgendamento
   observacoes: string | null
   forma_pagamento: FormaPagamento | null
+  motivo_cancelamento: string | null
   created_at: string
 }
 

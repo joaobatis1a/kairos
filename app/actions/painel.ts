@@ -64,6 +64,23 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
   return { ok: true }
 }
 
+export async function cancelarAgendamento(id: string, motivo: string) {
+  const usuario = await getUsuario()
+  if (!usuario) return { ok: false, error: "Sem permissão." }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("agendamentos")
+    .update({ status: "cancelado", motivo_cancelamento: motivo })
+    .eq("id", id)
+
+  if (error) return { ok: false, error: error.message }
+  revalidatePath("/painel")
+  revalidatePath("/painel/agendamentos")
+  revalidatePath("/painel/agenda")
+  return { ok: true }
+}
+
 export async function excluirAgendamento(id: string) {
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
