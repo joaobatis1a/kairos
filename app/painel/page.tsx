@@ -24,15 +24,16 @@ export default async function PainelHome() {
   const todos = await listarAgendamentos()
   const deHoje = todos.filter((a) => a.data === hoje && a.status !== "cancelado")
   const pendentes = todos.filter((a) => a.status === "pendente")
-  const confirmadosHoje = deHoje.filter((a) => a.status === "confirmado")
-  const faturamentoHoje = confirmadosHoje.reduce((sum, a) => sum + Number(a.servico_preco), 0)
+  const concluidosHoje = deHoje.filter((a) => a.status === "confirmado" || a.status === "finalizado")
+  const finalizadosHoje = deHoje.filter((a) => a.status === "finalizado")
+  const faturamentoHoje = finalizadosHoje.reduce((sum, a) => sum + Number(a.servico_preco), 0)
 
   const stats = [
     { label: "Hoje", valor: deHoje.length, icon: CalendarDays },
     { label: "Pendentes", valor: pendentes.length, icon: Clock },
-    { label: "Confirmados hoje", valor: confirmadosHoje.length, icon: CheckCircle2 },
+    { label: "Confirmados hoje", valor: concluidosHoje.length, icon: CheckCircle2 },
     {
-      label: "Faturamento hoje",
+      label: "Faturamento (finalizados)",
       valor: formatarPreco(faturamentoHoje),
       icon: DollarSign,
     },
