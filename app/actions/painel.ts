@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { getBarbeariaConfig } from "@/app/actions/config"
+import { enviarEmailCancelamento } from "@/lib/emails"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 
 async function getUsuario() {
@@ -69,12 +71,37 @@ export async function cancelarAgendamento(id: string, motivo: string) {
   if (!usuario) return { ok: false, error: "Sem permissão." }
 
   const supabase = await createClient()
+
+  // Busca dados do agendamento para o email
+  const { data: ag } = await supabase
+    .from("agendamentos")
+    .select("cliente_nome, servico_nome, servico_preco, data, horario")
+    .eq("id", id)
+    .single()
+
   const { error } = await supabase
     .from("agendamentos")
     .update({ status: "cancelado", motivo_cancelamento: motivo })
     .eq("id", id)
 
   if (error) return { ok: false, error: error.message }
+
+  // Envia email de cancelamento
+  if (ag) {
+    getBarbeariaConfig().then((config) => {
+      enviarEmailCancelamento({
+        clienteNome: ag.cliente_nome,
+        clienteEmail: null,
+        servicoNome: ag.servico_nome,
+        servicoPreco: Number(ag.servico_preco),
+        barbeiroNome: null,
+        data: ag.data,
+        horario: ag.horario,
+        nomeBarbearia: config.nome,
+      }, motivo)
+    })
+  }
+
   revalidatePath("/painel")
   revalidatePath("/painel/agendamentos")
   revalidatePath("/painel/agenda")

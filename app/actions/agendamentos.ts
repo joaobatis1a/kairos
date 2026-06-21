@@ -1,6 +1,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { getBarbeariaConfig } from "@/app/actions/config"
+import { enviarEmailConfirmacao } from "@/lib/emails"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
 export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">[]> {
@@ -90,6 +92,20 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     console.log("[v0] Erro ao criar agendamento:", error.message)
     return { ok: false, error: "Não foi possível concluir o agendamento. Tente novamente." }
   }
+
+  // Envia email de confirmação (sem bloquear a resposta)
+  getBarbeariaConfig().then((config) => {
+    enviarEmailConfirmacao({
+      clienteNome: input.clienteNome,
+      clienteEmail: null, // cliente não tem email obrigatório ainda
+      servicoNome: input.servicoNome,
+      servicoPreco: input.servicoPreco,
+      barbeiroNome: null,
+      data: input.data,
+      horario: input.horario,
+      nomeBarbearia: config.nome,
+    })
+  })
 
   return { ok: true }
 }
