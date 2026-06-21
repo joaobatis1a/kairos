@@ -2,19 +2,18 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 
-type AtualizarPerfilInput = {
+type AtualizarPerfilEquipeInput = {
   nome: string
   whatsapp: string
 }
 
-export async function atualizarPerfilCliente(input: AtualizarPerfilInput) {
+export async function atualizarPerfilEquipe(input: AtualizarPerfilEquipeInput) {
   const nome = input.nome.trim()
   const whatsapp = input.whatsapp.trim()
 
-  if (!nome || !whatsapp) {
-    return { ok: false, error: "Preencha todos os campos." }
+  if (!nome) {
+    return { ok: false, error: "Informe seu nome." }
   }
 
   const supabase = await createClient()
@@ -26,26 +25,18 @@ export async function atualizarPerfilCliente(input: AtualizarPerfilInput) {
     return { ok: false, error: "Sessão expirada. Faça login novamente." }
   }
 
-  const { error } = await supabase
-    .from("clientes")
-    .update({ nome, whatsapp })
-    .eq("id", user.id)
+  const { error } = await supabase.from("profiles").update({ nome, whatsapp }).eq("id", user.id)
 
   if (error) {
     return { ok: false, error: "Não foi possível atualizar seus dados." }
   }
 
-  revalidatePath("/conta")
+  revalidatePath("/painel/minha-conta")
+  revalidatePath("/painel")
   return { ok: true }
 }
 
-export async function sairDaConta() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  redirect("/")
-}
-
-export async function trocarSenhaCliente(novaSenha: string) {
+export async function trocarSenhaEquipe(novaSenha: string) {
   if (novaSenha.length < 6) {
     return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
   }

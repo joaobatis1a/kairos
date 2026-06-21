@@ -4,10 +4,8 @@ import Link from "next/link"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { DeletarConta } from "@/components/deletar-conta"
-import { sairDaConta } from "@/app/actions/perfil-cliente"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { ArrowLeft, Sun, Moon, LogOut, Trash2 } from "lucide-react"
+import { ArrowLeft, Sun, Moon } from "lucide-react"
 import type { Cliente } from "@/lib/types"
 
 export function ConfiguracoesClienteView({ cliente }: { cliente: Cliente }) {
@@ -67,11 +65,6 @@ export function ConfiguracoesClienteView({ cliente }: { cliente: Cliente }) {
             <CardDescription>Ações permanentes e irreversíveis.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <form action={sairDaConta}>
-              <Button type="submit" variant="outline" className="w-full">
-                <LogOut className="h-4 w-4" /> Sair da conta
-              </Button>
-            </form>
             <DeletarConta />
           </CardContent>
         </Card>

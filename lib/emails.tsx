@@ -182,3 +182,44 @@ export async function enviarEmailLembrete(dados: DadosAgendamento) {
     console.error("[email] Erro ao enviar lembrete:", e)
   }
 }
+
+// ── Email 4: Pedido de avaliação ────────────────────────────────
+
+export async function enviarEmailPedidoAvaliacao(dados: DadosAgendamento) {
+  const linkAvaliacao = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/conta/historico`
+
+  const conteudo = `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#d4b896;">Como foi seu atendimento? ⭐</h2>
+    <p style="margin:0 0 24px;color:#888;font-size:14px;">Olá, <strong style="color:#e5e5e5;">${dados.clienteNome}</strong>! Esperamos que tenha gostado do seu ${dados.servicoNome.toLowerCase()}.</p>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:8px;border:1px solid #2a2a2a;padding:16px;margin-bottom:24px;">
+      <tbody>
+        ${linhaInfo("Serviço", dados.servicoNome)}
+        ${dados.barbeiroNome ? linhaInfo("Profissional", dados.barbeiroNome) : ""}
+        ${linhaInfo("Data", formatarData(dados.data))}
+      </tbody>
+    </table>
+
+    <p style="margin:0 0 20px;color:#aaa;font-size:14px;text-align:center;">
+      Sua opinião nos ajuda a melhorar cada vez mais.
+    </p>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td align="center">
+        <a href="${linkAvaliacao}" style="display:inline-block;background:#d4b896;color:#18120c;font-weight:600;font-size:14px;padding:12px 28px;border-radius:8px;text-decoration:none;">
+          Avaliar atendimento
+        </a>
+      </td></tr>
+    </table>
+  `
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: resolverDestinatario(dados.clienteEmail),
+      subject: `Avalie seu atendimento — ${dados.nomeBarbearia}`,
+      html: layoutBase(conteudo, dados.nomeBarbearia),
+    })
+  } catch (e) {
+    console.error("[email] Erro ao enviar pedido de avaliação:", e)
+  }
+}

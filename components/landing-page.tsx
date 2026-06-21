@@ -5,12 +5,20 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AgendamentoDialog } from "@/components/agendamento-dialog"
 import { MenuCliente } from "@/components/menu-cliente"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { formatarPreco } from "@/config/barbearia"
 import type { Profile, Cliente } from "@/lib/types"
 import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
 import {
   Scissors, Clock, MapPin, Phone, Globe, CalendarCheck,
-  Star, Award, Coffee, User,
+  Star, Award, Coffee, User, UserPlus, LogIn,
 } from "lucide-react"
 
 type Barbeiro = Pick<Profile, "id" | "nome">
@@ -66,9 +74,14 @@ export function LandingPage({
   horarios: HorariosConfig
 }) {
   const [open, setOpen] = useState(false)
+  const [bloqueioAberto, setBloqueioAberto] = useState(false)
   const [servicoInicial, setServicoInicial] = useState<string | undefined>(undefined)
 
   function abrirAgendamento(servicoId?: string) {
+    if (!cliente) {
+      setBloqueioAberto(true)
+      return
+    }
     setServicoInicial(servicoId)
     setOpen(true)
   }
@@ -77,20 +90,6 @@ export function LandingPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Botão flutuante para equipe voltar ao painel */}
-      {isEquipe && (
-        <a
-          href="/painel"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg transition-opacity hover:opacity-90"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-          </svg>
-          Voltar ao painel
-        </a>
-      )}
-
       {/* Header */}
       <header className="fixed top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -104,7 +103,7 @@ export function LandingPage({
             <a href="#contato" className="transition-colors hover:text-foreground">Contato</a>
           </nav>
           <div className="flex items-center gap-2">
-            <MenuCliente cliente={cliente} />
+            <MenuCliente cliente={cliente} isEquipe={isEquipe} />
             <Button size="sm" onClick={() => abrirAgendamento()}>
               <CalendarCheck className="h-4 w-4" /> Agendar
             </Button>
@@ -255,6 +254,34 @@ export function LandingPage({
         servicos={servicos}
         horariosConfig={horarios}
       />
+
+      {/* Modal de bloqueio para quem tenta agendar sem conta */}
+      <Dialog open={bloqueioAberto} onOpenChange={setBloqueioAberto}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <User className="h-6 w-6" />
+            </div>
+            <DialogTitle className="font-serif text-xl">Crie sua conta para agendar</DialogTitle>
+            <DialogDescription>
+              Para agendar um horário, você precisa estar logado. Leva menos de um minuto e você
+              poderá acompanhar seus agendamentos depois.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2 sm:flex-col">
+            <Button asChild className="w-full">
+              <Link href="/conta/cadastro">
+                <UserPlus className="h-4 w-4" /> Criar conta
+              </Link>
+            </Button>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/conta/login">
+                <LogIn className="h-4 w-4" /> Já tenho conta, entrar
+              </Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

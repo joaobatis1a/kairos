@@ -62,6 +62,15 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
   const supabase = await createClient()
 
+  // Exige conta de cliente para agendar
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { ok: false, error: "Você precisa estar logado para agendar." }
+  }
+
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")

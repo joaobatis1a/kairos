@@ -4,8 +4,16 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getBarbeariaConfig } from "@/app/actions/config"
-import { enviarEmailCancelamento } from "@/lib/emails"
+import { enviarEmailCancelamento, enviarEmailPedidoAvaliacao } from "@/lib/emails"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
+
+function hojeIso() {
+  const d = new Date()
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const dd = String(d.getDate()).padStart(2, "0")
+  return `${yyyy}-${mm}-${dd}`
+}
 
 async function getUsuario() {
   const supabase = await createClient()
@@ -55,11 +63,54 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
   if (!usuario) return { ok: false, error: "Sem permissão." }
 
   const supabase = await createClient()
+
+  // Busca o agendamento para validar regras e (se finalizado) enviar email
+  const { data: ag } = await supabase
+    .from("agendamentos")
+    .select("id, data, cliente_nome, cliente_whatsapp, servico_nome, servico_preco, barbeiro_id, barbeiro:profiles!agendamentos_barbeiro_id_fkey(nome)")
+    .eq("id", id)
+    .single()
+
+  if (!ag) return { ok: false, error: "Agendamento não encontrado." }
+
+  // Só permite finalizar se o agendamento for do dia atual
+  if (status === "finalizado" && ag.data !== hojeIso()) {
+    return { ok: false, error: "Só é possível finalizar agendamentos do dia de hoje." }
+  }
+
   const { error } = await supabase.from("agendamentos").update({ status }).eq("id", id)
   if (error) {
     console.log("[v0] Erro ao atualizar status:", error.message)
     return { ok: false, error: error.message }
   }
+
+  // Ao finalizar, dispara email pedindo avaliação
+  if (status === "finalizado") {
+    const barbeiroNome = Array.isArray(ag.barbeiro) ? ag.barbeiro[0]?.nome : (ag.barbeiro as { nome: string } | null)?.nome
+
+    // busca email do cliente, se ele tiver conta
+    let clienteEmail: string | null = null
+    const { data: cli } = await supabase
+      .from("clientes")
+      .select("email")
+      .eq("whatsapp", ag.cliente_whatsapp)
+      .maybeSingle()
+    clienteEmail = cli?.email ?? null
+
+    getBarbeariaConfig().then((config) => {
+      enviarEmailPedidoAvaliacao({
+        clienteNome: ag.cliente_nome,
+        clienteEmail,
+        servicoNome: ag.servico_nome,
+        servicoPreco: Number(ag.servico_preco),
+        barbeiroNome: barbeiroNome ?? null,
+        data: ag.data,
+        horario: "",
+        nomeBarbearia: config.nome,
+      })
+    })
+  }
+
   revalidatePath("/painel")
   revalidatePath("/painel/agendamentos")
   revalidatePath("/painel/agenda")

@@ -10,6 +10,8 @@ export type Profile = {
   role: Role
   ativo: boolean
   atende_como_barbeiro: boolean
+  whatsapp: string
+  foto_url: string | null
   created_at: string
 }
 
