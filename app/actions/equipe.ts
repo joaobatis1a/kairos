@@ -164,3 +164,30 @@ export async function alternarAtendeBarbeiro(valor: boolean) {
   revalidatePath("/painel/config")
   return { ok: true }
 }
+
+// Lista todos usuários disponíveis para transferência (equipe + clientes)
+export async function listarUsuariosParaTransferencia() {
+  const owner = await garantirOwner()
+  if (!owner) return []
+
+  const admin = createAdminClient()
+
+  const { data: equipe } = await admin
+    .from("profiles")
+    .select("id, nome, role")
+    .neq("id", owner.id)
+    .neq("role", "owner")
+    .order("nome")
+
+  const { data: clientes } = await admin
+    .from("clientes")
+    .select("id, nome")
+    .order("nome")
+
+  const idsEquipe = new Set((equipe ?? []).map((u) => u.id))
+  const clientesSemPerfil = (clientes ?? [])
+    .filter((c) => !idsEquipe.has(c.id))
+    .map((c) => ({ id: c.id, nome: c.nome, role: "cliente" }))
+
+  return [...(equipe ?? []), ...clientesSemPerfil]
+}
