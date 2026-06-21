@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AgendamentoDialog } from "@/components/agendamento-dialog"
+import { MenuCliente } from "@/components/menu-cliente"
 import { formatarPreco } from "@/config/barbearia"
 import type { Profile, Cliente } from "@/lib/types"
 import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
@@ -103,16 +104,7 @@ export function LandingPage({
             <a href="#contato" className="transition-colors hover:text-foreground">Contato</a>
           </nav>
           <div className="flex items-center gap-2">
-            {cliente ? (
-              <Link href="/conta" className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm transition-colors hover:border-primary/50">
-                <User className="h-4 w-4 text-primary" />
-                <span className="hidden sm:inline">{cliente.nome.split(" ")[0] || "Minha conta"}</span>
-              </Link>
-            ) : (
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/conta/login"><User className="h-4 w-4" /> Entrar</Link>
-              </Button>
-            )}
+            <MenuCliente cliente={cliente} />
             <Button size="sm" onClick={() => abrirAgendamento()}>
               <CalendarCheck className="h-4 w-4" /> Agendar
             </Button>

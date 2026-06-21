@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
           data.user.email?.split("@")[0] ||
           "Administrador"
 
-        await admin.from("profiles").insert({
+        await admin.from("profiles").upsert({
           id: data.user.id,
           nome,
           role: "owner",
@@ -52,7 +52,28 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${origin}/painel`)
       }
 
-      // Cliente normal
+      // Cliente normal — garante registro na tabela clientes
+      const nome =
+        data.user.user_metadata?.full_name ||
+        data.user.user_metadata?.name ||
+        data.user.email?.split("@")[0] ||
+        "Cliente"
+
+      const { data: clienteExistente } = await admin
+        .from("clientes")
+        .select("id")
+        .eq("id", data.user.id)
+        .single()
+
+      if (!clienteExistente) {
+        await admin.from("clientes").insert({
+          id: data.user.id,
+          nome,
+          email: data.user.email ?? "",
+          whatsapp: data.user.user_metadata?.whatsapp ?? "",
+        })
+      }
+
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
