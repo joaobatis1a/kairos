@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { stagger, item } from "@/lib/motion"
 import { createClient } from "@/lib/supabase/client"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 import { AgendamentoCard } from "@/components/painel/agendamento-card"
@@ -47,11 +49,18 @@ export function ListaAgendamentos({ agendamentosIniciais, mostrarBarbeiro, vazio
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="show"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+    >
       {agendamentosIniciais.map((ag) => (
-        <AgendamentoCard key={ag.id} ag={ag} mostrarBarbeiro={mostrarBarbeiro} />
+        <motion.div key={ag.id} variants={item}>
+          <AgendamentoCard ag={ag} mostrarBarbeiro={mostrarBarbeiro} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   )
 }
 

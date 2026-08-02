@@ -5,11 +5,12 @@ import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailConfirmacao } from "@/lib/emails"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
-export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">[]> {
+export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profile, "id" | "nome">[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("profiles")
     .select("id, nome, role, atende_como_barbeiro")
+    .eq("company_id", companyId)
     .eq("ativo", true)
     .order("nome")
 
@@ -28,21 +29,20 @@ export async function getBarbeirosAtivos(): Promise<Pick<Profile, "id" | "nome">
 
 export async function getHorariosOcupados(barbeiroId: string, data: string): Promise<string[]> {
   const supabase = await createClient()
-  const { data: ags, error } = await supabase
-    .from("agendamentos")
-    .select("horario")
-    .eq("barbeiro_id", barbeiroId)
-    .eq("data", data)
-    .neq("status", "cancelado")
+  const { data: horarios, error } = await supabase.rpc("agendamentos_ocupados", {
+    p_barbeiro_id: barbeiroId,
+    p_data: data,
+  })
 
   if (error) {
     console.log("[v0] Erro ao buscar horários ocupados:", error.message)
     return []
   }
-  return (ags ?? []).map((a) => (a.horario as string).slice(0, 5))
+  return ((horarios ?? []) as { horario: string }[]).map((h) => h.horario.slice(0, 5))
 }
 
 type CriarAgendamentoInput = {
+  companyId: string
   clienteNome: string
   clienteWhatsapp: string
   servicoId: string       // uuid do banco
@@ -74,6 +74,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")
+    .eq("company_id", input.companyId)
     .eq("barbeiro_id", input.barbeiroId)
     .eq("data", input.data)
     .eq("horario", input.horario)
@@ -84,6 +85,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   }
 
   const { error } = await supabase.from("agendamentos").insert({
+    company_id: input.companyId,
     cliente_nome: input.clienteNome.trim(),
     cliente_whatsapp: input.clienteWhatsapp.trim(),
     servico_id: input.servicoId,
@@ -103,7 +105,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   }
 
   // Envia email de confirmação (sem bloquear a resposta)
-  getBarbeariaConfig().then((config) => {
+  getBarbeariaConfig(input.companyId).then((config) => {
     enviarEmailConfirmacao({
       clienteNome: input.clienteNome,
       clienteEmail: null, // cliente não tem email obrigatório ainda
@@ -117,4 +119,49 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   })
 
   return { ok: true }
+}
+
+export type BarbeiroVitrine = {
+  id: string
+  nome: string
+  nota: number | null
+  totalAvaliacoes: number
+  totalCortes: number
+}
+
+/**
+ * Barbeiros da vitrine com a reputação real deles. A seção "Quem corta"
+ * mostrava só o nome — nada que ajudasse a pessoa a escolher. Avaliação
+ * tem leitura pública (ver policy no schema), então dá pra exibir sem expor
+ * dado de cliente.
+ */
+export async function getBarbeirosVitrine(companyId: string): Promise<BarbeiroVitrine[]> {
+  const barbeiros = await getBarbeirosAtivos(companyId)
+  if (barbeiros.length === 0) return []
+
+  const supabase = await createClient()
+  const ids = barbeiros.map((b) => b.id)
+
+  const [{ data: avaliacoes }, { data: finalizados }] = await Promise.all([
+    supabase.from("avaliacoes").select("barbeiro_id, nota_barbeiro").in("barbeiro_id", ids),
+    supabase
+      .from("agendamentos")
+      .select("barbeiro_id")
+      .eq("company_id", companyId)
+      .eq("status", "finalizado")
+      .in("barbeiro_id", ids),
+  ])
+
+  return barbeiros.map((b) => {
+    const notas = (avaliacoes ?? [])
+      .filter((a) => a.barbeiro_id === b.id && a.nota_barbeiro !== null)
+      .map((a) => a.nota_barbeiro as number)
+    return {
+      id: b.id,
+      nome: b.nome,
+      nota: notas.length ? notas.reduce((s, n) => s + n, 0) / notas.length : null,
+      totalAvaliacoes: notas.length,
+      totalCortes: (finalizados ?? []).filter((a) => a.barbeiro_id === b.id).length,
+    }
+  })
 }

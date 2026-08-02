@@ -37,6 +37,7 @@ export async function updateSession(request: NextRequest) {
 
   const isAuthRoute = path.startsWith("/auth")
   const isPainelRoute = path.startsWith("/painel")
+  const isManutencaoRoute = path.startsWith("/manutencao")
 
   const isContaPublicRoute =
     path === "/conta/login" ||
@@ -47,7 +48,7 @@ export async function updateSession(request: NextRequest) {
 
   const isContaPrivateRoute = path.startsWith("/conta") && !isContaPublicRoute
 
-  if (isPainelRoute && !user) {
+  if ((isPainelRoute || isManutencaoRoute) && !user) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
     return NextResponse.redirect(url)

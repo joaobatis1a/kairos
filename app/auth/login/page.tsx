@@ -8,18 +8,18 @@ import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/password-input"
 import { GoogleButton } from "@/components/google-button"
 import { Separator } from "@/components/ui/separator"
-import { useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
 import { Scissors, Loader2, ArrowLeft } from "lucide-react"
-import { barbearia } from "@/config/barbearia"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get("next") ?? "/painel"
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,8 +30,7 @@ export default function LoginPage() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-      router.refresh()
-      window.location.href = "/painel"
+      window.location.href = next
     } catch (err: unknown) {
       setError(err instanceof Error ? "E-mail ou senha incorretos." : "Ocorreu um erro.")
     } finally {
@@ -45,7 +44,7 @@ export default function LoginPage() {
         <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground">
             <Scissors className="h-6 w-6 text-primary" />
-            <span className="font-serif text-xl font-semibold">{barbearia.nome}</span>
+            <span className="font-serif text-xl font-semibold">kairos</span>
           </Link>
           <Link href="/" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
@@ -58,7 +57,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-3">
-              <GoogleButton redirectPath="/painel" />
+              <GoogleButton redirectPath={next} />
             </div>
             <div className="my-5 flex items-center gap-2">
               <Separator className="flex-1" />
@@ -100,9 +99,9 @@ export default function LoginPage() {
               </div>
             </form>
             <p className="mt-5 text-center text-xs text-muted-foreground">
-              Primeira vez?{" "}
-              <Link href="/auth/setup" className="text-primary underline-offset-4 hover:underline">
-                Configurar administrador
+              Tem um código de convite?{" "}
+              <Link href="/auth/cadastro-equipe" className="text-primary underline-offset-4 hover:underline">
+                Cadastre-se
               </Link>
             </p>
           </CardContent>

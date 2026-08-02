@@ -84,5 +84,9 @@ export async function getHistoricoCliente() {
     .order("data", { ascending: false })
     .order("horario", { ascending: false })
 
-  return data ?? []
+  return (data ?? []).map((ag) => ({
+    ...ag,
+    barbeiro: Array.isArray(ag.barbeiro) ? (ag.barbeiro[0] ?? null) : ag.barbeiro,
+    avaliacao: ag.avaliacao ? (Array.isArray(ag.avaliacao) ? ag.avaliacao : [ag.avaliacao]) : null,
+  }))
 }

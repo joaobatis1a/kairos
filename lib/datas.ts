@@ -45,3 +45,47 @@ export function formatarDataCurta(dataIso: string): string {
   const [y, m, d] = dataIso.split("-").map(Number)
   return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`
 }
+
+const NOMES_DIAS_LONGO = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"]
+
+/**
+ * Se a barbearia está atendendo agora, a partir da config de dias/horários.
+ * Calculado no servidor (a página é dynamic) pra não divergir na hidratação.
+ */
+export function getStatusAbertura(config: { dias_abertos: number[]; horarios: string[] }): {
+  aberto: boolean
+  texto: string
+} {
+  const horarios = [...config.horarios].sort()
+  if (horarios.length === 0 || config.dias_abertos.length === 0) {
+    return { aberto: false, texto: "Horários a definir" }
+  }
+
+  const agora = new Date()
+  const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+  const paraMinutos = (h: string) => {
+    const [hh, mm] = h.split(":")
+    return Number(hh) * 60 + Number(mm)
+  }
+
+  const abreHoje = config.dias_abertos.includes(agora.getDay())
+  const primeiro = paraMinutos(horarios[0])
+  const ultimo = paraMinutos(horarios[horarios.length - 1])
+
+  if (abreHoje && minutosAgora >= primeiro && minutosAgora <= ultimo) {
+    return { aberto: true, texto: `Aberto agora · até ${horarios[horarios.length - 1]}` }
+  }
+  if (abreHoje && minutosAgora < primeiro) {
+    return { aberto: false, texto: `Abre hoje às ${horarios[0]}` }
+  }
+
+  // procura o próximo dia de funcionamento
+  for (let i = 1; i <= 7; i++) {
+    const dia = (agora.getDay() + i) % 7
+    if (config.dias_abertos.includes(dia)) {
+      const quando = i === 1 ? "amanhã" : NOMES_DIAS_LONGO[dia]
+      return { aberto: false, texto: `Abre ${quando} às ${horarios[0]}` }
+    }
+  }
+  return { aberto: false, texto: "Fechado" }
+}
