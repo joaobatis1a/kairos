@@ -5,6 +5,7 @@ import { stagger, item } from "@/lib/motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ToggleAtendeBarbeiro } from "@/components/painel/toggle-atende-barbeiro"
 import { ConfigGeralForm } from "@/components/painel/config-geral-form"
+import { LogoEmpresaUpload } from "@/components/painel/logo-empresa-upload"
 import { ServicosForm } from "@/components/painel/servicos-form"
 import { HorariosForm } from "@/components/painel/horarios-form"
 import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
@@ -40,7 +41,8 @@ export function GerenciamentoView({
             <CardTitle className="font-serif">Informações gerais</CardTitle>
             <CardDescription>Nome, contato, endereço e redes sociais.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-4">
+            <LogoEmpresaUpload logoUrl={config.logo_url} />
             <ConfigGeralForm config={config} />
           </CardContent>
         </Card>

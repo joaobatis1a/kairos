@@ -52,7 +52,13 @@ export function LandingPage({
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <StorefrontHeader nome={config.nome} cliente={cliente} isEquipe={isEquipe} onAgendar={() => abrirAgendamento()} />
+      <StorefrontHeader
+        nome={config.nome}
+        logoUrl={config.logo_url}
+        cliente={cliente}
+        isEquipe={isEquipe}
+        onAgendar={() => abrirAgendamento()}
+      />
 
       <main id="conteudo" tabIndex={-1}>
         <StorefrontHero

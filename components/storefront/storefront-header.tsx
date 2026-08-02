@@ -17,11 +17,13 @@ const LINKS = [
 
 export function StorefrontHeader({
   nome,
+  logoUrl,
   cliente,
   isEquipe,
   onAgendar,
 }: {
   nome: string
+  logoUrl?: string
   cliente: Cliente | null
   isEquipe: boolean
   onAgendar: () => void
@@ -71,8 +73,12 @@ export function StorefrontHeader({
         )}
       >
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-6">
-          <a href="#top" className="min-w-0 truncate font-serif text-lg tracking-wide">
-            {nome}
+          <a href="#top" className="flex min-w-0 items-center gap-2 font-serif text-lg tracking-wide">
+            {logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
+            )}
+            <span className="truncate">{nome}</span>
           </a>
 
           <nav className="hidden items-center gap-2 md:flex">
