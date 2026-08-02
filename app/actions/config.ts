@@ -8,7 +8,17 @@ import type { Company } from "@/lib/types"
 
 export type BarbeariaConfig = Pick<
   Company,
-  "nome" | "slug" | "slogan" | "descricao" | "telefone" | "whatsapp" | "endereco" | "maps_url" | "instagram" | "instagram_url"
+  | "nome"
+  | "slug"
+  | "slogan"
+  | "descricao"
+  | "telefone"
+  | "whatsapp"
+  | "endereco"
+  | "maps_url"
+  | "instagram"
+  | "instagram_url"
+  | "logo_url"
 >
 
 export type ServicoDb = {
@@ -28,7 +38,7 @@ export type HorariosConfig = {
 
 const configVazia: BarbeariaConfig = {
   nome: "Minha Barbearia", slug: "", slogan: "", descricao: "", telefone: "",
-  whatsapp: "", endereco: "", maps_url: "", instagram: "", instagram_url: "",
+  whatsapp: "", endereco: "", maps_url: "", instagram: "", instagram_url: "", logo_url: "",
 }
 
 // ── Leitura (pública, por empresa) ──────────────────────────────
@@ -98,6 +108,61 @@ export async function getOnboardingStatus(companyId: string): Promise<Onboarding
     temHorario: (horarios?.horarios?.length ?? 0) > 0,
     temBarbeiro: (totalBarbeiros ?? 0) > 0,
   }
+}
+
+export async function enviarLogoEmpresa(formData: FormData) {
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const arquivo = formData.get("logo")
+  if (!(arquivo instanceof File) || arquivo.size === 0) {
+    return { ok: false as const, error: "Escolha uma imagem." }
+  }
+  if (arquivo.size > 2 * 1024 * 1024) {
+    return { ok: false as const, error: "A imagem precisa ter no máximo 2 MB." }
+  }
+  if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
+    return { ok: false as const, error: "Use uma imagem JPG, PNG ou WebP." }
+  }
+
+  const supabase = await createClient()
+  const ext = arquivo.type === "image/png" ? "png" : arquivo.type === "image/webp" ? "webp" : "jpg"
+  // caminho fixo por empresa + upsert: trocar a logo não acumula lixo no bucket
+  const caminho = `${owner.companyId}/logo.${ext}`
+
+  const { error: erroUpload } = await supabase.storage
+    .from("logos")
+    .upload(caminho, arquivo, { upsert: true, contentType: arquivo.type })
+
+  if (erroUpload) {
+    return { ok: false as const, error: "Não foi possível enviar a imagem." }
+  }
+
+  const { data: publica } = supabase.storage.from("logos").getPublicUrl(caminho)
+  // query string força buscar de novo depois do upsert, senão o navegador
+  // mantém a logo antiga em cache
+  const logoUrl = `${publica.publicUrl}?v=${Date.now()}`
+
+  const admin = createAdminClient()
+  const { error } = await admin.from("companies").update({ logo_url: logoUrl }).eq("id", owner.companyId)
+  if (error) return { ok: false as const, error: "Imagem enviada, mas não foi possível salvar na empresa." }
+
+  revalidatePath("/painel", "layout")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const, logoUrl }
+}
+
+export async function removerLogoEmpresa() {
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from("companies").update({ logo_url: "" }).eq("id", owner.companyId)
+  if (error) return { ok: false as const, error: "Não foi possível remover a logo." }
+
+  revalidatePath("/painel", "layout")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const }
 }
 
 export async function dispensarOnboarding() {
