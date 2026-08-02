@@ -86,7 +86,9 @@ export function StorefrontFooter({
         <div
           className="listra-poste listra-poste-animada mt-12 h-1.5 w-full rounded-full opacity-70"
           aria-hidden
-        />
+        >
+          <div className="listra-poste__padrao" />
+        </div>
       </div>
 
       <div className="relative border-t border-border/40 py-5">
