@@ -131,7 +131,7 @@ export function AgendamentoCard({
         <div className="flex items-center gap-2 text-muted-foreground">
           <Scissors className="h-3.5 w-3.5" />
           <span>{ag.servico_nome}</span>
-          <span className="text-primary">· {formatarPreco(Number(ag.servico_preco))}</span>
+          <span className="texto-dourado">· {formatarPreco(Number(ag.servico_preco))}</span>
         </div>
         {ag.forma_pagamento && (
           <div className="flex items-center gap-2 text-muted-foreground">
