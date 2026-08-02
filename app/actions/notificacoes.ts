@@ -21,7 +21,7 @@ async function getUsuarioAtual() {
 }
 
 // As notificações já vêm filtradas por destinatário via RLS (ver
-// migration_notificacoes.sql); aqui só precisa cruzar com o que o próprio
+// migration_07_notificacoes.sql); aqui só precisa cruzar com o que o próprio
 // usuário já marcou como lida.
 export async function listarNotificacoes(): Promise<NotificacaoDb[]> {
   const user = await getUsuarioAtual()
