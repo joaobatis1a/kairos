@@ -24,6 +24,7 @@ import {
   Settings,
   ShieldAlert,
   Star,
+  History,
   ExternalLink,
   LogOut,
   Menu,
@@ -37,6 +38,7 @@ function linksPara(isOwner: boolean) {
         { href: "/painel/equipe", label: "Equipe", icon: Users },
         { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
         { href: "/painel/gerenciamento", label: "Gerenciamento", icon: Settings },
+        { href: "/painel/auditoria", label: "Auditoria", icon: History },
         { href: "/painel/configuracoes", label: "Configurações", icon: ShieldAlert },
       ]
     : [

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getBarbeariaConfig } from "@/app/actions/config"
+import { registrarAuditoria } from "@/lib/auditoria"
 import { revalidatePath } from "next/cache"
 
 function senhaValidaServidor(senha: string) {
@@ -118,7 +119,7 @@ export async function transferirOwner(novoOwnerId: string) {
   // Verifica se quem está chamando é owner
   const { data: perfil } = await supabase
     .from("profiles")
-    .select("role, company_id")
+    .select("role, company_id, nome")
     .eq("id", user.id)
     .single()
 
@@ -160,6 +161,13 @@ export async function transferirOwner(novoOwnerId: string) {
       ativo: true,
     })
   }
+
+  registrarAuditoria(
+    perfil.company_id,
+    perfil.nome,
+    "Cargo de administrador transferido",
+    `De ${perfil.nome} para ${nomeNovo}`,
+  )
 
   // Rebaixa owner atual para cliente (remove do profiles)
   await admin.from("profiles").delete().eq("id", user.id)
