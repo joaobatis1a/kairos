@@ -1,77 +1,41 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { AgendamentoDialog } from "@/components/agendamento-dialog"
-import { MenuCliente } from "@/components/menu-cliente"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import { formatarPreco } from "@/config/barbearia"
+import { StorefrontHeader } from "@/components/storefront/storefront-header"
+import { StorefrontHero } from "@/components/storefront/storefront-hero"
+import { StorefrontServicos } from "@/components/storefront/storefront-servicos"
+import { StorefrontEquipe } from "@/components/storefront/storefront-equipe"
+import { StorefrontSobre } from "@/components/storefront/storefront-sobre"
+import { StorefrontContato } from "@/components/storefront/storefront-contato"
+import { StorefrontFooter } from "@/components/storefront/storefront-footer"
+import { BloqueioContaDialog } from "@/components/storefront/bloqueio-conta-dialog"
 import type { Profile, Cliente } from "@/lib/types"
 import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
-import {
-  Scissors, Clock, MapPin, Phone, Globe, CalendarCheck,
-  Star, Award, Coffee, User, UserPlus, LogIn,
-} from "lucide-react"
+import type { BarbeiroVitrine } from "@/app/actions/agendamentos"
 
 type Barbeiro = Pick<Profile, "id" | "nome">
 
-const NOMES_DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
-
-function gerarFuncionamento(horarios: HorariosConfig) {
-  const { dias_abertos, horarios: hrs } = horarios
-  if (!dias_abertos.length || !hrs.length) return []
-
-  const sorted = [...hrs].sort()
-  const abertura = sorted[0]
-  const fechamento = sorted[sorted.length - 1]
-
-  // Agrupa dias consecutivos
-  const grupos: string[] = []
-  let inicio = -1
-  for (let i = 0; i <= 6; i++) {
-    const aberto = dias_abertos.includes(i)
-    if (aberto && inicio === -1) inicio = i
-    if (!aberto && inicio !== -1) {
-      grupos.push(inicio === i - 1 ? NOMES_DIAS[inicio] : `${NOMES_DIAS[inicio]} a ${NOMES_DIAS[i - 1]}`)
-      inicio = -1
-    }
-  }
-  if (inicio !== -1) {
-    grupos.push(inicio === 6 ? NOMES_DIAS[6] : `${NOMES_DIAS[inicio]} a ${NOMES_DIAS[6]}`)
-  }
-
-  const result = grupos.map((g) => ({ dia: g, horas: `${abertura} - ${fechamento}` }))
-
-  const fechados = [0,1,2,3,4,5,6].filter((d) => !dias_abertos.includes(d))
-  if (fechados.length) {
-    const nomes = fechados.map((d) => NOMES_DIAS[d]).join(", ")
-    result.push({ dia: nomes, horas: "Fechado" })
-  }
-  return result
-}
-
 export function LandingPage({
+  companyId,
   barbeiros,
+  barbeirosVitrine,
   cliente,
   isEquipe = false,
   config,
   servicos,
   horarios,
+  statusAbertura,
 }: {
+  companyId: string
   barbeiros: Barbeiro[]
+  barbeirosVitrine: BarbeiroVitrine[]
   cliente: Cliente | null
   isEquipe?: boolean
   config: BarbeariaConfig
   servicos: ServicoDb[]
   horarios: HorariosConfig
+  statusAbertura: { aberto: boolean; texto: string }
 }) {
   const [open, setOpen] = useState(false)
   const [bloqueioAberto, setBloqueioAberto] = useState(false)
@@ -86,167 +50,28 @@ export function LandingPage({
     setOpen(true)
   }
 
-  const funcionamento = gerarFuncionamento(horarios)
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="fixed top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Scissors className="h-5 w-5 text-primary" />
-            <span className="font-serif text-lg font-semibold tracking-wide">{config.nome}</span>
-          </div>
-          <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#servicos" className="transition-colors hover:text-foreground">Serviços</a>
-            <a href="#sobre" className="transition-colors hover:text-foreground">Sobre</a>
-            <a href="#contato" className="transition-colors hover:text-foreground">Contato</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <MenuCliente cliente={cliente} isEquipe={isEquipe} />
-            <Button size="sm" onClick={() => abrirAgendamento()}>
-              <CalendarCheck className="h-4 w-4" /> Agendar
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="relative min-h-screen bg-background text-foreground">
+      <StorefrontHeader nome={config.nome} cliente={cliente} isEquipe={isEquipe} onAgendar={() => abrirAgendamento()} />
 
-      {/* Hero */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
-        <img src="/images/hero-barbearia.png" alt="Interior da barbearia" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background" />
-        <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary">
-            <Star className="h-3.5 w-3.5 fill-primary" /> {config.slogan}
-          </p>
-          <h1 className="font-serif text-balance text-5xl font-bold leading-tight md:text-7xl">{config.nome}</h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">{config.descricao}</p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" onClick={() => abrirAgendamento()}>
-              <CalendarCheck className="h-5 w-5" /> Agendar meu horário
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <a href="#servicos">Ver serviços</a>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <main id="conteudo" tabIndex={-1}>
+        <StorefrontHero
+          nome={config.nome}
+          slogan={config.slogan}
+          endereco={config.endereco}
+          statusAbertura={statusAbertura}
+          onAgendar={() => abrirAgendamento()}
+        />
+        <StorefrontServicos servicos={servicos} onAgendar={abrirAgendamento} />
+        <StorefrontEquipe barbeiros={barbeirosVitrine} onAgendar={() => abrirAgendamento()} />
+        <StorefrontSobre descricao={config.descricao} />
+        <StorefrontContato config={config} onAgendar={() => abrirAgendamento()} />
+      </main>
 
-      {/* Diferenciais */}
-      <section className="border-y border-border bg-card/40">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-3">
-          <Diferencial icon={Award} titulo="Profissionais experientes" texto="Barbeiros com técnica e atenção aos detalhes em cada corte." />
-          <Diferencial icon={Clock} titulo="Agendamento online" texto="Escolha o dia, horário e profissional sem sair de casa." />
-          <Diferencial icon={Coffee} titulo="Ambiente acolhedor" texto="Café por conta da casa e aquele atendimento de respeito." />
-        </div>
-      </section>
-
-      {/* Serviços */}
-      <section id="servicos" className="mx-auto max-w-6xl px-4 py-20">
-        <div className="mb-12 text-center">
-          <h2 className="font-serif text-4xl font-bold">Nossos Serviços</h2>
-          <p className="mt-3 text-muted-foreground">Qualidade e tradição em cada atendimento.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {servicos.map((s) => (
-            <div key={s.id} className="group flex flex-col rounded-xl border border-border bg-card p-6 transition-colors hover:border-primary/50">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                <Scissors className="h-5 w-5" />
-              </div>
-              <h3 className="font-serif text-xl font-semibold">{s.nome}</h3>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">{s.descricao}</p>
-              <div className="mt-5 flex items-center justify-between">
-                <div>
-                  <span className="text-2xl font-bold text-primary">{formatarPreco(s.preco)}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">{s.duracao_min} min</span>
-                </div>
-                <Button size="sm" variant="secondary" onClick={() => abrirAgendamento(s.id)}>Agendar</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Sobre */}
-      <section id="sobre" className="border-y border-border bg-card/40">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-20 md:grid-cols-2">
-          <div className="overflow-hidden rounded-2xl border border-border">
-            <img src="/images/barbeiro-trabalho.png" alt="Barbeiro trabalhando com navalha" className="h-full w-full object-cover" />
-          </div>
-          <div>
-            <h2 className="font-serif text-4xl font-bold">Sobre a {config.nome}</h2>
-            <p className="mt-4 leading-relaxed text-muted-foreground">{config.descricao}</p>
-            <ul className="mt-6 flex flex-col gap-3">
-              {["Atendimento personalizado para cada cliente", "Produtos premium e ferramentas profissionais", "Ambiente higienizado e confortável"].map((item) => (
-                <li key={item} className="flex items-center gap-3">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-primary">
-                    <Star className="h-3 w-3 fill-primary" />
-                  </span>
-                  <span className="text-sm">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Button className="mt-8" onClick={() => abrirAgendamento()}>
-              <CalendarCheck className="h-4 w-4" /> Agendar agora
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Contato */}
-      <section id="contato" className="mx-auto max-w-6xl px-4 py-20">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <ContatoItem icon={MapPin} titulo="Endereço" texto={config.endereco} href={config.maps_url} acao="Como chegar" />
-          <ContatoItem icon={Phone} titulo="WhatsApp" texto={config.telefone} href={`https://wa.me/${config.whatsapp}`} acao="Chamar no WhatsApp" />
-          <ContatoItem icon={Globe} titulo="Instagram" texto={config.instagram} href={config.instagram_url} acao="Seguir" />
-        </div>
-        <div className="mt-12 rounded-2xl border border-primary/30 bg-primary/10 p-10 text-center">
-          <h2 className="font-serif text-3xl font-bold">Pronto para renovar o visual?</h2>
-          <p className="mt-2 text-muted-foreground">Agende seu horário em menos de um minuto.</p>
-          <Button size="lg" className="mt-6" onClick={() => abrirAgendamento()}>
-            <CalendarCheck className="h-5 w-5" /> Agendar meu horário
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/40">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <Scissors className="h-5 w-5 text-primary" />
-              <span className="font-serif text-lg font-semibold">{config.nome}</span>
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">{config.slogan}</p>
-          </div>
-          <div>
-            <h3 className="mb-3 font-semibold">Horário de funcionamento</h3>
-            <ul className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-              {funcionamento.map((f) => (
-                <li key={f.dia} className="flex justify-between gap-4">
-                  <span>{f.dia}</span><span>{f.horas}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-3 font-semibold">Contato</h3>
-            <ul className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-              <li>{config.endereco}</li>
-              <li>{config.telefone}</li>
-              <li>{config.instagram}</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-border py-5 text-center text-xs text-muted-foreground">
-          <p>
-            {config.nome} · {new Date().getFullYear()} ·{" "}
-            <a href="/auth/login" className="transition-colors hover:text-foreground">Área da equipe</a>
-          </p>
-        </div>
-      </footer>
+      <StorefrontFooter config={config} horarios={horarios} />
 
       <AgendamentoDialog
+        companyId={companyId}
         barbeiros={barbeiros}
         open={open}
         onOpenChange={setOpen}
@@ -255,62 +80,7 @@ export function LandingPage({
         horariosConfig={horarios}
       />
 
-      {/* Modal de bloqueio para quem tenta agendar sem conta */}
-      <Dialog open={bloqueioAberto} onOpenChange={setBloqueioAberto}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-              <User className="h-6 w-6" />
-            </div>
-            <DialogTitle className="font-serif text-xl">Crie sua conta para agendar</DialogTitle>
-            <DialogDescription>
-              Para agendar um horário, você precisa estar logado. Leva menos de um minuto e você
-              poderá acompanhar seus agendamentos depois.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-col gap-2 sm:flex-col">
-            <Button asChild className="w-full">
-              <Link href="/conta/cadastro">
-                <UserPlus className="h-4 w-4" /> Criar conta
-              </Link>
-            </Button>
-            <Button variant="outline" asChild className="w-full">
-              <Link href="/conta/login">
-                <LogIn className="h-4 w-4" /> Já tenho conta, entrar
-              </Link>
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
-function Diferencial({ icon: Icon, titulo, texto }: { icon: React.ElementType; titulo: string; texto: string }) {
-  return (
-    <div className="flex flex-col items-center gap-2 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-        <Icon className="h-6 w-6" />
-      </div>
-      <h3 className="font-semibold">{titulo}</h3>
-      <p className="text-sm text-muted-foreground">{texto}</p>
-    </div>
-  )
-}
-
-function ContatoItem({ icon: Icon, titulo, texto, href, acao }: { icon: React.ElementType; titulo: string; texto: string; href: string; acao: string }) {
-  return (
-    <div className="flex flex-col items-start gap-3 rounded-xl border border-border bg-card p-6">
-      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/15 text-primary">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div>
-        <h3 className="font-semibold">{titulo}</h3>
-        <p className="mt-1 text-sm text-muted-foreground">{texto}</p>
-      </div>
-      <a href={href} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary transition-opacity hover:opacity-80">
-        {acao} →
-      </a>
+      <BloqueioContaDialog open={bloqueioAberto} onOpenChange={setBloqueioAberto} />
     </div>
   )
 }

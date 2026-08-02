@@ -7,14 +7,11 @@ import { Loader2 } from "lucide-react"
 
 interface GoogleButtonProps {
   redirectPath?: string
-  /** Quando true, passa setup_owner=1 no callback — promove o usuário a owner se não houver nenhum */
-  setupOwner?: boolean
   label?: string
 }
 
 export function GoogleButton({
   redirectPath = "/conta",
-  setupOwner = false,
   label = "Entrar com Google",
 }: GoogleButtonProps) {
   const [loading, setLoading] = useState(false)
@@ -27,7 +24,7 @@ export function GoogleButton({
     // Rota de callback: /auth/callback para equipe, /conta/callback para clientes
     const callbackBase = redirectPath.startsWith("/conta")
       ? `${origin}/conta/callback?next=${encodeURIComponent(redirectPath)}`
-      : `${origin}/auth/callback?next=${encodeURIComponent(redirectPath)}${setupOwner ? "&setup_owner=1" : ""}`
+      : `${origin}/auth/callback?next=${encodeURIComponent(redirectPath)}`
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
