@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailCancelamento, enviarEmailPedidoAvaliacao } from "@/lib/emails"
+import { registrarAuditoria } from "@/lib/auditoria"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 
 function hojeIso() {
@@ -23,10 +24,10 @@ async function getUsuario() {
   if (!user) return null
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role")
+    .select("id, role, nome")
     .eq("id", user.id)
     .single()
-  return profile ? { id: profile.id, role: profile.role as string } : null
+  return profile ? { id: profile.id, role: profile.role as string, nome: profile.nome as string } : null
 }
 
 // Lista agendamentos. Dono vê todos; barbeiro vê os seus.
@@ -136,6 +137,15 @@ export async function cancelarAgendamento(id: string, motivo: string) {
     .eq("id", id)
 
   if (error) return { ok: false, error: error.message }
+
+  if (ag) {
+    registrarAuditoria(
+      ag.company_id,
+      usuario.nome,
+      "Agendamento cancelado",
+      `${ag.cliente_nome} · ${ag.servico_nome} · ${ag.data} ${ag.horario}${motivo ? ` · Motivo: ${motivo}` : ""}`,
+    )
+  }
 
   // Envia email de cancelamento
   if (ag) {

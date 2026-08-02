@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
+import { registrarAuditoria } from "@/lib/auditoria"
 
 function senhaValidaServidor(senha: string) {
   const temTamanho = senha.length >= 8
@@ -115,10 +116,12 @@ async function garantirOwner() {
   if (!user) return null
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, company_id")
+    .select("role, company_id, nome")
     .eq("id", user.id)
     .single()
-  return profile?.role === "owner" ? { id: user.id, companyId: profile.company_id as string } : null
+  return profile?.role === "owner"
+    ? { id: user.id, companyId: profile.company_id as string, nome: profile.nome as string }
+    : null
 }
 
 // Lista todos os perfis de barbeiros/equipe (somente dono)
@@ -180,8 +183,16 @@ export async function alternarAtivoBarbeiro(id: string, ativo: boolean) {
   if (!owner) return { ok: false, error: "Sem permissão." }
 
   const supabase = await createClient()
+  const { data: barbeiro } = await supabase.from("profiles").select("nome").eq("id", id).single()
   const { error } = await supabase.from("profiles").update({ ativo }).eq("id", id)
   if (error) return { ok: false, error: error.message }
+
+  registrarAuditoria(
+    owner.companyId,
+    owner.nome,
+    ativo ? "Barbeiro ativado" : "Barbeiro desativado",
+    barbeiro?.nome ?? "",
+  )
 
   revalidatePath("/painel/equipe")
   return { ok: true }
