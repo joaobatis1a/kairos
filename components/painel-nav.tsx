@@ -29,6 +29,7 @@ import {
   ExternalLink,
   LogOut,
   Menu,
+  Megaphone,
 } from "lucide-react"
 
 function linksPara(isOwner: boolean) {
@@ -38,6 +39,7 @@ function linksPara(isOwner: boolean) {
         { href: "/painel/agendamentos", label: "Agendamentos", icon: CalendarDays },
         { href: "/painel/equipe", label: "Equipe", icon: Users },
         { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
+        { href: "/painel/avisos", label: "Avisos", icon: Megaphone },
         { href: "/painel/gerenciamento", label: "Gerenciamento", icon: Settings },
         { href: "/painel/auditoria", label: "Auditoria", icon: History },
         { href: "/painel/configuracoes", label: "Configurações", icon: ShieldAlert },
@@ -45,6 +47,7 @@ function linksPara(isOwner: boolean) {
     : [
         { href: "/painel/agenda", label: "Minha agenda", icon: CalendarCheck },
         { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
+        { href: "/painel/avisos", label: "Avisos", icon: Megaphone },
       ]
 }
 
