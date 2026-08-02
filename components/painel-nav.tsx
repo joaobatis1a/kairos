@@ -8,6 +8,7 @@ import { sair } from "@/app/actions/painel"
 import { barbearia } from "@/config/barbearia"
 import type { Profile } from "@/lib/types"
 import { Button } from "@/components/ui/button"
+import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
 import {
   Sheet,
   SheetContent,
@@ -128,7 +129,8 @@ export function PainelNav({ perfil, nomeNegocio, slugEmpresa }: { perfil: Profil
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border/60 bg-card/40 md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
           <Scissors className="h-5 w-5 shrink-0 text-primary" />
-          <span className="truncate font-serif text-lg">{nome}</span>
+          <span className="flex-1 truncate font-serif text-lg">{nome}</span>
+          <SinoNotificacoes />
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
           {links.map((l) => (
@@ -166,27 +168,30 @@ function MenuMobile({
         <span className="font-serif font-semibold">{nome}</span>
       </div>
 
-      <Sheet>
-        <SheetTrigger
-          render={
-            <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted">
-              <Menu className="h-4 w-4" />
-              <span>{perfil.nome?.split(" ")[0] || "Menu"}</span>
-            </button>
-          }
-        />
-        <SheetContent side="right" className="flex w-72 flex-col p-0">
-          <SheetHeader className="border-b border-border/60 p-5 pb-4">
-            <SheetTitle className="font-serif">{nome}</SheetTitle>
-          </SheetHeader>
-          <nav className="flex flex-1 flex-col gap-1 p-3">
-            {links.map((l) => (
-              <ItemNav key={l.href} {...l} ativo={pathname === l.href} />
-            ))}
-          </nav>
-          <RodapeConta perfil={perfil} isOwner={isOwner} slugEmpresa={slugEmpresa} />
-        </SheetContent>
-      </Sheet>
+      <div className="flex items-center gap-1">
+        <SinoNotificacoes />
+        <Sheet>
+          <SheetTrigger
+            render={
+              <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted">
+                <Menu className="h-4 w-4" />
+                <span>{perfil.nome?.split(" ")[0] || "Menu"}</span>
+              </button>
+            }
+          />
+          <SheetContent side="right" className="flex w-72 flex-col p-0">
+            <SheetHeader className="border-b border-border/60 p-5 pb-4">
+              <SheetTitle className="font-serif">{nome}</SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-1 flex-col gap-1 p-3">
+              {links.map((l) => (
+                <ItemNav key={l.href} {...l} ativo={pathname === l.href} />
+              ))}
+            </nav>
+            <RodapeConta perfil={perfil} isOwner={isOwner} slugEmpresa={slugEmpresa} />
+          </SheetContent>
+        </Sheet>
+      </div>
     </header>
   )
 }

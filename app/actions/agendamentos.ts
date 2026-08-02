@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailConfirmacao } from "@/lib/emails"
+import { notificar } from "@/lib/notificacoes"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
 export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profile, "id" | "nome">[]> {
@@ -116,6 +117,14 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
       horario: input.horario,
       nomeBarbearia: config.nome,
     })
+  })
+
+  notificar({
+    companyId: input.companyId,
+    titulo: "Novo agendamento pendente",
+    corpo: `${input.clienteNome} agendou ${input.servicoNome} para ${input.data} às ${input.horario}.`,
+    link: "/painel/agendamentos",
+    destinatarioRole: "owner",
   })
 
   return { ok: true }

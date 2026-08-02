@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { notificar } from "@/lib/notificacoes"
 
 export type Avaliacao = {
   id: string
@@ -36,7 +37,7 @@ export async function salvarAvaliacao(input: {
   // Verifica se o agendamento pertence ao cliente e está finalizado
   const { data: ag } = await supabase
     .from("agendamentos")
-    .select("id, status, cliente_whatsapp")
+    .select("id, status, cliente_whatsapp, cliente_nome, company_id")
     .eq("id", input.agendamentoId)
     .eq("status", "finalizado")
     .single()
@@ -53,6 +54,14 @@ export async function salvarAvaliacao(input: {
   }, { onConflict: "agendamento_id" })
 
   if (error) return { ok: false, error: error.message }
+
+  notificar({
+    companyId: ag.company_id,
+    titulo: "Nova avaliação recebida",
+    corpo: `${ag.cliente_nome} avaliou o atendimento com ${input.notaServico} estrela${input.notaServico === 1 ? "" : "s"}.`,
+    link: "/painel/avaliacoes",
+    destinatarioRole: "owner",
+  })
 
   revalidatePath("/conta/historico")
   return { ok: true }
