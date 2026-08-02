@@ -20,6 +20,13 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/painel"
+  const erro = searchParams.get("erro")
+  const mensagemErro =
+    erro === "inativo"
+      ? "Sua conta foi desativada pelo administrador da barbearia."
+      : erro === "empresa-inativa"
+        ? "O acesso desta barbearia foi desativado."
+        : null
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,6 +63,11 @@ export default function LoginPage() {
             <CardDescription>Entre com seu e-mail e senha para acessar o painel.</CardDescription>
           </CardHeader>
           <CardContent>
+            {mensagemErro && (
+              <p className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {mensagemErro}
+              </p>
+            )}
             <div className="flex flex-col gap-3">
               <GoogleButton redirectPath={next} />
             </div>

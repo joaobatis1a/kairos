@@ -15,7 +15,7 @@ export async function getPerfilOuRedirect(): Promise<Profile> {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("*, empresa:companies(status)")
     .eq("id", user.id)
     .single()
 
@@ -37,7 +37,23 @@ export async function getPerfilOuRedirect(): Promise<Profile> {
     redirect("/auth/login")
   }
 
-  return profile as Profile
+  // Nem RLS nem o middleware barram acesso de um perfil desativado ou de uma
+  // empresa desativada — os dois só afetam o storefront público. Sem essa
+  // checagem aqui, desativar um barbeiro ou desativar a empresa no
+  // /manutencao não tira o acesso de ninguém que já estava logado.
+  const { empresa, ...perfilSemEmpresa } = profile as Profile & { empresa: { status: string } | null }
+
+  if (!perfilSemEmpresa.ativo) {
+    await supabase.auth.signOut()
+    redirect("/auth/login?erro=inativo")
+  }
+
+  if (empresa?.status === "inativo") {
+    await supabase.auth.signOut()
+    redirect("/auth/login?erro=empresa-inativa")
+  }
+
+  return perfilSemEmpresa
 }
 
 export async function getClienteOuRedirect(): Promise<Cliente> {
