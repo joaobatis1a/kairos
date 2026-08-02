@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
+import { registrarAuditoria } from "@/lib/auditoria"
 import type { Company } from "@/lib/types"
 
 export type BarbeariaConfig = Pick<
@@ -66,15 +67,60 @@ export async function getHorariosConfig(companyId: string): Promise<HorariosConf
   return data ?? { dias_abertos: [1, 2, 3, 4, 5, 6], horarios: [] }
 }
 
+export type OnboardingStatus = {
+  dispensado: boolean
+  temServico: boolean
+  temHorario: boolean
+  temBarbeiro: boolean
+}
+
+// Progresso do checklist de "primeiros passos" do dashboard — calculado na
+// hora a partir do que já existe (serviço, horário configurado, barbeiro
+// além do dono), sem precisar guardar o progresso em lugar nenhum.
+export async function getOnboardingStatus(companyId: string): Promise<OnboardingStatus> {
+  const supabase = await createClient()
+
+  const [{ data: empresa }, { count: totalServicos }, { data: horarios }, { count: totalBarbeiros }] =
+    await Promise.all([
+      supabase.from("companies").select("onboarding_dismissed").eq("id", companyId).single(),
+      supabase.from("servicos").select("id", { count: "exact", head: true }).eq("company_id", companyId),
+      supabase.from("horarios_config").select("horarios").eq("company_id", companyId).single(),
+      supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", companyId)
+        .eq("role", "barber"),
+    ])
+
+  return {
+    dispensado: empresa?.onboarding_dismissed ?? false,
+    temServico: (totalServicos ?? 0) > 0,
+    temHorario: (horarios?.horarios?.length ?? 0) > 0,
+    temBarbeiro: (totalBarbeiros ?? 0) > 0,
+  }
+}
+
+export async function dispensarOnboarding() {
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from("companies").update({ onboarding_dismissed: true }).eq("id", owner.companyId)
+  if (error) return { ok: false as const, error: "Não foi possível dispensar o checklist." }
+
+  revalidatePath("/painel")
+  return { ok: true as const }
+}
+
 // ── Escrita (só owner, sempre restrita à própria empresa) ─────────
 
 async function verificarOwner() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-  const { data } = await supabase.from("profiles").select("role, company_id").eq("id", user.id).single()
+  const { data } = await supabase.from("profiles").select("role, company_id, nome").eq("id", user.id).single()
   if (data?.role !== "owner") return null
-  return { id: user.id, companyId: data.company_id as string }
+  return { id: user.id, companyId: data.company_id as string, nome: data.nome as string }
 }
 
 export async function salvarBarbeariaConfig(config: BarbeariaConfig) {
@@ -156,6 +202,9 @@ export async function salvarHorarios(config: HorariosConfig) {
     .upsert({ company_id: owner.companyId, ...config, updated_at: new Date().toISOString() })
 
   if (error) return { ok: false, error: error.message }
+
+  registrarAuditoria(owner.companyId, owner.nome, "Horário de funcionamento atualizado")
+
   revalidatePath("/painel/config")
   return { ok: true }
 }
