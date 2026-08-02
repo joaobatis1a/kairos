@@ -416,9 +416,18 @@ html {
      ótimo na barra larga do footer mas, na barra estreita do hero (160px),
      12% vira ~19px — menos de meia volta do ciclo de 40px — e a ponta corta
      seca em vez de esmaecer. Um comprimento fixo cobre sempre ~1 ciclo
-     inteiro, então a suavidade fica igual nas duas larguras. */
-  mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
+     inteiro, então a suavidade fica igual nas duas larguras.
+
+     A zona de transição em si precisa ser CURTA: o fade é horizontal (reto),
+     mas as listras são diagonais — sempre que uma borda entre cores cai no
+     meio da rampa, ela aparece "cortada" por uma linha reta em vez de
+     esmaecer, porque a rampa não segue o ângulo do padrão. Uma rampa larga
+     (32px, quase 1 banda de cor inteira) deixava essa borda visível em
+     opacidade parcial em vários pontos do ciclo. Encurtando pra bem menos
+     que a largura de uma banda (~14px), o cruzamento fica curto demais pra
+     notar, e o pequeno trecho 100% transparente na ponta evita a quina. */
+  mask-image: linear-gradient(to right, transparent, transparent 3px, black 11px, black calc(100% - 11px), transparent calc(100% - 3px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, transparent 3px, black 11px, black calc(100% - 11px), transparent calc(100% - 3px), transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
