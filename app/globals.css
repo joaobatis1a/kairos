@@ -422,13 +422,21 @@ html {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* 56.5685px = uma volta exata do ciclo de 40px projetada no eixo -45deg
+     (40 / cos(45°)) — nessa posição o desenho fica pixel-a-pixel idêntico
+     ao início, então o loop em si é matematicamente sem costura. Mas com
+     só 3s de duração, o padrão é curto e simples o bastante (4 listras)
+     pro olho notar a repetição — parece "reiniciar" mesmo sem ter um
+     salto de verdade. Rodar 8 voltas (8× a distância, 8× o tempo) mantém
+     a mesma velocidade de giro, só que o loop demora 24s pra se repetir,
+     tempo longo o bastante pra não ser percebido como um ciclo curto. */
   @keyframes poste-girando {
     to {
-      background-position: 56.57px 0;
+      background-position: 452.548px 0;
     }
   }
   .listra-poste-animada {
-    animation: poste-girando 3s linear infinite;
+    animation: poste-girando 24s linear infinite;
   }
 }
 
