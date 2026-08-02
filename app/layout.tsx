@@ -1,21 +1,26 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google'
+import { Geist_Mono, Nunito, Fredoka } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
+import { MotionProvider } from '@/components/motion-provider'
 import './globals.css'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
-  subsets: ['latin'],
+const nunito = Nunito({
+  variable: '--font-nunito',
+  subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700', '800'],
+})
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const fredoka = Fredoka({
+  variable: '--font-fredoka',
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
-  title: 'Barbearia Navalha de Ouro | Agende seu horário',
-  description: 'Cortes clássicos e modernos com a tradição da boa barbearia. Agende seu horário online de forma rápida e simples.',
+  title: 'kairos | Sistema de agendamento para barbearias',
+  description: 'Agendamento online pros seus clientes e um painel completo pra gerenciar equipe, horários e faturamento da sua barbearia.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -29,10 +34,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable}`}>
       <body className="font-sans antialiased bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="kairos-theme">
-          {children}
+          {/* Fica invisível até receber foco pelo teclado: sem isso, quem navega
+              por Tab precisa passar por toda a navegação em cada página. O
+              destino #conteudo é o <main> de cada layout. */}
+          <a
+            href="#conteudo"
+            className="sr-only rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100]"
+          >
+            Pular para o conteúdo
+          </a>
+          <MotionProvider>{children}</MotionProvider>
           <Toaster />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </ThemeProvider>

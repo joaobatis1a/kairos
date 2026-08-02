@@ -5,9 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-playfair), 'Playfair Display Fallback', serif;
-  --font-serif: var(--font-playfair), 'Playfair Display Fallback', serif;
-  --font-sans: var(--font-geist-sans), 'Geist Fallback';
+  /* Fredoka nos títulos/marca e Nunito no corpo: as duas têm terminais
+     arredondados, o que dá o ar "cartoon" sem sacrificar legibilidade.
+     `--font-serif` continua existindo (e não é serifada) só porque a classe
+     `font-serif` já é usada como "fonte de título" em todo o projeto. */
+  --font-heading: var(--font-fredoka), 'Fredoka Fallback', ui-rounded, sans-serif;
+  --font-serif: var(--font-fredoka), 'Fredoka Fallback', ui-rounded, sans-serif;
+  --font-sans: var(--font-nunito), 'Nunito Fallback', ui-rounded, sans-serif;
   --font-mono: var(--font-geist-mono), 'Geist Mono Fallback';
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -57,32 +61,35 @@
   --card-foreground: oklch(0.22 0.02 50);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.02 50);
-  --primary: oklch(0.52 0.13 75);
+  /* dourado mais saturado e um pouco mais escuro que antes — o anterior
+     (C 0.13) lia como fosco; mais chroma + leve queda de luz dá o efeito
+     de ouro maciço em vez de amarelo pastel */
+  --primary: oklch(0.5 0.17 73);
   --primary-foreground: oklch(0.99 0.005 85);
   --secondary: oklch(0.94 0.015 80);
   --secondary-foreground: oklch(0.26 0.02 50);
   --muted: oklch(0.95 0.012 80);
   --muted-foreground: oklch(0.45 0.02 55);
-  --accent: oklch(0.52 0.13 75);
+  --accent: oklch(0.5 0.17 73);
   --accent-foreground: oklch(0.99 0.005 85);
   --destructive: oklch(0.55 0.21 25);
   --border: oklch(0.88 0.015 75);
   --input: oklch(0.92 0.012 78);
-  --ring: oklch(0.52 0.13 75);
-  --chart-1: oklch(0.52 0.13 75);
+  --ring: oklch(0.5 0.17 73);
+  --chart-1: oklch(0.5 0.17 73);
   --chart-2: oklch(0.62 0.1 80);
   --chart-3: oklch(0.42 0.1 70);
   --chart-4: oklch(0.45 0.02 55);
   --chart-5: oklch(0.7 0.04 70);
-  --radius: 0.5rem;
+  --radius: 0.875rem;
   --sidebar: oklch(0.96 0.01 80);
   --sidebar-foreground: oklch(0.22 0.02 50);
-  --sidebar-primary: oklch(0.52 0.13 75);
+  --sidebar-primary: oklch(0.5 0.17 73);
   --sidebar-primary-foreground: oklch(0.99 0.005 85);
   --sidebar-accent: oklch(0.92 0.015 78);
   --sidebar-accent-foreground: oklch(0.26 0.02 50);
   --sidebar-border: oklch(0.88 0.015 75);
-  --sidebar-ring: oklch(0.52 0.13 75);
+  --sidebar-ring: oklch(0.5 0.17 73);
 }
 
 .dark {
@@ -92,31 +99,34 @@
   --card-foreground: oklch(0.96 0.005 80);
   --popover: oklch(0.21 0.005 60);
   --popover-foreground: oklch(0.96 0.005 80);
-  --primary: oklch(0.78 0.11 85);
-  --primary-foreground: oklch(0.18 0.01 70);
+  /* mesmo ajuste do tema claro: mais chroma (0.11→0.17) e um pouco menos
+     de luz (0.78→0.74) — o dourado antigo era plano demais pra ler como
+     ouro de verdade, mais perto de um amarelo desbotado */
+  --primary: oklch(0.74 0.17 81);
+  --primary-foreground: oklch(0.16 0.01 70);
   --secondary: oklch(0.27 0.006 60);
   --secondary-foreground: oklch(0.96 0.005 80);
   --muted: oklch(0.25 0.005 60);
   --muted-foreground: oklch(0.68 0.01 70);
-  --accent: oklch(0.78 0.11 85);
-  --accent-foreground: oklch(0.18 0.01 70);
+  --accent: oklch(0.74 0.17 81);
+  --accent-foreground: oklch(0.16 0.01 70);
   --destructive: oklch(0.58 0.21 25);
   --border: oklch(0.32 0.008 65);
   --input: oklch(0.3 0.008 65);
-  --ring: oklch(0.78 0.11 85);
-  --chart-1: oklch(0.78 0.11 85);
+  --ring: oklch(0.74 0.17 81);
+  --chart-1: oklch(0.74 0.17 81);
   --chart-2: oklch(0.62 0.09 80);
   --chart-3: oklch(0.5 0.06 75);
   --chart-4: oklch(0.68 0.01 70);
   --chart-5: oklch(0.4 0.02 70);
   --sidebar: oklch(0.19 0.005 60);
   --sidebar-foreground: oklch(0.96 0.005 80);
-  --sidebar-primary: oklch(0.78 0.11 85);
-  --sidebar-primary-foreground: oklch(0.18 0.01 70);
+  --sidebar-primary: oklch(0.74 0.17 81);
+  --sidebar-primary-foreground: oklch(0.16 0.01 70);
   --sidebar-accent: oklch(0.27 0.006 60);
   --sidebar-accent-foreground: oklch(0.96 0.005 80);
   --sidebar-border: oklch(0.32 0.008 65);
-  --sidebar-ring: oklch(0.78 0.11 85);
+  --sidebar-ring: oklch(0.74 0.17 81);
 }
 
 @layer base {
@@ -129,4 +139,273 @@
   html {
     @apply font-sans;
   }
+  /* evita o atraso de 300ms do duplo-toque nos alvos de ação no mobile */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Reserva o espaço dos cabeçalhos fixos ao rolar até uma âncora — sem
+     isso o título da seção parava escondido atrás do header. */
+  html {
+    scroll-padding-top: 7rem;
+  }
+
+  /* rolagem suave ao clicar nos links da navbar */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* ══ Barra de rolagem ══════════════════════════════════════════
+   Fora de @layer base de propósito: dentro do layer o Tailwind não emitia
+   estas regras (nem as vizinhas), e a barra continuava com o cinza do
+   sistema. No mobile o navegador usa barra flutuante própria. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--primary) 55%, var(--border));
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Entrada do hero em CSS, não em JS. O estado base é o VISÍVEL: se o
+   JavaScript falhar, se a fonte demorar ou se o usuário pedir movimento
+   reduzido, o nome da barbearia e o botão de agendar continuam na tela.
+   Antes isso dependia do framer-motion partindo de opacity:0. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+  /* Sem fill-mode e sem delay de propósito: assim o estado base (visível)
+     vale sempre que a animação não estiver rodando. Com `backwards` +
+     delay, qualquer adiamento da animação — aba em segundo plano, JS
+     lento — deixava o título e o botão invisíveis. */
+  .surgir {
+    animation: surgir 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* Entradas da landing. Mesma regra do hero do storefront: o estado base é
+   o VISÍVEL e a animação é enfeite por cima. Antes isso era framer-motion
+   partindo de opacity:0 / translateY(115%), então a página inteira ficava
+   em branco se o JavaScript não rodasse. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes revelar {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  @keyframes revelar-linha {
+    from {
+      transform: translateY(115%);
+    }
+  }
+  .revelar {
+    animation: revelar 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .revelar-linha {
+    animation: revelar-linha 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* ══ Camada de movimento ═══════════════════════════════════════
+   Movimento ambiente (sem interação) + resposta ao hover/toque, pra o
+   sistema não parecer congelado. Só transform e opacity — nada de
+   width/height/top/left, que forçam layout a cada quadro. Tudo dentro de
+   prefers-reduced-motion: quem pede menos movimento recebe a página parada,
+   e nada aqui esconde conteúdo se a animação não rodar. */
+@media (prefers-reduced-motion: no-preference) {
+  /* respiro lento de um brilho de fundo */
+  @keyframes deriva {
+    0%, 100% { transform: translate3d(-50%, 0, 0) scale(1); opacity: 0.75; }
+    50%      { transform: translate3d(-50%, -3%, 0) scale(1.12); opacity: 1; }
+  }
+  .anim-deriva { animation: deriva 16s ease-in-out infinite; }
+
+  /* flutuar: elementos de destaque sobem e descem de leve */
+  @keyframes flutuar {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  .anim-flutuar { animation: flutuar 5.5s ease-in-out infinite; }
+
+  /* ponto de status "aberto agora": pulso com halo, sinaliza que é ao vivo */
+  @keyframes pulsar-ponto {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
+    60%      { box-shadow: 0 0 0 7px transparent; }
+  }
+  .anim-pulsar { animation: pulsar-ponto 2.2s ease-out infinite; }
+
+}
+
+/* ══ Botão de ação principal (Agendar) ═══════════════════════════
+   Gradiente com realce no meio (efeito "ouro maciço", não plano) +
+   sombra quente + leve elevação no hover + brilho que atravessa de tempos
+   em tempos. O `overflow: hidden` mora na PRÓPRIA classe — antes cada
+   botão precisava lembrar de repetir `relative overflow-hidden` manualmente
+   pra conter o brilho, e esquecer isso uma vez já vazou como uma barra
+   solta atravessando a tela. Agora é impossível esquecer. */
+.cta-dourado {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 82%, black 18%) 0%,
+    color-mix(in oklch, var(--primary) 62%, white 38%) 45%,
+    color-mix(in oklch, var(--primary) 88%, black 12%) 100%
+  );
+  box-shadow: 0 10px 26px -10px color-mix(in oklch, var(--primary) 55%, transparent);
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s ease;
+}
+.cta-dourado:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -10px color-mix(in oklch, var(--primary) 65%, transparent);
+}
+.cta-dourado:active {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta-dourado::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.4) 50%, transparent 65%);
+    transform: translateX(-130%);
+    animation: cta-varrer 5.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes cta-varrer {
+    0%, 55% { transform: translateX(-130%); }
+    80%, 100% { transform: translateX(130%); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-dourado { transition: box-shadow 0.2s ease; }
+  .cta-dourado:hover { transform: none; }
+}
+
+/* Entrada só por opacidade, para elementos que também reagem no hover.
+   Entrada e hover disputando `transform` no mesmo elemento faz o hover não
+   levantar enquanto a animação de entrada roda — então aqui o transform
+   fica livre para a interação. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes surgir-opacidade {
+    from { opacity: 0; }
+  }
+  .surgir-suave {
+    animation: surgir-opacidade 0.5s ease-out;
+  }
+}
+
+/* Cartão interativo: reação consistente a hover e toque em todo o app.
+   Fica fora do media query porque a transição é curta e sempre desejável;
+   o navegador já respeita reduced-motion em transições via SO. */
+.cartao-interativo {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+.cartao-interativo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+.cartao-interativo:active {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao-interativo,
+  .cartao-interativo:hover,
+  .cartao-interativo:active {
+    transform: none;
+    transition: border-color 0.2s ease;
+  }
+}
+
+/* Assinatura do storefront: a listra do poste de barbeiro.
+   É a única diferença visual que o storefront mantém em relação ao resto
+   do app — fundo, cor de ação e raio são os mesmos em toda superfície.
+   As cores aqui são literais de propósito: o poste é vermelho/branco/azul
+   no mundo real, então não são tokens de tema e não seguem a paleta. */
+.listra-poste {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #d94a36 0 10px,
+    #f4efe4 10px 20px,
+    #2f6f8f 20px 30px,
+    #f4efe4 30px 40px
+  );
+  /* a listra girando tem começo e fim fixos (é um elemento finito, não um
+     poste infinito) — sem o degradê de máscara, as pontas cortam o
+     desenho diagonal em ângulo reto e ficam com uma quina visível. O fade
+     esconde onde o padrão "acaba". Em px fixos (não %): um fade em % fica
+     ótimo na barra larga do footer mas, na barra estreita do hero (160px),
+     12% vira ~19px — menos de meia volta do ciclo de 40px — e a ponta corta
+     seca em vez de esmaecer. Um comprimento fixo cobre sempre ~1 ciclo
+     inteiro, então a suavidade fica igual nas duas larguras. */
+  mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 32px, black calc(100% - 32px), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes poste-girando {
+    to {
+      background-position: 56.57px 0;
+    }
+  }
+  .listra-poste-animada {
+    animation: poste-girando 3s linear infinite;
+  }
+}
+
+/* ── Landing: grão de filme sobre a fotografia ────────────────── */
+.kairos-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+  opacity: 0.045;
+}
+
+/* Ken Burns: aproximação lenta e contínua da foto, dá vida sem chamar atenção */
+@keyframes kairos-kenburns {
+  0%   { transform: scale(1.05) translate3d(0, 0, 0); }
+  100% { transform: scale(1.18) translate3d(-1.5%, -1.5%, 0); }
+}
+
+.animate-kairos-kenburns {
+  animation: kairos-kenburns 26s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-kairos-kenburns { animation: none; }
 }
