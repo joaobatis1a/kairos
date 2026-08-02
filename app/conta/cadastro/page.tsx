@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator"
 import { cadastrarCliente } from "@/app/actions/conta"
 import { toast } from "sonner"
 import { Scissors, Loader2, ArrowLeft } from "lucide-react"
-import { barbearia } from "@/config/barbearia"
 import { cn } from "@/lib/utils"
 
 export default function CadastroPage() {
@@ -67,8 +66,9 @@ export default function CadastroPage() {
     setSucesso(true)
     toast.success("Conta criada com sucesso!")
     setTimeout(() => {
-      router.push("/conta/login")
-    }, 1500)
+      router.push("/conta")
+      router.refresh()
+    }, 1200)
   }
 
   return (
@@ -77,7 +77,7 @@ export default function CadastroPage() {
         <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground">
             <Scissors className="h-6 w-6 text-primary" />
-            <span className="font-serif text-xl font-semibold">{barbearia.nome}</span>
+            <span className="font-serif text-xl font-semibold">kairos</span>
           </Link>
           <Link href="/" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
@@ -103,7 +103,7 @@ export default function CadastroPage() {
           <CardContent>
             {sucesso ? (
               <p className="text-center text-sm text-muted-foreground">
-                Redirecionando para o login...
+                Redirecionando...
               </p>
             ) : etapa === 1 ? (
               <>

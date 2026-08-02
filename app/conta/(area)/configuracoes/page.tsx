@@ -1,9 +1,9 @@
 import { getClienteOuRedirect } from "@/lib/auth"
-import { ConfiguracoesClienteView } from "@/components/configuracoes-cliente-view"
+import { ConfiguracoesView } from "@/components/conta/configuracoes-view"
 
 export const dynamic = "force-dynamic"
 
 export default async function ConfiguracoesPage() {
   const cliente = await getClienteOuRedirect()
-  return <ConfiguracoesClienteView cliente={cliente} />
+  return <ConfiguracoesView cliente={cliente} />
 }
