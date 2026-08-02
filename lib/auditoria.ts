@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 /**
  * Registra uma ação sensível no log de auditoria da empresa. Chamado
  * diretamente pelas server actions (não por trigger de banco — ver
- * lib/supabase/migration_audit_log.sql pro motivo).
+ * lib/supabase/migration_03_audit_log.sql pro motivo).
  */
 export async function registrarAuditoria(
   companyId: string,
