@@ -175,7 +175,7 @@ export function LandingHeader() {
                   <span className="font-serif text-xs tracking-[0.3em] text-primary/40">
                     0{i + 1}
                   </span>
-                  <span className="font-serif text-3xl transition-colors group-hover:text-primary group-active:text-primary">
+                  <span className="texto-dourado-interativo font-serif text-3xl">
                     {l.label}
                   </span>
                 </motion.a>

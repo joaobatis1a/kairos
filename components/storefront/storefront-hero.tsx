@@ -38,7 +38,7 @@ export function StorefrontHero({
 
       <div className="relative mx-auto max-w-4xl text-center">
         {slogan && (
-          <p className="surgir text-sm font-semibold text-primary">{slogan}</p>
+          <p className="surgir texto-dourado text-sm font-semibold">{slogan}</p>
         )}
 
         <h1 className="surgir mt-4 text-balance font-serif text-[clamp(2.75rem,9vw,5.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">

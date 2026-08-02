@@ -74,7 +74,7 @@ export function ManifestoSection() {
           <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
             <TextReveal
               delay={0.1}
-              lines={["Seu tempo volta", <em key="2" className="italic text-primary">para a cadeira.</em>]}
+              lines={["Seu tempo volta", <em key="2" className="texto-dourado italic">para a cadeira.</em>]}
             />
           </h2>
 

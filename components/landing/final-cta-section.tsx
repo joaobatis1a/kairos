@@ -55,7 +55,7 @@ export function FinalCtaSection() {
           </Reveal>
 
           <h2 className="mt-7 font-serif text-[clamp(2.25rem,5.5vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Vamos colocar sua", <em key="2" className="italic text-primary">barbearia no kairos?</em>]} />
+            <TextReveal delay={0.1} lines={["Vamos colocar sua", <em key="2" className="texto-dourado italic">barbearia no kairos?</em>]} />
           </h2>
 
           <Reveal delay={0.28}>

@@ -53,11 +53,11 @@ export function AgendamentosView({
         <article className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex flex-wrap items-stretch">
             <div className="flex w-full items-center gap-4 border-b border-border bg-primary/[0.06] p-5 sm:w-auto sm:flex-col sm:justify-center sm:gap-1 sm:border-b-0 sm:border-r sm:px-8">
-              <span className="font-serif text-4xl font-bold leading-none tabular-nums text-primary">
+              <span className="texto-dourado font-serif text-4xl font-bold leading-none tabular-nums">
                 {partes(proximo.data).dia}
               </span>
               <div className="sm:text-center">
-                <p className="font-semibold uppercase tracking-wide text-primary">
+                <p className="texto-dourado font-semibold uppercase tracking-wide">
                   {partes(proximo.data).mes}
                 </p>
                 <p className="text-sm text-muted-foreground">{quando(proximo.data)}</p>
@@ -67,7 +67,7 @@ export function AgendamentosView({
             <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 p-5 sm:p-6">
               <div>
                 <h2 className="font-serif text-xl font-semibold">{proximo.servicoNome}</h2>
-                <p className="mt-1 font-serif text-lg font-bold tabular-nums text-primary">
+                <p className="texto-dourado mt-1 font-serif text-lg font-bold tabular-nums">
                   {formatarPreco(proximo.servicoPreco)}
                 </p>
               </div>

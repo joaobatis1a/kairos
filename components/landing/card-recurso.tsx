@@ -66,7 +66,7 @@ export function CelulaRecurso({
           <span className="absolute -inset-2 rounded-full bg-primary/20 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100 group-data-[ativo=true]:opacity-100" />
           <Icon className="relative h-5 w-5 text-primary/70 transition-all duration-500 group-hover:scale-110 group-hover:text-primary group-data-[ativo=true]:scale-110 group-data-[ativo=true]:text-primary" />
         </div>
-        <h3 className="mt-5 font-serif text-lg transition-colors duration-500 group-hover:text-primary group-data-[ativo=true]:text-primary">
+        <h3 className="texto-dourado-interativo mt-5 font-serif text-lg">
           {titulo}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>

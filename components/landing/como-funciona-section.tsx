@@ -59,7 +59,7 @@ export function ComoFuncionaSection() {
             <Eyebrow>Começar</Eyebrow>
           </Reveal>
           <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Do primeiro contato", <em key="2" className="italic text-primary">à agenda cheia.</em>]} />
+            <TextReveal delay={0.1} lines={["Do primeiro contato", <em key="2" className="texto-dourado italic">à agenda cheia.</em>]} />
           </h2>
           <Reveal delay={0.22}>
             <p className="mt-6 leading-relaxed text-muted-foreground">
