@@ -121,6 +121,8 @@ export async function getDashboardOwner(): Promise<DashboardData | null> {
   }
 }
 
+export type AvaliacoesResumo = Awaited<ReturnType<typeof getAvaliacoesGerais>>
+
 // Avaliações gerais de toda a barbearia (todos os barbeiros)
 export async function getAvaliacoesGerais() {
   const supabase = await createClient()

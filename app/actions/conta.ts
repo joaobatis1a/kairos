@@ -39,37 +39,41 @@ export async function cadastrarCliente(input: CadastroInput) {
 
   const admin = createAdminClient()
 
-  // Verifica se já existe um owner
-  const { count: ownerCount } = await admin
-    .from("profiles")
-    .select("id", { count: "exact", head: true })
-    .eq("role", "owner")
-
-  const primeiroUsuario = (ownerCount ?? 0) === 0
-
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.signUp({
+  // Cria já confirmado (via admin) em vez de signUp comum: o projeto exige
+  // confirmação de e-mail por padrão, e sem isso a conta fica sem sessão.
+  const { data, error } = await admin.auth.admin.createUser({
     email,
     password: senha,
-    options: { data: { nome, whatsapp } },
+    email_confirm: true,
+    user_metadata: { nome, whatsapp },
   })
 
-  if (error) {
-    if (error.message.toLowerCase().includes("already registered")) {
-      return { ok: false, error: "Já existe uma conta com esse e-mail. Faça login." }
+  if (error || !data.user) {
+    const jaExiste = error?.message.toLowerCase().includes("already registered") || error?.message.toLowerCase().includes("already been registered")
+    return {
+      ok: false,
+      error: jaExiste ? "Já existe uma conta com esse e-mail. Faça login." : "Não foi possível criar sua conta. Tente novamente.",
     }
-    return { ok: false, error: "Não foi possível criar sua conta. Tente novamente." }
   }
 
-  // Se for o primeiro usuário, promove para owner
-  if (primeiroUsuario && data.user) {
-    await admin
-      .from("profiles")
-      .update({ nome, role: "owner", ativo: true })
-      .eq("id", data.user.id)
+  const { error: clienteError } = await admin.from("clientes").insert({
+    id: data.user.id,
+    nome,
+    email,
+    whatsapp,
+  })
+
+  if (clienteError) {
+    return { ok: false, error: "Não foi possível concluir seu cadastro. Tente novamente." }
   }
 
-  return { ok: true, isOwner: primeiroUsuario }
+  const supabase = await createClient()
+  const { error: loginError } = await supabase.auth.signInWithPassword({ email, password: senha })
+  if (loginError) {
+    return { ok: false, error: "Conta criada, mas não foi possível entrar automaticamente. Faça login." }
+  }
+
+  return { ok: true }
 }
 
 export async function solicitarRedefinicaoSenha(email: string) {
@@ -114,7 +118,7 @@ export async function transferirOwner(novoOwnerId: string) {
   // Verifica se quem está chamando é owner
   const { data: perfil } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, company_id")
     .eq("id", user.id)
     .single()
 
@@ -123,11 +127,12 @@ export async function transferirOwner(novoOwnerId: string) {
 
   const admin = createAdminClient()
 
-  // Verifica se o novo owner existe (em profiles ou clientes)
+  // Verifica se o novo owner existe — só aceita equipe da mesma empresa
   const { data: novoPerfilEquipe } = await admin
     .from("profiles")
     .select("id, nome")
     .eq("id", novoOwnerId)
+    .eq("company_id", perfil.company_id)
     .single()
 
   const { data: novoPerfilCliente } = await admin
@@ -146,9 +151,10 @@ export async function transferirOwner(novoOwnerId: string) {
   if (novoPerfilEquipe) {
     await admin.from("profiles").update({ role: "owner", ativo: true }).eq("id", novoOwnerId)
   } else {
-    // Era cliente, cria perfil como owner
+    // Era cliente, cria perfil como owner nesta empresa
     await admin.from("profiles").insert({
       id: novoOwnerId,
+      company_id: perfil.company_id,
       nome: nomeNovo,
       role: "owner",
       ativo: true,

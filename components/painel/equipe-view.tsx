@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { stagger, item } from "@/lib/motion"
 import type { Profile } from "@/lib/types"
 import {
   criarBarbeiro,
@@ -135,13 +137,19 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {equipe.map((membro) => {
           const isOwner = membro.role === "owner"
           return (
-            <div
+            <motion.div
               key={membro.id}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+              variants={item}
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/15 text-primary">
@@ -179,10 +187,10 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
                   </Button>
                 </div>
               )}
-            </div>
+            </motion.div>
           )
         })}
-      </div>
+      </motion.div>
 
       <Dialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
         <DialogContent className="max-w-sm">

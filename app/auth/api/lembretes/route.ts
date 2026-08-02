@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient()
   const { data: agendamentos } = await admin
     .from("agendamentos")
-    .select("cliente_nome, servico_nome, servico_preco, data, horario")
+    .select("company_id, cliente_nome, servico_nome, servico_preco, data, horario")
     .eq("data", dataAmanha)
     .in("status", ["pendente", "confirmado"])
 
@@ -26,9 +26,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ enviados: 0 })
   }
 
-  const config = await getBarbeariaConfig()
+  const configPorEmpresa = new Map<string, Awaited<ReturnType<typeof getBarbeariaConfig>>>()
 
   for (const ag of agendamentos) {
+    if (!configPorEmpresa.has(ag.company_id)) {
+      configPorEmpresa.set(ag.company_id, await getBarbeariaConfig(ag.company_id))
+    }
+    const config = configPorEmpresa.get(ag.company_id)!
+
     await enviarEmailLembrete({
       clienteNome: ag.cliente_nome,
       clienteEmail: null,

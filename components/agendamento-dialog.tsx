@@ -37,6 +37,7 @@ import {
 type Barbeiro = Pick<Profile, "id" | "nome">
 
 type Props = {
+  companyId: string
   barbeiros: Barbeiro[]
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -66,7 +67,7 @@ const LABELS_PAGAMENTO: Record<FormaPagamento, string> = {
   credito: "Cartão de crédito",
 }
 
-export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicialId, servicos, horariosConfig }: Props) {
+export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, servicoInicialId, servicos, horariosConfig }: Props) {
   const [etapa, setEtapa] = useState(1)
   const [servicoId, setServicoId] = useState<string | null>(null)
   const [barbeiroId, setBarbeiroId] = useState<string | null>(null)
@@ -142,6 +143,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
     if (!servicoId || !barbeiroId || !data || !horario || !formaPagamento || !servico) return
     startTransition(async () => {
       const res = await criarAgendamento({
+        companyId,
         clienteNome: nome,
         clienteWhatsapp: whatsapp,
         servicoId,
@@ -228,7 +230,7 @@ export function AgendamentoDialog({ barbeiros, open, onOpenChange, servicoInicia
                           <p className="mt-1 text-xs text-muted-foreground">{s.duracao_min} min</p>
                         </div>
                       </div>
-                      <span className="shrink-0 font-semibold text-primary">
+                      <span className="shrink-0 font-semibold tabular-nums text-primary">
                         {formatarPreco(s.preco)}
                       </span>
                     </button>
@@ -533,7 +535,7 @@ function Resumo({
       {preco !== undefined && (
         <div className="mt-1 flex justify-between gap-2 border-t border-border pt-1.5">
           <dt className="text-muted-foreground">Valor</dt>
-          <dd className="font-semibold text-primary">{formatarPreco(preco)}</dd>
+          <dd className="font-semibold tabular-nums text-primary">{formatarPreco(preco)}</dd>
         </div>
       )}
     </dl>

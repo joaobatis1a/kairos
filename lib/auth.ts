@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import type { Profile, Cliente } from "@/lib/types"
 
@@ -19,6 +20,20 @@ export async function getPerfilOuRedirect(): Promise<Profile> {
     .single()
 
   if (!profile) {
+    // conta de manutenção e conta de cliente não têm profile (não pertencem a
+    // nenhuma empresa) — sem esses desvios elas ficariam presas num loop
+    // /auth/login <-> /painel
+    if (await ehContaManutencao(user.email)) {
+      redirect("/manutencao")
+    }
+    const { data: cliente } = await supabase
+      .from("clientes")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle()
+    if (cliente) {
+      redirect("/conta")
+    }
     redirect("/auth/login")
   }
 
@@ -79,4 +94,35 @@ export async function getPerfilAtual(): Promise<Profile | null> {
     .single()
 
   return (profile as Profile) ?? null
+}
+
+// Verifica se o usuário logado é uma conta de manutenção (superadmin da
+// plataforma). maintenance_accounts não tem policy de RLS pra client comum,
+// então a checagem sempre passa pelo client admin.
+export async function ehContaManutencao(email: string | undefined | null): Promise<boolean> {
+  if (!email) return false
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from("maintenance_accounts")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle()
+  return !!data
+}
+
+export async function getContaManutencaoOuRedirect() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  if (!(await ehContaManutencao(user.email))) {
+    redirect("/painel")
+  }
+
+  return user
 }

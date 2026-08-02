@@ -20,7 +20,7 @@ export default async function AgendaBarbeiroPage() {
           <p className="text-muted-foreground">Você ainda não tem agendamentos.</p>
         </div>
       ) : (
-        <ListaAgendamentos inicial={agendamentos} mostrarBarbeiro={false} />
+        <ListaAgendamentos agendamentosIniciais={agendamentos} mostrarBarbeiro={false} />
       )}
     </div>
   )

@@ -67,7 +67,7 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
   // Busca o agendamento para validar regras e (se finalizado) enviar email
   const { data: ag } = await supabase
     .from("agendamentos")
-    .select("id, data, cliente_nome, cliente_whatsapp, servico_nome, servico_preco, barbeiro_id, barbeiro:profiles!agendamentos_barbeiro_id_fkey(nome)")
+    .select("id, company_id, data, cliente_nome, cliente_whatsapp, servico_nome, servico_preco, barbeiro_id, barbeiro:profiles!agendamentos_barbeiro_id_fkey(nome)")
     .eq("id", id)
     .single()
 
@@ -97,7 +97,7 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
       .maybeSingle()
     clienteEmail = cli?.email ?? null
 
-    getBarbeariaConfig().then((config) => {
+    getBarbeariaConfig(ag.company_id).then((config) => {
       enviarEmailPedidoAvaliacao({
         clienteNome: ag.cliente_nome,
         clienteEmail,
@@ -126,7 +126,7 @@ export async function cancelarAgendamento(id: string, motivo: string) {
   // Busca dados do agendamento para o email
   const { data: ag } = await supabase
     .from("agendamentos")
-    .select("cliente_nome, servico_nome, servico_preco, data, horario")
+    .select("company_id, cliente_nome, servico_nome, servico_preco, data, horario")
     .eq("id", id)
     .single()
 
@@ -139,7 +139,7 @@ export async function cancelarAgendamento(id: string, motivo: string) {
 
   // Envia email de cancelamento
   if (ag) {
-    getBarbeariaConfig().then((config) => {
+    getBarbeariaConfig(ag.company_id).then((config) => {
       enviarEmailCancelamento({
         clienteNome: ag.cliente_nome,
         clienteEmail: null,
