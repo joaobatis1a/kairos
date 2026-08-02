@@ -44,7 +44,7 @@ function CartaoReceita({
             <Icon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate font-serif text-2xl leading-tight text-primary">{formatarPreco(valor)}</p>
+            <p className="texto-dourado truncate font-serif text-2xl leading-tight">{formatarPreco(valor)}</p>
             <p className="mt-0.5 text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</p>
           </div>
         </CardContent>
@@ -96,7 +96,7 @@ export function DashboardView({ dados }: { dados: DashboardData }) {
                           <p className="text-xs text-muted-foreground">{b.total} atendimentos</p>
                         </div>
                       </div>
-                      <span className="font-serif text-sm text-primary">{formatarPreco(b.receita)}</span>
+                      <span className="texto-dourado font-serif text-sm">{formatarPreco(b.receita)}</span>
                     </div>
                   ))}
                 </div>
