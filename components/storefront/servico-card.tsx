@@ -23,7 +23,7 @@ export function ServicoCard({
     <div className="surgir-suave cartao-interativo group flex flex-col rounded-2xl border border-border bg-card p-6 hover:border-primary/50">
       <div className="flex items-start justify-between gap-4">
         <h3 className="min-w-0 text-pretty font-serif text-xl font-semibold leading-tight">{servico.nome}</h3>
-        <span className="shrink-0 font-serif text-2xl font-bold tabular-nums text-primary transition-transform duration-300 group-hover:scale-105">
+        <span className="texto-dourado shrink-0 font-serif text-2xl font-bold tabular-nums transition-transform duration-300 group-hover:scale-105">
           {formatarPreco(servico.preco)}
         </span>
       </div>

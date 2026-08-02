@@ -45,10 +45,10 @@ export function StorefrontContato({
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                  className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline-offset-4 hover:underline"
                 >
-                  {item.acao}
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  <span className="texto-dourado">{item.acao}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-primary" />
                 </a>
               )}
             </div>

@@ -25,7 +25,7 @@ export function LandingFooter() {
 
           {/* Navegação */}
           <div>
-            <p className="text-sm font-bold text-primary">Navegar</p>
+            <p className="texto-dourado text-sm font-bold">Navegar</p>
             <ul className="mt-5 flex flex-col gap-3">
               {NAVEGACAO.map((n) => (
                 <li key={n.href}>
@@ -42,7 +42,7 @@ export function LandingFooter() {
 
           {/* Acesso e contato */}
           <div>
-            <p className="text-sm font-bold text-primary">Acesso</p>
+            <p className="texto-dourado text-sm font-bold">Acesso</p>
             <ul className="mt-5 flex flex-col gap-3">
               <li>
                 <Link
@@ -57,11 +57,11 @@ export function LandingFooter() {
                   href={LINK_CONTATO}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground"
                 >
-                  <Mail className="h-3.5 w-3.5" />
-                  Falar com a gente
-                  <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  <Mail className="h-3.5 w-3.5 transition-colors group-hover:text-primary" />
+                  <span className="texto-dourado-interativo">Falar com a gente</span>
+                  <ArrowUpRight className="h-3 w-3 transition-[color,transform] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
                 </a>
               </li>
             </ul>

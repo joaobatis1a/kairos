@@ -47,7 +47,7 @@ export function RecursosSection() {
           </Reveal>
           <Reveal delay={0.08}>
             <h2 className="mt-5 font-serif text-[clamp(1.75rem,3.6vw,2.75rem)] font-medium leading-tight tracking-[-0.02em]">
-              O resto que faz falta<span className="text-primary">.</span>
+              O resto que faz falta<span className="texto-dourado">.</span>
             </h2>
           </Reveal>
         </div>

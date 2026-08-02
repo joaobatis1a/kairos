@@ -24,7 +24,7 @@ export function HeroSection() {
       />
 
       <div className="relative mx-auto max-w-3xl text-center">
-        <p className="revelar text-sm font-bold text-primary">Sistema para barbearias</p>
+        <p className="revelar texto-dourado text-sm font-bold">Sistema para barbearias</p>
 
         <h1 className="revelar mt-4 text-balance font-serif text-[clamp(2.5rem,7vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
           A cadeira cheia, a agenda no lugar.

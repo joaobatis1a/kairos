@@ -61,6 +61,6 @@ export function TextReveal({
 /** Rótulo pequeno acima dos títulos. */
 export function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`inline-block text-sm font-bold text-primary ${className ?? ""}`}>{children}</span>
+    <span className={`texto-dourado inline-block text-sm font-bold ${className ?? ""}`}>{children}</span>
   )
 }

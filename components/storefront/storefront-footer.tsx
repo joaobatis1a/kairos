@@ -55,7 +55,7 @@ export function StorefrontFooter({
 
           {funcionamento.length > 0 && (
             <div id="horarios" className="scroll-mt-24">
-              <p className="text-sm font-bold text-primary">Horário</p>
+              <p className="texto-dourado text-sm font-bold">Horário</p>
               <ul className="mt-5 flex flex-col gap-2.5">
                 {funcionamento.map((f) => (
                   <li key={f.dia} className="flex justify-between gap-4 text-sm text-muted-foreground">
@@ -69,7 +69,7 @@ export function StorefrontFooter({
 
           {contatos.length > 0 && (
             <div>
-              <p className="text-sm font-bold text-primary">Contato</p>
+              <p className="texto-dourado text-sm font-bold">Contato</p>
               <ul className="mt-5 flex flex-col gap-2.5">
                 {contatos.map((c) => (
                   <li key={c} className="text-sm text-muted-foreground">

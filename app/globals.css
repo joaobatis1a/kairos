@@ -313,6 +313,50 @@ html {
   .cta-dourado:hover { transform: none; }
 }
 
+/* ══ Texto dourado ═══════════════════════════════════════════════
+   O mesmo "ouro oleoso" do .cta-dourado (escuro → claro → escuro), só que
+   recortado no próprio texto em vez de num fundo — pra todo texto amarelo
+   ter a mesma riqueza de tom, não só os botões. Sem o brilho animado do
+   botão: um texto de preço, título ou número não é uma superfície de ação,
+   e várias dessas listras se movendo ao mesmo tempo pela página vira
+   poluição visual em vez de parecer "vivo". */
+.texto-dourado {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 78%, black 22%) 0%,
+    color-mix(in oklch, var(--primary) 58%, white 42%) 50%,
+    color-mix(in oklch, var(--primary) 82%, black 18%) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Variante interativa: fica na cor sólida normal (herdada do elemento) e só
+   ganha o degradê ao interagir — para links e itens de navegação que hoje
+   trocam pra um `text-primary` chapado no hover. Cobre tanto o próprio
+   elemento em hover/focus quanto estar dentro de um `.group` em hover,
+   já que boa parte desses links usa esse padrão. */
+.texto-dourado-interativo {
+  transition: color 0.3s ease;
+}
+.texto-dourado-interativo:hover,
+.texto-dourado-interativo:focus-visible,
+.texto-dourado-interativo:active,
+.group:hover .texto-dourado-interativo,
+.group:active .texto-dourado-interativo,
+.group[data-ativo="true"] .texto-dourado-interativo {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 78%, black 22%) 0%,
+    color-mix(in oklch, var(--primary) 58%, white 42%) 50%,
+    color-mix(in oklch, var(--primary) 82%, black 18%) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 /* Entrada só por opacidade, para elementos que também reagem no hover.
    Entrada e hover disputando `transform` no mesmo elemento faz o hover não
    levantar enquanto a animação de entrada roda — então aqui o transform
