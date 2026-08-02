@@ -49,7 +49,9 @@ export function StorefrontHero({
         <div
           className="listra-poste listra-poste-animada surgir mx-auto mt-7 h-2.5 w-40 rounded-full"
           aria-hidden
-        />
+        >
+          <div className="listra-poste__padrao" />
+        </div>
 
         <div className="surgir mt-9 flex flex-col items-center gap-5">
           <Button size="lg" onClick={onAgendar} className="cta-dourado h-13 rounded-full px-8 text-base font-bold">

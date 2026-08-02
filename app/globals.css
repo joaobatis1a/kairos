@@ -402,6 +402,46 @@ html {
    As cores aqui são literais de propósito: o poste é vermelho/branco/azul
    no mundo real, então não são tokens de tema e não seguem a paleta. */
 .listra-poste {
+  position: relative;
+  overflow: hidden;
+}
+/* a listra girando tem começo e fim fixos (é um elemento finito, não um
+   poste infinito) — sem esconder as pontas, elas cortam o desenho diagonal
+   em ângulo reto e fica uma quina visível. As duas pontas ganham um
+   pseudo-elemento pintando a cor de fundo por cima, esmaecendo o corte. */
+.listra-poste::before,
+.listra-poste::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 14px;
+  z-index: 1;
+  pointer-events: none;
+}
+.listra-poste::before {
+  left: 0;
+  background-image: linear-gradient(to right, var(--background), transparent);
+}
+.listra-poste::after {
+  right: 0;
+  left: auto;
+  background-image: linear-gradient(to left, var(--background), transparent);
+}
+
+/* O padrão em si mora num filho absoluto, bem mais largo que o próprio
+   poste, animado por `transform: translateX()` em vez de `background-
+   -position`. Isso não é só estilo: animar `background-position` num
+   `repeating-linear-gradient` faz o Chrome renderizar (em produção, fora
+   do devtools) uma costura — uma linha vertical reta e fixa cortando o
+   desenho diagonal — bug de composição de GPU dessa combinação específica,
+   confirmado analisando pixel a pixel um print em várias alturas: toda
+   borda diagonal anda com a altura, exceto essa, que fica travada num x
+   fixo. `transform` anima por um caminho de composição totalmente
+   diferente (e muito mais testado), e não reproduz o bug. */
+.listra-poste__padrao {
+  position: absolute;
+  inset: 0 auto 0 -453px;
+  width: calc(100% + 453px);
   background-image: repeating-linear-gradient(
     -45deg,
     #d94a36 0 10px,
@@ -409,42 +449,26 @@ html {
     #2f6f8f 20px 30px,
     #f4efe4 30px 40px
   );
-  /* a listra girando tem começo e fim fixos (é um elemento finito, não um
-     poste infinito) — sem o degradê de máscara, as pontas cortam o
-     desenho diagonal em ângulo reto e ficam com uma quina visível. O fade
-     esconde onde o padrão "acaba". Em px fixos (não %): um fade em % fica
-     ótimo na barra larga do footer mas, na barra estreita do hero (160px),
-     12% vira ~19px — menos de meia volta do ciclo de 40px — e a ponta corta
-     seca em vez de esmaecer. Um comprimento fixo cobre sempre ~1 ciclo
-     inteiro, então a suavidade fica igual nas duas larguras.
-
-     A zona de transição em si precisa ser CURTA: o fade é horizontal (reto),
-     mas as listras são diagonais — sempre que uma borda entre cores cai no
-     meio da rampa, ela aparece "cortada" por uma linha reta em vez de
-     esmaecer, porque a rampa não segue o ângulo do padrão. Uma rampa larga
-     (32px, quase 1 banda de cor inteira) deixava essa borda visível em
-     opacidade parcial em vários pontos do ciclo. Encurtando pra bem menos
-     que a largura de uma banda (~14px), o cruzamento fica curto demais pra
-     notar, e o pequeno trecho 100% transparente na ponta evita a quina. */
-  mask-image: linear-gradient(to right, transparent, transparent 3px, black 11px, black calc(100% - 11px), transparent calc(100% - 3px), transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, transparent 3px, black 11px, black calc(100% - 11px), transparent calc(100% - 3px), transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   /* 56.5685px = uma volta exata do ciclo de 40px projetada no eixo -45deg
-     (40 / cos(45°)) — nessa posição o desenho fica pixel-a-pixel idêntico
-     ao início, então o loop em si é matematicamente sem costura. Mas com
-     só 3s de duração, o padrão é curto e simples o bastante (4 listras)
-     pro olho notar a repetição — parece "reiniciar" mesmo sem ter um
-     salto de verdade. Rodar 8 voltas (8× a distância, 8× o tempo) mantém
-     a mesma velocidade de giro, só que o loop demora 24s pra se repetir,
-     tempo longo o bastante pra não ser percebido como um ciclo curto. */
+     (40 / cos(45°)) — nessa distância o desenho fica pixel-a-pixel idêntico
+     ao início, então o loop em si é matematicamente sem costura. Mas com só
+     3s de duração, o padrão é curto e simples o bastante (4 listras) pro
+     olho notar a repetição — parece "reiniciar" mesmo sem ter um salto de
+     verdade. Percorrer 8 voltas (8× a distância, 8× o tempo, 452.548px em
+     24s) mantém a mesma velocidade de giro, só que o loop demora 24s pra se
+     repetir — tempo longo o bastante pra não ser percebido como um ciclo
+     curto. O filho começa deslocado -453px (toda a folga do lado esquerdo)
+     e translada +452.548px (quase a própria largura extra), então em
+     nenhum momento do meio do caminho ele descobre uma borda vazia. */
   @keyframes poste-girando {
     to {
-      background-position: 452.548px 0;
+      transform: translateX(452.548px);
     }
   }
-  .listra-poste-animada {
+  .listra-poste-animada .listra-poste__padrao {
     animation: poste-girando 24s linear infinite;
   }
 }
