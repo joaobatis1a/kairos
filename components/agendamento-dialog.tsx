@@ -95,18 +95,23 @@ export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenC
     }
   }, [open, servicoInicialId])
 
+  const servicoSel = servicos.find((s) => s.id === servicoId)
+  const duracaoSel = servicoSel?.duracao_min ?? 30
+
   // busca horários ocupados + realtime quando barbeiro e data estão definidos
   useEffect(() => {
     if (!barbeiroId || !data) return
     let ativo = true
 
     setCarregandoHorarios(true)
-    getHorariosOcupados(barbeiroId, data).then((res) => {
-      if (ativo) {
-        setOcupados(res)
-        setCarregandoHorarios(false)
-      }
-    })
+    const buscar = () =>
+      getHorariosOcupados(barbeiroId, data, duracaoSel, horariosConfig.horarios).then((res) => {
+        if (ativo) {
+          setOcupados(res)
+          setCarregandoHorarios(false)
+        }
+      })
+    buscar()
 
     const supabase = createClient()
     const canal = supabase
@@ -115,9 +120,7 @@ export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenC
         "postgres_changes",
         { event: "*", schema: "public", table: "agendamentos" },
         () => {
-          getHorariosOcupados(barbeiroId, data).then((res) => {
-            if (ativo) setOcupados(res)
-          })
+          if (ativo) buscar()
         },
       )
       .subscribe()
@@ -126,7 +129,7 @@ export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenC
       ativo = false
       supabase.removeChannel(canal)
     }
-  }, [barbeiroId, data])
+  }, [barbeiroId, data, duracaoSel, horariosConfig.horarios])
 
   const dias = diasTodos.filter((d) => {
     const diaSemana = new Date(d.value + "T12:00:00").getDay()

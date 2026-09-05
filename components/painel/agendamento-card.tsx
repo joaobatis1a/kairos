@@ -4,9 +4,10 @@ import { useState, useTransition } from "react"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 import { formatarPreco } from "@/config/barbearia"
 import { formatarDataExtenso } from "@/lib/datas"
-import { atualizarStatusAgendamento, excluirAgendamento, cancelarAgendamento } from "@/app/actions/painel"
+import { atualizarStatusAgendamento, excluirAgendamento, cancelarAgendamento, remarcarAgendamento } from "@/app/actions/painel"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import {
@@ -30,6 +31,7 @@ import {
   Loader2,
   CheckCheck,
   Wallet,
+  CalendarClock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -58,6 +60,9 @@ export function AgendamentoCard({
   const [confirmarExclusao, setConfirmarExclusao] = useState(false)
   const [modalCancelamento, setModalCancelamento] = useState(false)
   const [motivoCancelamento, setMotivoCancelamento] = useState("")
+  const [modalRemarcar, setModalRemarcar] = useState(false)
+  const [novaData, setNovaData] = useState(ag.data)
+  const [novoHorario, setNovoHorario] = useState(ag.horario.slice(0, 5))
 
   function mudarStatus(status: StatusAgendamento) {
     startTransition(async () => {
@@ -83,6 +88,17 @@ export function AgendamentoCard({
       else {
         toast.success("Agendamento cancelado.")
         setModalCancelamento(false)
+      }
+    })
+  }
+
+  function confirmarRemarcacao() {
+    startTransition(async () => {
+      const res = await remarcarAgendamento(ag.id, novaData, novoHorario)
+      if (!res.ok) toast.error(res.error ?? "Erro ao remarcar.")
+      else {
+        toast.success("Agendamento remarcado.")
+        setModalRemarcar(false)
       }
     })
   }
@@ -179,9 +195,14 @@ export function AgendamentoCard({
           </Button>
         )}
         {ag.status !== "cancelado" && ag.status !== "finalizado" && (
-          <Button size="sm" variant="outline" disabled={pending} onClick={abrirCancelamento}>
-            <X className="h-3.5 w-3.5" /> Cancelar
-          </Button>
+          <>
+            <Button size="sm" variant="outline" disabled={pending} onClick={() => setModalRemarcar(true)}>
+              <CalendarClock className="h-3.5 w-3.5" /> Remarcar
+            </Button>
+            <Button size="sm" variant="outline" disabled={pending} onClick={abrirCancelamento}>
+              <X className="h-3.5 w-3.5" /> Cancelar
+            </Button>
+          </>
         )}
         <Button size="sm" variant="outline" asChild>
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
@@ -223,6 +244,46 @@ export function AgendamentoCard({
             </Button>
             <Button variant="destructive" onClick={confirmarCancelamento} disabled={pending || !motivoCancelamento.trim()}>
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar cancelamento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal remarcar */}
+      <Dialog open={modalRemarcar} onOpenChange={setModalRemarcar}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Remarcar agendamento</DialogTitle>
+            <DialogDescription>
+              Nova data e horário para <strong>{ag.cliente_nome}</strong> ({ag.servico_nome}).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor={`data-${ag.id}`}>Data</Label>
+              <Input
+                id={`data-${ag.id}`}
+                type="date"
+                value={novaData}
+                onChange={(e) => setNovaData(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor={`hora-${ag.id}`}>Horário</Label>
+              <Input
+                id={`hora-${ag.id}`}
+                type="time"
+                value={novoHorario}
+                onChange={(e) => setNovoHorario(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setModalRemarcar(false)}>
+              Voltar
+            </Button>
+            <Button onClick={confirmarRemarcacao} disabled={pending || !novaData || !novoHorario}>
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remarcar"}
             </Button>
           </DialogFooter>
         </DialogContent>

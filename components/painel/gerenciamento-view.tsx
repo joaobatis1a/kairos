@@ -8,18 +8,24 @@ import { ConfigGeralForm } from "@/components/painel/config-geral-form"
 import { LogoEmpresaUpload } from "@/components/painel/logo-empresa-upload"
 import { ServicosForm } from "@/components/painel/servicos-form"
 import { HorariosForm } from "@/components/painel/horarios-form"
+import { FolgasForm } from "@/components/painel/folgas-form"
 import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
+import type { Bloqueio } from "@/app/actions/bloqueios"
 
 export function GerenciamentoView({
   atende,
   config,
   servicos,
   horarios,
+  bloqueios,
+  barbeiros,
 }: {
   atende: boolean
   config: BarbeariaConfig
   servicos: ServicoDb[]
   horarios: HorariosConfig
+  bloqueios: Bloqueio[]
+  barbeiros: { id: string; nome: string }[]
 }) {
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-6">
@@ -68,6 +74,18 @@ export function GerenciamentoView({
           </CardHeader>
           <CardContent>
             <HorariosForm config={horarios} />
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-serif">Folgas e bloqueios</CardTitle>
+            <CardDescription>Bloqueie períodos da agenda — da barbearia inteira ou de um barbeiro específico.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FolgasForm bloqueios={bloqueios} barbeiros={barbeiros} />
           </CardContent>
         </Card>
       </motion.div>

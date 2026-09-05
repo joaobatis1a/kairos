@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
 import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailConfirmacao } from "@/lib/emails"
 import { notificar } from "@/lib/notificacoes"
@@ -21,18 +22,41 @@ export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profil
   return (data ?? []) as Pick<Profile, "id" | "nome">[]
 }
 
-export async function getHorariosOcupados(barbeiroId: string, data: string): Promise<string[]> {
+function paraMinutos(hhmm: string): number {
+  const [h, m] = hhmm.slice(0, 5).split(":").map(Number)
+  return h * 60 + m
+}
+
+// Dos `slots` do dia, os que um serviço de `duracaoMin` NÃO cabe: colidiria
+// com um agendamento existente (já expandido pela duração dele) ou com um
+// bloqueio de agenda.
+export async function getHorariosOcupados(
+  barbeiroId: string,
+  data: string,
+  duracaoMin = 30,
+  slots: string[] = [],
+): Promise<string[]> {
   const supabase = await createClient()
-  const { data: horarios, error } = await supabase.rpc("agendamentos_ocupados", {
+  const { data: intervalos, error } = await supabase.rpc("agenda_indisponivel", {
     p_barbeiro_id: barbeiroId,
     p_data: data,
   })
 
   if (error) {
-    console.log("[v0] Erro ao buscar horários ocupados:", error.message)
+    console.log("[v0] Erro ao buscar agenda indisponível:", error.message)
     return []
   }
-  return ((horarios ?? []) as { horario: string }[]).map((h) => h.horario.slice(0, 5))
+
+  const ocupado = ((intervalos ?? []) as { inicio: string; fim: string }[]).map((i) => ({
+    inicio: paraMinutos(i.inicio),
+    fim: paraMinutos(i.fim),
+  }))
+
+  return slots.filter((s) => {
+    const ini = paraMinutos(s)
+    const fim = ini + duracaoMin
+    return ocupado.some((o) => ini < o.fim && fim > o.inicio)
+  })
 }
 
 type CriarAgendamentoInput = {
@@ -80,7 +104,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   // outra empresa junto com o barbeiroId desta.
   const { data: servico } = await supabase
     .from("servicos")
-    .select("nome, preco")
+    .select("nome, preco, duracao_min")
     .eq("id", input.servicoId)
     .eq("company_id", input.companyId)
     .single()
@@ -89,17 +113,36 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     return { ok: false, error: "Serviço inválido." }
   }
 
-  const { data: existentes } = await supabase
-    .from("agendamentos")
-    .select("id")
+  // Antecedência mínima pra agendar
+  const { data: cfg } = await supabase
+    .from("horarios_config")
+    .select("antecedencia_min_horas")
     .eq("company_id", input.companyId)
-    .eq("barbeiro_id", input.barbeiroId)
-    .eq("data", input.data)
-    .eq("horario", input.horario)
-    .neq("status", "cancelado")
+    .maybeSingle()
+  const antecedencia = cfg?.antecedencia_min_horas ?? 0
+  if (antecedencia > 0) {
+    const inicio = new Date(`${input.data}T${input.horario}:00`)
+    if (inicio.getTime() - Date.now() < antecedencia * 3600_000) {
+      return {
+        ok: false,
+        error: `Agendamentos precisam ser feitos com pelo menos ${antecedencia}h de antecedência.`,
+      }
+    }
+  }
 
-  if (existentes && existentes.length > 0) {
-    return { ok: false, error: "Esse horário acabou de ser preenchido. Escolha outro." }
+  // Conflito com a agenda (agendamento existente já expandido pela duração,
+  // ou bloqueio de folga) — não só o slot exato.
+  const { data: intervalos } = await supabase.rpc("agenda_indisponivel", {
+    p_barbeiro_id: input.barbeiroId,
+    p_data: input.data,
+  })
+  const ini = paraMinutos(input.horario)
+  const fim = ini + (servico.duracao_min ?? 30)
+  const conflita = ((intervalos ?? []) as { inicio: string; fim: string }[]).some(
+    (o) => ini < paraMinutos(o.fim) && fim > paraMinutos(o.inicio),
+  )
+  if (conflita) {
+    return { ok: false, error: "Esse horário não está mais disponível. Escolha outro." }
   }
 
   const { error } = await supabase.from("agendamentos").insert({
@@ -145,6 +188,64 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   })
 
   return { ok: true }
+}
+
+// Cliente cancela o próprio agendamento (respeitando a antecedência da barbearia).
+export async function cancelarMeuAgendamento(id: string, motivo: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false as const, error: "Sessão expirada." }
+
+  const { data: cliente } = await supabase.from("clientes").select("whatsapp").eq("id", user.id).maybeSingle()
+  if (!cliente?.whatsapp) return { ok: false as const, error: "Conta de cliente não encontrada." }
+
+  const { data: ag } = await supabase
+    .from("agendamentos")
+    .select("id, company_id, cliente_whatsapp, status, data, horario")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (!ag || ag.cliente_whatsapp !== cliente.whatsapp) {
+    return { ok: false as const, error: "Agendamento não encontrado." }
+  }
+  if (ag.status !== "pendente" && ag.status !== "confirmado") {
+    return { ok: false as const, error: "Esse agendamento não pode mais ser cancelado." }
+  }
+
+  const { data: cfg } = await supabase
+    .from("horarios_config")
+    .select("antecedencia_min_horas")
+    .eq("company_id", ag.company_id)
+    .maybeSingle()
+  const antecedencia = cfg?.antecedencia_min_horas ?? 0
+  if (antecedencia > 0) {
+    const inicio = new Date(`${ag.data}T${ag.horario}`)
+    if (inicio.getTime() - Date.now() < antecedencia * 3600_000) {
+      return {
+        ok: false as const,
+        error: `Cancelamentos precisam ser feitos com pelo menos ${antecedencia}h de antecedência. Entre em contato com a barbearia.`,
+      }
+    }
+  }
+
+  const { error } = await supabase
+    .from("agendamentos")
+    .update({ status: "cancelado", motivo_cancelamento: motivo.trim() || "Cancelado pelo cliente" })
+    .eq("id", id)
+  if (error) return { ok: false as const, error: "Não foi possível cancelar." }
+
+  notificar({
+    companyId: ag.company_id,
+    titulo: "Agendamento cancelado pelo cliente",
+    corpo: `${ag.data} às ${ag.horario}${motivo.trim() ? ` · ${motivo.trim()}` : ""}`,
+    link: "/painel/agendamentos",
+    destinatarioRole: "owner",
+  })
+
+  revalidatePath("/conta/historico")
+  return { ok: true as const }
 }
 
 export type BarbeiroVitrine = {

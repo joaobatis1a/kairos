@@ -34,6 +34,7 @@ export type ServicoDb = {
 export type HorariosConfig = {
   dias_abertos: number[]
   horarios: string[]
+  antecedencia_min_horas: number
 }
 
 const configVazia: BarbeariaConfig = {
@@ -74,7 +75,11 @@ export async function getServicos(companyId: string): Promise<ServicoDb[]> {
 export async function getHorariosConfig(companyId: string): Promise<HorariosConfig> {
   const supabase = await createClient()
   const { data } = await supabase.from("horarios_config").select("*").eq("company_id", companyId).single()
-  return data ?? { dias_abertos: [1, 2, 3, 4, 5, 6], horarios: [] }
+  return {
+    dias_abertos: data?.dias_abertos ?? [1, 2, 3, 4, 5, 6],
+    horarios: data?.horarios ?? [],
+    antecedencia_min_horas: data?.antecedencia_min_horas ?? 0,
+  }
 }
 
 export type OnboardingStatus = {

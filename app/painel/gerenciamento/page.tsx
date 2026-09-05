@@ -1,6 +1,8 @@
 import { getPerfilOuRedirect } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { getBarbeariaConfig, getServicos, getHorariosConfig } from "@/app/actions/config"
+import { listarEquipe } from "@/app/actions/equipe"
+import { listarBloqueios } from "@/app/actions/bloqueios"
 import { GerenciamentoView } from "@/components/painel/gerenciamento-view"
 
 export const dynamic = "force-dynamic"
@@ -9,10 +11,12 @@ export default async function GerenciamentoPage() {
   const perfil = await getPerfilOuRedirect()
   if (perfil.role !== "owner") redirect("/painel")
 
-  const [config, servicos, horarios] = await Promise.all([
+  const [config, servicos, horarios, equipe, bloqueios] = await Promise.all([
     getBarbeariaConfig(perfil.company_id),
     getServicos(perfil.company_id),
     getHorariosConfig(perfil.company_id),
+    listarEquipe(),
+    listarBloqueios(),
   ])
 
   return (
@@ -27,6 +31,8 @@ export default async function GerenciamentoPage() {
         config={config}
         servicos={servicos}
         horarios={horarios}
+        bloqueios={bloqueios}
+        barbeiros={equipe.map((e) => ({ id: e.id, nome: e.nome }))}
       />
     </div>
   )
