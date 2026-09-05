@@ -81,7 +81,7 @@ export function SuporteView({ mensagensIniciais }: { mensagensIniciais: Mensagem
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && enviar()}
           disabled={pending}
         />
-        <Button size="icon" onClick={enviar} disabled={pending || !texto.trim()}>
+        <Button size="icon" onClick={enviar} disabled={pending || !texto.trim()} aria-label="Enviar mensagem">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>

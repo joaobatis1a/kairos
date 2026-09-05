@@ -129,6 +129,64 @@ export async function verCodigoConvite(companyId: string) {
   return data?.code ?? null
 }
 
+// Gera um código de convite de owner novo (o antigo pode ter vazado, ou a
+// empresa foi criada antes desse fluxo). Só funciona enquanto ninguém
+// resgatou — depois que existe um owner, não faz sentido um segundo código.
+export async function rotacionarConviteOwner(companyId: string) {
+  await getContaManutencaoOuRedirect()
+  const admin = createAdminClient()
+
+  const { count } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("company_id", companyId)
+    .eq("role", "owner")
+
+  if ((count ?? 0) > 0) {
+    return { ok: false as const, error: "Essa empresa já tem um dono." }
+  }
+
+  await admin.from("invite_codes").delete().eq("company_id", companyId).eq("role", "owner")
+
+  const code = gerarCodigoConvite()
+  const { error } = await admin.from("invite_codes").insert({ code, company_id: companyId, role: "owner" })
+  if (error) return { ok: false as const, error: "Não foi possível gerar o código." }
+
+  revalidatePath("/manutencao")
+  return { ok: true as const, code }
+}
+
+export type MetricasPlataforma = {
+  empresasAtivas: number
+  empresasInativas: number
+  totalEquipe: number
+  totalClientes: number
+  agendamentosMes: number
+}
+
+export async function getMetricasPlataforma(): Promise<MetricasPlataforma> {
+  await getContaManutencaoOuRedirect()
+  const admin = createAdminClient()
+
+  const inicioMes = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-01`
+
+  const [ativas, inativas, equipe, clientes, agMes] = await Promise.all([
+    admin.from("companies").select("id", { count: "exact", head: true }).eq("status", "ativo"),
+    admin.from("companies").select("id", { count: "exact", head: true }).eq("status", "inativo"),
+    admin.from("profiles").select("id", { count: "exact", head: true }),
+    admin.from("clientes").select("id", { count: "exact", head: true }),
+    admin.from("agendamentos").select("id", { count: "exact", head: true }).gte("data", inicioMes),
+  ])
+
+  return {
+    empresasAtivas: ativas.count ?? 0,
+    empresasInativas: inativas.count ?? 0,
+    totalEquipe: equipe.count ?? 0,
+    totalClientes: clientes.count ?? 0,
+    agendamentosMes: agMes.count ?? 0,
+  }
+}
+
 // Exclui a empresa e todo mundo que trabalha nela. Precisa apagar as contas
 // de auth ANTES de apagar a empresa: profiles referencia auth.users (cascade),
 // então apagar o usuário já limpa o profile; só depois disso dá pra apagar a
