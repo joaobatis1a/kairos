@@ -79,6 +79,7 @@ export function LandingPage({
       <AgendamentoDialog
         companyId={companyId}
         barbeiros={barbeiros}
+        cliente={cliente}
         open={open}
         onOpenChange={setOpen}
         servicoInicialId={servicoInicial}

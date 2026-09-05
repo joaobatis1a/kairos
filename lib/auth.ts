@@ -43,13 +43,13 @@ export async function getPerfilOuRedirect(): Promise<Profile> {
   // /manutencao não tira o acesso de ninguém que já estava logado.
   const { empresa, ...perfilSemEmpresa } = profile as Profile & { empresa: { status: string } | null }
 
+  // O signOut de verdade (que limpa o cookie) acontece no middleware — aqui
+  // é só o desvio, caso alguma rota escape do matcher. Ver lib/supabase/proxy.ts.
   if (!perfilSemEmpresa.ativo) {
-    await supabase.auth.signOut()
     redirect("/auth/login?erro=inativo")
   }
 
   if (empresa?.status === "inativo") {
-    await supabase.auth.signOut()
     redirect("/auth/login?erro=empresa-inativa")
   }
 

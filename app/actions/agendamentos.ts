@@ -37,8 +37,6 @@ export async function getHorariosOcupados(barbeiroId: string, data: string): Pro
 
 type CriarAgendamentoInput = {
   companyId: string
-  clienteNome: string
-  clienteWhatsapp: string
   servicoId: string       // uuid do banco
   barbeiroId: string
   data: string
@@ -48,10 +46,6 @@ type CriarAgendamentoInput = {
 }
 
 export async function criarAgendamento(input: CriarAgendamentoInput) {
-  if (!input.clienteNome.trim() || !input.clienteWhatsapp.trim()) {
-    return { ok: false, error: "Preencha nome e WhatsApp." }
-  }
-
   const supabase = await createClient()
 
   // Exige conta de cliente para agendar
@@ -61,6 +55,23 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
   if (!user) {
     return { ok: false, error: "Você precisa estar logado para agendar." }
+  }
+
+  // Nome e whatsapp vêm do cadastro do cliente, não do formulário. O
+  // whatsapp é o que a RLS "Cliente vê os próprios agendamentos" usa pra
+  // casar o histórico — se o cliente digitasse um número diferente (ou só
+  // formatado diferente) o agendamento sumia da conta dele.
+  const { data: cliente } = await supabase
+    .from("clientes")
+    .select("nome, whatsapp, email")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (!cliente) {
+    return { ok: false, error: "Você precisa de uma conta de cliente para agendar." }
+  }
+  if (!cliente.whatsapp?.trim()) {
+    return { ok: false, error: "Adicione um WhatsApp no seu perfil antes de agendar." }
   }
 
   // Nome e preço vêm do banco, nunca do payload do cliente — senão dá pra
@@ -93,8 +104,8 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
   const { error } = await supabase.from("agendamentos").insert({
     company_id: input.companyId,
-    cliente_nome: input.clienteNome.trim(),
-    cliente_whatsapp: input.clienteWhatsapp.trim(),
+    cliente_nome: cliente.nome,
+    cliente_whatsapp: cliente.whatsapp.trim(),
     servico_id: input.servicoId,
     servico_nome: servico.nome,
     servico_preco: servico.preco,
@@ -111,17 +122,11 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     return { ok: false, error: "Não foi possível concluir o agendamento. Tente novamente." }
   }
 
-  const { data: cliente } = await supabase
-    .from("clientes")
-    .select("email")
-    .eq("id", user.id)
-    .maybeSingle()
-
   // Envia email de confirmação (sem bloquear a resposta)
   getBarbeariaConfig(input.companyId).then((config) => {
     enviarEmailConfirmacao({
-      clienteNome: input.clienteNome,
-      clienteEmail: cliente?.email ?? null,
+      clienteNome: cliente.nome,
+      clienteEmail: cliente.email ?? null,
       servicoNome: servico.nome,
       servicoPreco: servico.preco,
       barbeiroNome: null,
@@ -134,7 +139,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   notificar({
     companyId: input.companyId,
     titulo: "Novo agendamento pendente",
-    corpo: `${input.clienteNome} agendou ${servico.nome} para ${input.data} às ${input.horario}.`,
+    corpo: `${cliente.nome} agendou ${servico.nome} para ${input.data} às ${input.horario}.`,
     link: "/painel/agendamentos",
     destinatarioRole: "owner",
   })
