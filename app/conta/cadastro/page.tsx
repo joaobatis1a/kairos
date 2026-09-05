@@ -24,6 +24,7 @@ export default function CadastroPage() {
   const [whatsapp, setWhatsapp] = useState("")
   const [senha, setSenha] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
+  const [aceito, setAceito] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [sucesso, setSucesso] = useState(false)
@@ -51,6 +52,11 @@ export default function CadastroPage() {
 
     if (senha !== confirmarSenha) {
       setErro("As senhas não coincidem.")
+      return
+    }
+
+    if (!aceito) {
+      setErro("Você precisa aceitar os Termos de Uso e a Política de Privacidade.")
       return
     }
 
@@ -179,6 +185,25 @@ export default function CadastroPage() {
                       onChange={(e) => setConfirmarSenha(e.target.value)}
                     />
                   </div>
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={aceito}
+                      onChange={(e) => setAceito(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 accent-primary"
+                    />
+                    <span>
+                      Li e aceito os{" "}
+                      <Link href="/termos" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                        Termos de Uso
+                      </Link>{" "}
+                      e a{" "}
+                      <Link href="/privacidade" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                        Política de Privacidade
+                      </Link>
+                      .
+                    </span>
+                  </label>
                   {erro && <p className="text-sm text-destructive">{erro}</p>}
                   <div className="flex gap-2">
                     <Button
@@ -193,7 +218,7 @@ export default function CadastroPage() {
                     >
                       Voltar
                     </Button>
-                    <Button type="submit" className="flex-1" disabled={loading}>
+                    <Button type="submit" className="flex-1" disabled={loading || !aceito}>
                       {loading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" /> Criando...
