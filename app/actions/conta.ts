@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getBarbeariaConfig } from "@/app/actions/config"
+import { enviarEmailBoasVindas } from "@/lib/emails"
 import { registrarAuditoria } from "@/lib/auditoria"
 import { revalidatePath } from "next/cache"
 
@@ -67,6 +68,8 @@ export async function cadastrarCliente(input: CadastroInput) {
   if (clienteError) {
     return { ok: false, error: "Não foi possível concluir seu cadastro. Tente novamente." }
   }
+
+  void enviarEmailBoasVindas({ clienteNome: nome, clienteEmail: email })
 
   const supabase = await createClient()
   const { error: loginError } = await supabase.auth.signInWithPassword({ email, password: senha })

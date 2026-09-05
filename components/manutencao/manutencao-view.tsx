@@ -9,8 +9,10 @@ import {
   listarEmpresas,
   alternarStatusEmpresa,
   verCodigoConvite,
+  rotacionarConviteOwner,
   excluirEmpresa,
   type EmpresaManutencao,
+  type MetricasPlataforma,
 } from "@/app/actions/manutencao"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,9 +27,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Building2, Plus, KeyRound, Power, PowerOff, Trash2, Loader2, Copy } from "lucide-react"
+import { Building2, Plus, KeyRound, RefreshCw, Power, PowerOff, Trash2, Loader2, Copy } from "lucide-react"
 
-export function ManutencaoView({ empresasIniciais }: { empresasIniciais: EmpresaManutencao[] }) {
+export function ManutencaoView({
+  empresasIniciais,
+  metricas,
+}: {
+  empresasIniciais: EmpresaManutencao[]
+  metricas: MetricasPlataforma
+}) {
   const router = useRouter()
   const [empresas, setEmpresas] = useState(empresasIniciais)
   const [pending, startTransition] = useTransition()
@@ -83,6 +91,20 @@ export function ManutencaoView({ empresasIniciais }: { empresasIniciais: Empresa
     })
   }
 
+  function handleRotacionar(empresa: EmpresaManutencao) {
+    setCarregandoCodigoId(empresa.id)
+    startTransition(async () => {
+      const res = await rotacionarConviteOwner(empresa.id)
+      if (!res.ok) {
+        toast.error(res.error)
+      } else {
+        setCodigoGerado({ nome: empresa.nome, slug: empresa.slug, code: res.code })
+        toast.success("Código novo gerado. O anterior não vale mais.")
+      }
+      setCarregandoCodigoId(null)
+    })
+  }
+
   function handleExcluir() {
     if (!excluindo) return
     startTransition(async () => {
@@ -109,6 +131,21 @@ export function ManutencaoView({ empresasIniciais }: { empresasIniciais: Empresa
       <div>
         <h1 className="font-serif text-3xl font-bold">Manutenção</h1>
         <p className="text-muted-foreground">Empresas cadastradas na plataforma.</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {[
+          { label: "Empresas ativas", valor: metricas.empresasAtivas },
+          { label: "Empresas inativas", valor: metricas.empresasInativas },
+          { label: "Pessoas na equipe", valor: metricas.totalEquipe },
+          { label: "Clientes", valor: metricas.totalClientes },
+          { label: "Agendamentos no mês", valor: metricas.agendamentosMes },
+        ].map((m) => (
+          <div key={m.label} className="rounded-xl border border-border bg-card p-3">
+            <p className="text-2xl font-bold tabular-nums">{m.valor}</p>
+            <p className="text-xs text-muted-foreground">{m.label}</p>
+          </div>
+        ))}
       </div>
 
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-end">
@@ -171,6 +208,7 @@ export function ManutencaoView({ empresasIniciais }: { empresasIniciais: Empresa
                   onClick={() => handleVerCodigo(empresa)}
                   disabled={pending && carregandoCodigoId === empresa.id}
                   title="Ver código de convite"
+                  aria-label="Ver código de convite"
                 >
                   {carregandoCodigoId === empresa.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -178,12 +216,25 @@ export function ManutencaoView({ empresasIniciais }: { empresasIniciais: Empresa
                     <KeyRound className="h-4 w-4" />
                   )}
                 </Button>
+                {!empresa.ownerNome && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleRotacionar(empresa)}
+                    disabled={pending && carregandoCodigoId === empresa.id}
+                    title="Gerar código de convite novo"
+                    aria-label="Gerar código de convite novo"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => handleAlternarStatus(empresa)}
                   disabled={pending && alternandoId === empresa.id}
                   title={empresa.status === "ativo" ? "Desativar empresa" : "Reativar empresa"}
+                  aria-label={empresa.status === "ativo" ? "Desativar empresa" : "Reativar empresa"}
                 >
                   {empresa.status === "ativo" ? (
                     <PowerOff className="h-4 w-4" />
@@ -197,6 +248,7 @@ export function ManutencaoView({ empresasIniciais }: { empresasIniciais: Empresa
                   className="ml-auto text-muted-foreground hover:text-destructive"
                   onClick={() => setExcluindo(empresa)}
                   title="Excluir empresa"
+                  aria-label="Excluir empresa"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

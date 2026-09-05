@@ -125,7 +125,7 @@ function AvisoCard({ aviso }: { aviso: AvisoDb }) {
                 placeholder="Responder..."
                 onKeyDown={(e) => e.key === "Enter" && enviar()}
               />
-              <Button size="icon" onClick={enviar} disabled={pending || !texto.trim()}>
+              <Button size="icon" onClick={enviar} disabled={pending || !texto.trim()} aria-label="Enviar resposta">
                 <Send className="h-4 w-4" />
               </Button>
             </div>

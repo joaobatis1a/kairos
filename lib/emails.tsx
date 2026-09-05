@@ -183,6 +183,36 @@ export async function enviarEmailLembrete(dados: DadosAgendamento) {
   }
 }
 
+// ── Email: Boas-vindas (cadastro de cliente) ─────────────────────
+
+export async function enviarEmailBoasVindas(dados: { clienteNome: string; clienteEmail: string }) {
+  const link = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/conta`
+  const conteudo = `
+    <h2 style="margin:0 0 8px;font-size:20px;color:#d4b896;">Bem-vindo ao kairos! 👋</h2>
+    <p style="margin:0 0 20px;color:#888;font-size:14px;">
+      Olá, <strong style="color:#e5e5e5;">${dados.clienteNome}</strong>! Sua conta está pronta.
+      Agora você agenda em qualquer barbearia da plataforma e acompanha seu histórico num lugar só.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td align="center">
+        <a href="${link}" style="display:inline-block;background:#d4b896;color:#18120c;font-weight:600;font-size:14px;padding:12px 28px;border-radius:8px;text-decoration:none;">
+          Acessar minha conta
+        </a>
+      </td></tr>
+    </table>
+  `
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: resolverDestinatario(dados.clienteEmail),
+      subject: "Bem-vindo ao kairos",
+      html: layoutBase(conteudo, "kairos"),
+    })
+  } catch (e) {
+    console.error("[email] Erro ao enviar boas-vindas:", e)
+  }
+}
+
 // ── Email 4: Pedido de avaliação ────────────────────────────────
 
 export async function enviarEmailPedidoAvaliacao(dados: DadosAgendamento) {

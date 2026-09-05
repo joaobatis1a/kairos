@@ -110,7 +110,7 @@ export function SuporteManutencaoView({ conversasIniciais }: { conversasIniciais
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && responder()}
               disabled={pending}
             />
-            <Button size="icon" onClick={responder} disabled={pending || !texto.trim()}>
+            <Button size="icon" onClick={responder} disabled={pending || !texto.trim()} aria-label="Enviar resposta">
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>

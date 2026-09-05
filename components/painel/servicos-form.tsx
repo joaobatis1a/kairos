@@ -108,10 +108,10 @@ export function ServicosForm({ servicos }: { servicos: ServicoDb[] }) {
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => abrirEditar(s)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => abrirEditar(s)} aria-label={`Editar ${s.nome}`}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => excluir(s.id)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => excluir(s.id)} aria-label={`Excluir ${s.nome}`}>
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
