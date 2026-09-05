@@ -127,7 +127,7 @@ export async function cancelarAgendamento(id: string, motivo: string) {
   // Busca dados do agendamento para o email
   const { data: ag } = await supabase
     .from("agendamentos")
-    .select("company_id, cliente_nome, servico_nome, servico_preco, data, horario")
+    .select("company_id, cliente_nome, cliente_whatsapp, servico_nome, servico_preco, data, horario")
     .eq("id", id)
     .single()
 
@@ -149,10 +149,16 @@ export async function cancelarAgendamento(id: string, motivo: string) {
 
   // Envia email de cancelamento
   if (ag) {
+    const { data: cli } = await supabase
+      .from("clientes")
+      .select("email")
+      .eq("whatsapp", ag.cliente_whatsapp)
+      .maybeSingle()
+
     getBarbeariaConfig(ag.company_id).then((config) => {
       enviarEmailCancelamento({
         clienteNome: ag.cliente_nome,
-        clienteEmail: null,
+        clienteEmail: cli?.email ?? null,
         servicoNome: ag.servico_nome,
         servicoPreco: Number(ag.servico_preco),
         barbeiroNome: null,

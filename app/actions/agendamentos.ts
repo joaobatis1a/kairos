@@ -111,11 +111,17 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     return { ok: false, error: "Não foi possível concluir o agendamento. Tente novamente." }
   }
 
+  const { data: cliente } = await supabase
+    .from("clientes")
+    .select("email")
+    .eq("id", user.id)
+    .maybeSingle()
+
   // Envia email de confirmação (sem bloquear a resposta)
   getBarbeariaConfig(input.companyId).then((config) => {
     enviarEmailConfirmacao({
       clienteNome: input.clienteNome,
-      clienteEmail: null, // cliente não tem email obrigatório ainda
+      clienteEmail: cliente?.email ?? null,
       servicoNome: servico.nome,
       servicoPreco: servico.preco,
       barbeiroNome: null,
