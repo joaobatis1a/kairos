@@ -121,7 +121,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     .maybeSingle()
   const antecedencia = cfg?.antecedencia_min_horas ?? 0
   if (antecedencia > 0) {
-    const inicio = new Date(`${input.data}T${input.horario}:00`)
+    const inicio = new Date(`${input.data}T${input.horario}:00-03:00`)
     if (inicio.getTime() - Date.now() < antecedencia * 3600_000) {
       return {
         ok: false,
@@ -221,7 +221,7 @@ export async function cancelarMeuAgendamento(id: string, motivo: string) {
     .maybeSingle()
   const antecedencia = cfg?.antecedencia_min_horas ?? 0
   if (antecedencia > 0) {
-    const inicio = new Date(`${ag.data}T${ag.horario}`)
+    const inicio = new Date(`${ag.data}T${ag.horario.slice(0, 5)}:00-03:00`)
     if (inicio.getTime() - Date.now() < antecedencia * 3600_000) {
       return {
         ok: false as const,

@@ -63,8 +63,12 @@ export async function criarBloqueio(input: {
   // Barbeiro só bloqueia a própria agenda; owner bloqueia qualquer um / a empresa.
   const barbeiroId = u.role === "owner" ? input.barbeiroId : u.id
 
-  const inicio = new Date(input.inicio)
-  const fim = new Date(input.fim)
+  // O <input datetime-local> manda "2026-09-15T14:00" (relógio de parede).
+  // O Brasil não tem mais horário de verão, então é sempre UTC-3 — fixa o
+  // offset pra não virar hora UTC no servidor.
+  const comOffset = (v: string) => new Date(`${v.length === 16 ? v + ":00" : v}-03:00`)
+  const inicio = comOffset(input.inicio)
+  const fim = comOffset(input.fim)
   if (isNaN(inicio.getTime()) || isNaN(fim.getTime()) || fim <= inicio) {
     return { ok: false as const, error: "Período inválido." }
   }
