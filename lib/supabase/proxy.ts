@@ -59,6 +59,28 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Gate de perfil/empresa desativados: precisa acontecer aqui e não numa
+  // Server Component, porque signOut() escreve cookie e RSC engole essa
+  // escrita (ver server.ts) — o resultado era um loop /auth/login <-> /painel
+  // até o JWT expirar. No middleware a escrita do cookie funciona.
+  if (isPainelRoute && user) {
+    const { data: perfil } = await supabase
+      .from("profiles")
+      .select("ativo, empresa:companies(status)")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    const empresaRaw = perfil?.empresa as { status: string } | { status: string }[] | null
+    const empresa = Array.isArray(empresaRaw) ? empresaRaw[0] : empresaRaw
+    if (perfil && (!perfil.ativo || empresa?.status === "inativo")) {
+      await supabase.auth.signOut()
+      const url = request.nextUrl.clone()
+      url.pathname = "/auth/login"
+      url.searchParams.set("erro", !perfil.ativo ? "inativo" : "empresa-inativa")
+      return NextResponse.redirect(url)
+    }
+  }
+
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone()
     url.pathname = "/painel"

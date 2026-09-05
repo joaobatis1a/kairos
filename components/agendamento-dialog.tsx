@@ -6,7 +6,7 @@ import { formatarPreco } from "@/config/barbearia"
 import type { ServicoDb, HorariosConfig } from "@/app/actions/config"
 import { getDiasDisponiveis, formatarDataExtenso } from "@/lib/datas"
 import { criarAgendamento, getHorariosOcupados } from "@/app/actions/agendamentos"
-import type { Profile, FormaPagamento } from "@/lib/types"
+import type { Profile, Cliente, FormaPagamento } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,6 +39,7 @@ type Barbeiro = Pick<Profile, "id" | "nome">
 type Props = {
   companyId: string
   barbeiros: Barbeiro[]
+  cliente: Cliente | null
   open: boolean
   onOpenChange: (open: boolean) => void
   servicoInicialId?: string
@@ -67,14 +68,12 @@ const LABELS_PAGAMENTO: Record<FormaPagamento, string> = {
   credito: "Cartão de crédito",
 }
 
-export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, servicoInicialId, servicos, horariosConfig }: Props) {
+export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenChange, servicoInicialId, servicos, horariosConfig }: Props) {
   const [etapa, setEtapa] = useState(1)
   const [servicoId, setServicoId] = useState<string | null>(null)
   const [barbeiroId, setBarbeiroId] = useState<string | null>(null)
   const [data, setData] = useState<string | null>(null)
   const [horario, setHorario] = useState<string | null>(null)
-  const [nome, setNome] = useState("")
-  const [whatsapp, setWhatsapp] = useState("")
   const [obs, setObs] = useState("")
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento | null>(null)
   const [ocupados, setOcupados] = useState<string[]>([])
@@ -90,8 +89,6 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
       setBarbeiroId(null)
       setData(null)
       setHorario(null)
-      setNome("")
-      setWhatsapp("")
       setObs("")
       setFormaPagamento(null)
       setConcluido(false)
@@ -144,8 +141,6 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
     startTransition(async () => {
       const res = await criarAgendamento({
         companyId,
-        clienteNome: nome,
-        clienteWhatsapp: whatsapp,
         servicoId,
         barbeiroId,
         data,
@@ -176,7 +171,7 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
             <DialogHeader className="gap-2">
               <DialogTitle className="font-serif text-2xl">Agendamento enviado!</DialogTitle>
               <DialogDescription className="text-base">
-                {nome.split(" ")[0]}, seu horário foi reservado. Você receberá a confirmação em breve.
+                {cliente?.nome?.split(" ")[0]}, seu horário foi reservado. Você receberá a confirmação em breve.
               </DialogDescription>
             </DialogHeader>
             <div className="w-full rounded-lg border border-border bg-muted/40 p-4 text-left text-sm">
@@ -388,24 +383,10 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
                       formaPagamento={formaPagamento}
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="nome">Seu nome</Label>
-                    <Input
-                      id="nome"
-                      value={nome}
-                      onChange={(e) => setNome(e.target.value)}
-                      placeholder="Nome completo"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="whatsapp">WhatsApp</Label>
-                    <Input
-                      id="whatsapp"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="(11) 99999-9999"
-                      inputMode="tel"
-                    />
+                  <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+                    <p className="text-muted-foreground">Agendando como</p>
+                    <p className="font-medium">{cliente?.nome}</p>
+                    <p className="text-muted-foreground">{cliente?.whatsapp}</p>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="obs">Observações (opcional)</Label>
@@ -417,7 +398,7 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
                     />
                   </div>
                   <Button
-                    disabled={pending || !nome.trim() || !whatsapp.trim()}
+                    disabled={pending}
                     onClick={confirmar}
                     className="w-full"
                   >
