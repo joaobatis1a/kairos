@@ -34,6 +34,7 @@ Crie um projeto em [supabase.com](https://supabase.com). No **SQL Editor**, rode
 11. `migration_11_agendamento_insert.sql`
 12. `migration_12_suporte.sql`
 13. `migration_13_agenda.sql`
+14. `migration_14_agenda_tz.sql`
 
 `migration_01_destaques.sql` é código morto (funcionalidade abandonada) — **não rode**.
 
