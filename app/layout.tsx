@@ -21,7 +21,6 @@ const fredoka = Fredoka({
 export const metadata: Metadata = {
   title: 'kairos | Sistema de agendamento para barbearias',
   description: 'Agendamento online pros seus clientes e um painel completo pra gerenciar equipe, horários e faturamento da sua barbearia.',
-  generator: 'v0.app',
   icons: {
     icon: [
       { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
