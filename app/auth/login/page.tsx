@@ -9,11 +9,19 @@ import { PasswordInput } from "@/components/password-input"
 import { GoogleButton } from "@/components/google-button"
 import { Separator } from "@/components/ui/separator"
 import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { Scissors, Loader2, ArrowLeft } from "lucide-react"
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
