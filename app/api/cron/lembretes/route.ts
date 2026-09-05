@@ -3,8 +3,9 @@ import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailLembrete } from "@/lib/emails"
 import { NextResponse } from "next/server"
 
-// Esta rota é chamada diariamente por um cron (ex: Vercel Cron Jobs)
-// Envia lembretes para agendamentos de amanhã
+// Chamada diariamente pelo Vercel Cron (ver vercel.json). O Vercel manda
+// `Authorization: Bearer <CRON_SECRET>` quando a env CRON_SECRET existe.
+// Envia lembrete para os agendamentos de amanhã.
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization")
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -18,13 +19,20 @@ export async function GET(request: Request) {
   const admin = createAdminClient()
   const { data: agendamentos } = await admin
     .from("agendamentos")
-    .select("company_id, cliente_nome, servico_nome, servico_preco, data, horario")
+    .select("company_id, cliente_nome, cliente_whatsapp, servico_nome, servico_preco, data, horario")
     .eq("data", dataAmanha)
     .in("status", ["pendente", "confirmado"])
 
   if (!agendamentos?.length) {
     return NextResponse.json({ enviados: 0 })
   }
+
+  const whatsapps = Array.from(new Set(agendamentos.map((a) => a.cliente_whatsapp)))
+  const { data: clientes } = await admin
+    .from("clientes")
+    .select("whatsapp, email")
+    .in("whatsapp", whatsapps)
+  const emailPorWhatsapp = new Map((clientes ?? []).map((c) => [c.whatsapp, c.email]))
 
   const configPorEmpresa = new Map<string, Awaited<ReturnType<typeof getBarbeariaConfig>>>()
 
@@ -36,7 +44,7 @@ export async function GET(request: Request) {
 
     await enviarEmailLembrete({
       clienteNome: ag.cliente_nome,
-      clienteEmail: null,
+      clienteEmail: emailPorWhatsapp.get(ag.cliente_whatsapp) ?? null,
       servicoNome: ag.servico_nome,
       servicoPreco: Number(ag.servico_preco),
       barbeiroNome: null,

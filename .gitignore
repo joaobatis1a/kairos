@@ -25,4 +25,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# scratch / working files (não versionado)
+scratchpad/
 next-env.d.ts
