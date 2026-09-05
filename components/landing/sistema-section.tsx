@@ -17,8 +17,6 @@ function ColunaMockup({ children, invertido }: { children: React.ReactNode; inve
 
   return (
     <div ref={ref} className={cn("revelar relative", invertido && "md:order-1")}>
-      {/* halo quente atrás do painel, dá profundidade sem borda extra */}
-      <div className="absolute -inset-10 -z-10 rounded-full bg-primary/[0.07] blur-3xl" />
       <motion.div style={{ y }}>{children}</motion.div>
     </div>
   )
@@ -70,7 +68,7 @@ export function SistemaSection() {
           </Reveal>
         </div>
 
-        <div className="mt-24 flex flex-col gap-28 md:gap-36">
+        <div className="mt-16 flex flex-col gap-16 md:gap-20">
           {BLOCOS.map((b, i) => {
             const invertido = i % 2 === 1
             return (

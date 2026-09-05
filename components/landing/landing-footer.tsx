@@ -1,6 +1,4 @@
 import Link from "next/link"
-import { Mail, ArrowUpRight } from "lucide-react"
-import { LINK_CONTATO } from "@/components/landing/contato"
 import { ScissorMark } from "@/components/scissor-mark"
 
 const NAVEGACAO = [
@@ -44,7 +42,7 @@ export function LandingFooter() {
             </ul>
           </div>
 
-          {/* Acesso e contato */}
+          {/* Acesso */}
           <div>
             <p className="texto-dourado text-sm font-bold">Acesso</p>
             <ul className="mt-5 flex flex-col gap-3">
@@ -55,18 +53,6 @@ export function LandingFooter() {
                 >
                   Área da equipe
                 </Link>
-              </li>
-              <li>
-                <a
-                  href={LINK_CONTATO}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground"
-                >
-                  <Mail className="h-3.5 w-3.5 transition-colors group-hover:text-primary" />
-                  <span className="texto-dourado-interativo">Falar com a gente</span>
-                  <ArrowUpRight className="h-3 w-3 transition-[color,transform] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
-                </a>
               </li>
             </ul>
           </div>
