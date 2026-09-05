@@ -147,8 +147,6 @@ export function AgendamentoDialog({ companyId, barbeiros, open, onOpenChange, se
         clienteNome: nome,
         clienteWhatsapp: whatsapp,
         servicoId,
-        servicoNome: servico.nome,
-        servicoPreco: servico.preco,
         barbeiroId,
         data,
         horario,

@@ -10,10 +10,10 @@ async function getUsuarioDashboard() {
   if (!user) return null
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role")
+    .select("id, role, company_id")
     .eq("id", user.id)
     .single()
-  return profile ? { id: profile.id, role: profile.role as string } : null
+  return profile ? { id: profile.id, role: profile.role as string, companyId: profile.company_id as string } : null
 }
 
 function hojeIso() {
@@ -125,13 +125,21 @@ export type AvaliacoesResumo = Awaited<ReturnType<typeof getAvaliacoesGerais>>
 
 // Avaliações gerais de toda a barbearia (todos os barbeiros)
 export async function getAvaliacoesGerais() {
+  const usuario = await getUsuarioDashboard()
+  if (!usuario) return { mediaServico: 0, mediaBarbeiro: 0, totalAvaliacoes: 0, recentes: [] }
+
   const supabase = await createClient()
 
+  // RLS de avaliacoes é aberta (leitura pública, pra funcionar o storefront),
+  // então o isolamento por empresa precisa ser feito aqui: junta com
+  // agendamentos (!inner) e filtra pelo company_id do dono logado — senão
+  // o dashboard mistura avaliações de todas as barbearias da plataforma.
   const { data } = await supabase
     .from("avaliacoes")
     .select(
-      "id, nota_servico, nota_barbeiro, comentario, created_at, barbeiro:profiles!barbeiro_id(nome), agendamento:agendamentos!agendamento_id(cliente_nome)",
+      "id, nota_servico, nota_barbeiro, comentario, created_at, barbeiro:profiles!barbeiro_id(nome), agendamento:agendamentos!agendamento_id!inner(cliente_nome, company_id)",
     )
+    .eq("agendamento.company_id", usuario.companyId)
     .order("created_at", { ascending: false })
     .limit(20)
 

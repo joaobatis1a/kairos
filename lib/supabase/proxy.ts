@@ -35,7 +35,12 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname
 
-  const isAuthRoute = path.startsWith("/auth")
+  // cadastro-equipe fica de fora: é a própria página que recebe o usuário
+  // Google-autenticado sem profile ainda (ver app/auth/callback/route.ts).
+  // Sem essa exceção, a regra abaixo ("rota /auth com sessão -> /painel")
+  // manda de volta pro /painel antes de dar chance de digitar o código de
+  // convite, e o /painel sem profile manda de volta pro /auth/login -> loop.
+  const isAuthRoute = path.startsWith("/auth") && path !== "/auth/cadastro-equipe"
   const isPainelRoute = path.startsWith("/painel")
   const isManutencaoRoute = path.startsWith("/manutencao")
 

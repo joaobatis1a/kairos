@@ -27,13 +27,18 @@ export async function cadastrarComCodigo(input: {
   if (!codigo) return { ok: false, error: "Informe o código de convite." }
 
   const admin = createAdminClient()
+  // delete + select devolve a linha apagada só se ela ainda existia — isso
+  // consome o convite atomicamente na mesma query, então dois resgates
+  // simultâneos (ou o mesmo código usado duas vezes) não conseguem os dois
+  // "ganhar" a leitura antes de invalidar.
   const { data: invite } = await admin
     .from("invite_codes")
-    .select("company_id, role")
+    .delete()
     .eq("code", codigo)
+    .select("company_id, role")
     .maybeSingle()
 
-  if (!invite) return { ok: false, error: "Código inválido." }
+  if (!invite) return { ok: false, error: "Código inválido ou já utilizado." }
 
   const supabase = await createClient()
   const {

@@ -47,8 +47,6 @@ type CriarAgendamentoInput = {
   clienteNome: string
   clienteWhatsapp: string
   servicoId: string       // uuid do banco
-  servicoNome: string
-  servicoPreco: number
   barbeiroId: string
   data: string
   horario: string
@@ -72,6 +70,21 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     return { ok: false, error: "Você precisa estar logado para agendar." }
   }
 
+  // Nome e preço vêm do banco, nunca do payload do cliente — senão dá pra
+  // agendar qualquer serviço de graça só editando o request no devtools.
+  // O filtro por company_id também impede passar o id de um serviço de
+  // outra empresa junto com o barbeiroId desta.
+  const { data: servico } = await supabase
+    .from("servicos")
+    .select("nome, preco")
+    .eq("id", input.servicoId)
+    .eq("company_id", input.companyId)
+    .single()
+
+  if (!servico) {
+    return { ok: false, error: "Serviço inválido." }
+  }
+
   const { data: existentes } = await supabase
     .from("agendamentos")
     .select("id")
@@ -90,8 +103,8 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     cliente_nome: input.clienteNome.trim(),
     cliente_whatsapp: input.clienteWhatsapp.trim(),
     servico_id: input.servicoId,
-    servico_nome: input.servicoNome,
-    servico_preco: input.servicoPreco,
+    servico_nome: servico.nome,
+    servico_preco: servico.preco,
     barbeiro_id: input.barbeiroId,
     data: input.data,
     horario: input.horario,
@@ -110,8 +123,8 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
     enviarEmailConfirmacao({
       clienteNome: input.clienteNome,
       clienteEmail: null, // cliente não tem email obrigatório ainda
-      servicoNome: input.servicoNome,
-      servicoPreco: input.servicoPreco,
+      servicoNome: servico.nome,
+      servicoPreco: servico.preco,
       barbeiroNome: null,
       data: input.data,
       horario: input.horario,
@@ -122,7 +135,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   notificar({
     companyId: input.companyId,
     titulo: "Novo agendamento pendente",
-    corpo: `${input.clienteNome} agendou ${input.servicoNome} para ${input.data} às ${input.horario}.`,
+    corpo: `${input.clienteNome} agendou ${servico.nome} para ${input.data} às ${input.horario}.`,
     link: "/painel/agendamentos",
     destinatarioRole: "owner",
   })
