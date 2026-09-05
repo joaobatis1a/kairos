@@ -94,6 +94,14 @@ export function StorefrontFooter({
       <div className="relative border-t border-border/40 py-5">
         <p className="text-center text-[11px] text-muted-foreground/70">
           © {new Date().getFullYear()} {config.nome} ·{" "}
+          <Link href="/termos" className="transition-colors hover:text-foreground">
+            Termos
+          </Link>{" "}
+          ·{" "}
+          <Link href="/privacidade" className="transition-colors hover:text-foreground">
+            Privacidade
+          </Link>{" "}
+          ·{" "}
           <Link href="/auth/login" className="transition-colors hover:text-foreground">
             Área da equipe
           </Link>
