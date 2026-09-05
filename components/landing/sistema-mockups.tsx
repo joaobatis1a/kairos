@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import { Check, Scissors, TrendingUp } from "lucide-react"
 import { Contador } from "@/components/landing/contador"
-import { useSemCursor } from "@/components/landing/card-recurso"
+import { useSemCursor } from "@/components/landing/hooks"
 import { cn } from "@/lib/utils"
 
 /**

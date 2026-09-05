@@ -12,6 +12,8 @@
   --font-heading: var(--font-fredoka), 'Fredoka Fallback', ui-rounded, sans-serif;
   --font-serif: var(--font-fredoka), 'Fredoka Fallback', ui-rounded, sans-serif;
   --font-sans: var(--font-nunito), 'Nunito Fallback', ui-rounded, sans-serif;
+  /* Só pra ênfase em itálico na landing de vendas — ver comentário em app/layout.tsx */
+  --font-accent: var(--font-bodoni), 'Times New Roman', serif;
   --font-mono: var(--font-geist-mono), 'Geist Mono Fallback';
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

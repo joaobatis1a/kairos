@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Scissors } from "lucide-react"
+import { ScissorMark } from "@/components/scissor-mark"
 
 export const metadata: Metadata = {
   title: "Política de Privacidade",
@@ -11,7 +11,7 @@ export default function PrivacidadePage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2 text-foreground">
-        <Scissors className="h-5 w-5 text-primary" />
+        <ScissorMark className="h-5 w-5 text-primary" />
         <span className="font-serif text-lg font-semibold">kairos</span>
       </Link>
 

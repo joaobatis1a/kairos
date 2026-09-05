@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator"
 import { PasswordInput } from "@/components/password-input"
 import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { GoogleButton } from "@/components/google-button"
-import { Scissors, Loader2, KeyRound } from "lucide-react"
+import { Loader2, KeyRound } from "lucide-react"
+import { ScissorMark } from "@/components/scissor-mark"
 import { toast } from "sonner"
 
 export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }) {
@@ -42,7 +43,7 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
     <div className="flex min-h-svh w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-center gap-2">
-          <Scissors className="h-6 w-6 text-primary" />
+          <ScissorMark className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl font-semibold">kairos</span>
         </div>
         <Card>

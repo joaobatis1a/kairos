@@ -1,45 +1,85 @@
 "use client"
 
-import { CalendarCheck, Users, Star, Bell, Link2, ShieldCheck } from "lucide-react"
-import { CelulaRecurso } from "@/components/landing/card-recurso"
+import { useRef } from "react"
+import { useInView } from "framer-motion"
+import { useSemCursor } from "@/components/landing/hooks"
 import { Reveal, Eyebrow } from "@/components/landing/reveal"
 
 const RECURSOS = [
   {
-    icon: Link2,
     titulo: "Link próprio",
     texto: "Sua barbearia com endereço exclusivo, pronto pra colar na bio do Instagram.",
   },
   {
-    icon: CalendarCheck,
     titulo: "Horários sob controle",
     texto: "Você define dias de funcionamento, intervalos e a duração de cada serviço.",
   },
   {
-    icon: Users,
     titulo: "Equipe organizada",
     texto: "Cadastre barbeiros, ative e desative quem está atendendo na semana.",
   },
   {
-    icon: Bell,
     titulo: "Avisos automáticos",
     texto: "Confirmação, lembrete na véspera e agradecimento saem sem você lembrar.",
   },
   {
-    icon: Star,
     titulo: "Avaliação após o corte",
     texto: "O cliente avalia o serviço e o profissional; a média fica no seu painel.",
   },
   {
-    icon: ShieldCheck,
     titulo: "Cada um no seu lugar",
     texto: "Dono vê tudo, barbeiro vê a própria agenda. Sem dado trocado entre barbearias.",
   },
 ]
 
+/**
+ * Linha do "quadro de serviços" — um número + nome + descrição, com a
+ * coluna de preço de um quadro de barbearia de verdade substituída por
+ * "incluso". Troca a grade de cards com ícone (o clichê de landing de SaaS)
+ * por uma lista de linhas, a mesma linguagem estrutural do "O que muda"
+ * (LinhaTroca em manifesto-section) — então a página fala uma língua só.
+ */
+function LinhaRecurso({
+  titulo,
+  texto,
+  indice,
+}: {
+  titulo: string
+  texto: string
+  indice: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const semCursor = useSemCursor()
+  const noCentro = useInView(ref, { margin: "-45% 0px -45% 0px" })
+  const ativo = semCursor && noCentro
+
+  return (
+    <Reveal delay={0.06 * indice}>
+      <div
+        ref={ref}
+        data-ativo={ativo}
+        className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-x-5 border-t border-border/60 py-6 transition-colors duration-500 last:border-b hover:border-primary/40 data-[ativo=true]:border-primary/40 sm:gap-x-8"
+      >
+        <span className="font-accent text-lg italic text-primary/40 transition-colors duration-500 group-hover:text-primary group-data-[ativo=true]:text-primary tabular-nums">
+          {String(indice + 1).padStart(2, "0")}
+        </span>
+
+        <div>
+          <h3 className="font-serif text-lg leading-snug">{titulo}</h3>
+          <p className="mt-1.5 max-w-md text-sm leading-relaxed text-muted-foreground">{texto}</p>
+        </div>
+
+        <span className="texto-dourado hidden shrink-0 text-xs font-bold tracking-[0.18em] uppercase sm:inline">
+          Incluso
+        </span>
+      </div>
+    </Reveal>
+  )
+}
+
 export function RecursosSection() {
   return (
-    <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-28 md:py-36">
+    <section id="recursos" className="mx-auto max-w-4xl scroll-mt-20 px-6 py-28 md:py-36">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <Reveal>
@@ -58,16 +98,9 @@ export function RecursosSection() {
         </Reveal>
       </div>
 
-      {/* -mr-px + overflow-hidden apara a borda direita da última coluna,
-          então a grade fecha certo em 1, 2 ou 3 colunas sem regra de nth-child */}
-      <div
-        className="relative -mr-px mt-16 grid grid-cols-1 overflow-hidden border-t border-border/60 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {/* foco de luz que acompanha o cursor por trás das células (que são
-            transparentes), acendendo o card sob o mouse e os vizinhos */}
-
+      <div className="mt-16">
         {RECURSOS.map((r, i) => (
-          <CelulaRecurso key={r.titulo} icon={r.icon} titulo={r.titulo} texto={r.texto} indice={i} />
+          <LinhaRecurso key={r.titulo} titulo={r.titulo} texto={r.texto} indice={i} />
         ))}
       </div>
     </section>

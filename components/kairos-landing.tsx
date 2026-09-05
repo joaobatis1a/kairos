@@ -6,6 +6,7 @@ import { RecursosSection } from "@/components/landing/recursos-section"
 import { ComoFuncionaSection } from "@/components/landing/como-funciona-section"
 import { FinalCtaSection } from "@/components/landing/final-cta-section"
 import { LandingFooter } from "@/components/landing/landing-footer"
+import { SectionDivider } from "@/components/landing/section-divider"
 
 export function KairosLanding() {
   return (
@@ -13,10 +14,12 @@ export function KairosLanding() {
       <LandingHeader />
       <main id="conteudo" tabIndex={-1}>
         <HeroSection />
+        <SectionDivider />
         <ManifestoSection />
         <SistemaSection />
         <RecursosSection />
         <ComoFuncionaSection />
+        <SectionDivider />
         <FinalCtaSection />
       </main>
       <LandingFooter />

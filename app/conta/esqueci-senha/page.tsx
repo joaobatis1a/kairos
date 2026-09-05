@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { solicitarRedefinicaoSenha } from "@/app/actions/conta"
-import { Scissors, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import { ScissorMark } from "@/components/scissor-mark"
 
 export default function EsqueciSenhaPage() {
   const [email, setEmail] = useState("")
@@ -35,7 +36,7 @@ export default function EsqueciSenhaPage() {
     <div className="flex min-h-svh w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-6 flex items-center justify-center gap-2 text-foreground">
-          <Scissors className="h-6 w-6 text-primary" />
+          <ScissorMark className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl font-semibold">kairos</span>
         </Link>
         <Card>

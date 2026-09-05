@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist_Mono, Nunito, Fredoka } from 'next/font/google'
+import { Geist_Mono, Nunito, Fredoka, Bodoni_Moda } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
@@ -17,6 +17,19 @@ const fredoka = Fredoka({
   subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700'],
 })
+/**
+ * Fonte de destaque só pra palavras de efeito dentro de títulos da landing
+ * de vendas (`<em className="font-accent italic">`) — itálico de verdade
+ * (Fredoka não tem, virava itálico sintético feio). Didona de alto
+ * contraste: o traço fino/grosso lembra o fio de uma navalha, sem cair no
+ * combo clichê "serifada + creme + terracota".
+ */
+const bodoniModa = Bodoni_Moda({
+  variable: '--font-bodoni',
+  subsets: ['latin', 'latin-ext'],
+  weight: ['600'],
+  style: ['italic'],
+})
 
 export const metadata: Metadata = {
   title: 'kairos | Sistema de agendamento para barbearias',
@@ -26,7 +39,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable}`}>
+    <html
+      lang="pt-BR"
+      suppressHydrationWarning
+      className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable} ${bodoniModa.variable}`}
+    >
       <body className="font-sans antialiased bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="kairos-theme">
           {/* Fica invisível até receber foco pelo teclado: sem isso, quem navega

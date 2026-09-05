@@ -9,6 +9,7 @@ import { barbearia } from "@/config/barbearia"
 import type { Profile } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
+import { ScissorMark } from "@/components/scissor-mark"
 import {
   Sheet,
   SheetContent,
@@ -17,7 +18,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import {
-  Scissors,
   LayoutDashboard,
   CalendarDays,
   CalendarCheck,
@@ -133,7 +133,7 @@ export function PainelNav({ perfil, nomeNegocio, slugEmpresa }: { perfil: Profil
       {/* Sidebar fixa no desktop */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border/60 bg-card/40 md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <Scissors className="h-5 w-5 shrink-0 text-primary" />
+          <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
           <span className="flex-1 truncate font-serif text-lg">{nome}</span>
           <SinoNotificacoes />
         </div>
@@ -169,7 +169,7 @@ function MenuMobile({
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex items-center gap-2">
-        <Scissors className="h-5 w-5 text-primary" />
+        <ScissorMark className="h-5 w-5 text-primary" />
         <span className="font-serif font-semibold">{nome}</span>
       </div>
 

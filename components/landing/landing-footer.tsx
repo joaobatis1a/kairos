@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Mail, ArrowUpRight } from "lucide-react"
 import { LINK_CONTATO } from "@/components/landing/contato"
+import { ScissorMark } from "@/components/scissor-mark"
 
 const NAVEGACAO = [
   { href: "#sistema", label: "O sistema" },
@@ -16,7 +17,10 @@ export function LandingFooter() {
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4 md:gap-8">
           {/* Marca */}
           <div className="col-span-2 md:col-span-2">
-            <p className="font-serif text-2xl tracking-[0.2em]">kairos</p>
+            <p className="flex items-center gap-2.5 font-serif text-2xl tracking-[0.2em]">
+              <ScissorMark className="h-6 w-6 shrink-0 text-primary" />
+              kairos
+            </p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Sistema de agendamento para barbearias. Seus clientes marcam sozinhos, sua equipe
               trabalha com a agenda em dia.

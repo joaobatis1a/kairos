@@ -7,6 +7,7 @@ import { Mail, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Magnetico } from "@/components/landing/magnetico"
 import { LINK_CONTATO } from "@/components/landing/contato"
+import { ScissorMark } from "@/components/scissor-mark"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
@@ -73,7 +74,11 @@ export function LandingHeader() {
         )}
       >
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="font-serif text-xl tracking-[0.2em] transition-opacity hover:opacity-70">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-serif text-xl tracking-[0.2em] transition-opacity hover:opacity-70"
+          >
+            <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
             kairos
           </Link>
 

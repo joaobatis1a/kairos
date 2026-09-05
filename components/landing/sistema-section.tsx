@@ -60,7 +60,7 @@ export function SistemaSection() {
             <Eyebrow>Por dentro</Eyebrow>
           </Reveal>
           <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Três telas.", <em key="2" className="texto-dourado italic">Uma barbearia inteira.</em>]} />
+            <TextReveal delay={0.1} lines={["Três telas.", <em key="2" className="texto-dourado font-accent italic">Uma barbearia inteira.</em>]} />
           </h2>
           <Reveal delay={0.25}>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">

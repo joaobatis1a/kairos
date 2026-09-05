@@ -11,7 +11,8 @@ import { PasswordInput } from "@/components/password-input"
 import { GoogleButton } from "@/components/google-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Scissors, Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft } from "lucide-react"
+import { ScissorMark } from "@/components/scissor-mark"
 
 export default function ContaLoginPage() {
   return (
@@ -51,7 +52,7 @@ function ContaLoginForm() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground">
-            <Scissors className="h-6 w-6 text-primary" />
+            <ScissorMark className="h-6 w-6 text-primary" />
             <span className="font-serif text-xl font-semibold">kairos</span>
           </Link>
           <Link href="/" className="text-muted-foreground hover:text-foreground">

@@ -29,3 +29,5 @@ yarn-error.log*
 # scratch / working files (não versionado)
 scratchpad/
 next-env.d.ts
+.vercel
+.env*
