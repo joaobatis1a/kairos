@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
@@ -14,6 +14,14 @@ import { Separator } from "@/components/ui/separator"
 import { Scissors, Loader2, ArrowLeft } from "lucide-react"
 
 export default function ContaLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <ContaLoginForm />
+    </Suspense>
+  )
+}
+
+function ContaLoginForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/"
   const [email, setEmail] = useState("")
