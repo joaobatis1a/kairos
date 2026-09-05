@@ -30,6 +30,7 @@ Crie um projeto em [supabase.com](https://supabase.com). No **SQL Editor**, rode
 7. `migration_07_notificacoes.sql`
 8. `migration_08_avisos.sql`
 9. `migration_09_storage.sql`
+10. `migration_10_barbeiros_publicos.sql`
 
 `migration_01_destaques.sql` é código morto (funcionalidade abandonada) — **não rode**.
 
