@@ -13,10 +13,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Scissors, Building2, ShieldCheck, LogOut, Menu } from "lucide-react"
+import { Scissors, Building2, ShieldCheck, LifeBuoy, LogOut, Menu } from "lucide-react"
 
 const LINKS = [
   { href: "/manutencao", label: "Empresas", icon: Building2 },
+  { href: "/manutencao/suporte", label: "Suporte", icon: LifeBuoy },
   { href: "/manutencao/equipe", label: "Equipe de manutenção", icon: ShieldCheck },
 ]
 

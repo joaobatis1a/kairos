@@ -30,6 +30,7 @@ import {
   LogOut,
   Menu,
   Megaphone,
+  LifeBuoy,
 } from "lucide-react"
 
 function linksPara(isOwner: boolean) {
@@ -42,6 +43,7 @@ function linksPara(isOwner: boolean) {
         { href: "/painel/avisos", label: "Avisos", icon: Megaphone },
         { href: "/painel/gerenciamento", label: "Gerenciamento", icon: Settings },
         { href: "/painel/auditoria", label: "Auditoria", icon: History },
+        { href: "/painel/suporte", label: "Suporte", icon: LifeBuoy },
         { href: "/painel/configuracoes", label: "Configurações", icon: ShieldAlert },
       ]
     : [
