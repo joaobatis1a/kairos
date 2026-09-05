@@ -8,24 +8,17 @@ import type { Profile, FormaPagamento } from "@/lib/types"
 
 export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profile, "id" | "nome">[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, nome, role, atende_como_barbeiro")
-    .eq("company_id", companyId)
-    .eq("ativo", true)
-    .order("nome")
+  // via RPC security definer (barbeiros_publicos) em vez de select direto:
+  // profiles não tem mais leitura pública, e a função já aplica o filtro de
+  // empresa + ativo + (barbeiro ou owner que atende) + nome preenchido.
+  const { data, error } = await supabase.rpc("barbeiros_publicos", { p_company_id: companyId })
 
   if (error) {
     console.log("[v0] Erro ao buscar barbeiros:", error.message)
     return []
   }
 
-  return (data ?? []).filter((b) => {
-    if (!b.nome || b.nome.trim().length === 0) return false
-    if (b.role === "barber") return true
-    if (b.role === "owner") return b.atende_como_barbeiro === true
-    return false
-  })
+  return (data ?? []) as Pick<Profile, "id" | "nome">[]
 }
 
 export async function getHorariosOcupados(barbeiroId: string, data: string): Promise<string[]> {

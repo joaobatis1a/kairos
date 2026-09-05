@@ -135,9 +135,14 @@ export async function listarEquipe() {
   if (!owner) return []
 
   const supabase = await createClient()
+  // O filtro por company_id é obrigatório: a policy RLS "Leitura pública de
+  // barbeiros ativos" (necessária pro storefront) deixa qualquer profile
+  // ativo visível, então sem esse filtro a lista traz a equipe de todas as
+  // barbearias da plataforma.
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
+    .eq("company_id", owner.companyId)
     .order("role", { ascending: true })
     .order("nome", { ascending: true })
 
@@ -188,8 +193,21 @@ export async function alternarAtivoBarbeiro(id: string, ativo: boolean) {
   if (!owner) return { ok: false, error: "Sem permissão." }
 
   const supabase = await createClient()
-  const { data: barbeiro } = await supabase.from("profiles").select("nome").eq("id", id).single()
-  const { error } = await supabase.from("profiles").update({ ativo }).eq("id", id)
+  // .eq("company_id") em ambas as queries: sem isso, a leitura pega o nome
+  // de barbeiro de qualquer empresa (policy pública) e o update depende só
+  // da RLS pra não vazar — melhor barrar explicitamente e devolver erro.
+  const { data: barbeiro } = await supabase
+    .from("profiles")
+    .select("nome")
+    .eq("id", id)
+    .eq("company_id", owner.companyId)
+    .single()
+  if (!barbeiro) return { ok: false, error: "Barbeiro não encontrado." }
+  const { error } = await supabase
+    .from("profiles")
+    .update({ ativo })
+    .eq("id", id)
+    .eq("company_id", owner.companyId)
   if (error) return { ok: false, error: error.message }
 
   registrarAuditoria(
@@ -210,6 +228,17 @@ export async function removerBarbeiro(id: string) {
   if (owner.id === id) return { ok: false, error: "Você não pode remover a si mesmo." }
 
   const admin = createAdminClient()
+  // deleteUser roda com service role (ignora RLS), então precisa confirmar
+  // que o alvo é da própria empresa — senão um dono conseguiria apagar a
+  // conta de qualquer usuário da plataforma passando o uuid dele.
+  const { data: alvo } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("id", id)
+    .eq("company_id", owner.companyId)
+    .maybeSingle()
+  if (!alvo) return { ok: false, error: "Barbeiro não encontrado." }
+
   const { error } = await admin.auth.admin.deleteUser(id)
   if (error) {
     console.log("[v0] Erro ao remover barbeiro:", error.message)
