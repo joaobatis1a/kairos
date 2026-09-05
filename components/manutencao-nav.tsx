@@ -13,7 +13,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Scissors, Building2, ShieldCheck, LifeBuoy, LogOut, Menu } from "lucide-react"
+import { Building2, ShieldCheck, LifeBuoy, LogOut, Menu } from "lucide-react"
+import { ScissorMark } from "@/components/scissor-mark"
 
 const LINKS = [
   { href: "/manutencao", label: "Empresas", icon: Building2 },
@@ -91,7 +92,7 @@ export function ManutencaoNav({ email }: { email: string }) {
       {/* Sidebar fixa no desktop */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border/60 bg-card/40 md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <Scissors className="h-5 w-5 shrink-0 text-primary" />
+          <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
           <span className="font-serif text-lg">kairos</span>
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
@@ -105,7 +106,7 @@ export function ManutencaoNav({ email }: { email: string }) {
       {/* Barra + gaveta no mobile */}
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur md:hidden">
         <div className="flex items-center gap-2">
-          <Scissors className="h-5 w-5 text-primary" />
+          <ScissorMark className="h-5 w-5 text-primary" />
           <span className="font-serif font-semibold">kairos · Manutenção</span>
         </div>
 

@@ -3,29 +3,65 @@
 import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Mail, ArrowRight, Clock3, Wrench, MonitorSmartphone } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LINK_CONTATO } from "@/components/landing/contato"
-import { CelulaRecurso } from "@/components/landing/card-recurso"
 import { Magnetico } from "@/components/landing/magnetico"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
+import { cn } from "@/lib/utils"
 
 const GARANTIAS = [
   {
     icon: Clock3,
     titulo: "Resposta no mesmo dia",
     texto: "Você manda a mensagem e a gente retorna em até um dia útil.",
+    giro: "-3deg",
   },
   {
     icon: Wrench,
     titulo: "A gente configura",
     texto: "Serviços, horários e equipe entram prontos. Você não monta nada sozinho.",
+    giro: "2deg",
   },
   {
     icon: MonitorSmartphone,
     titulo: "Nada pra instalar",
     texto: "Funciona no navegador, no celular do cliente e no computador da loja.",
+    giro: "-2deg",
   },
 ]
+
+/** Selo (carimbo) de garantia — o círculo tracejado e o leve giro imitam um
+ * carimbo de borracha batido à mão, no lugar do card com ícone genérico. */
+function SeloGarantia({
+  icon: Icon,
+  titulo,
+  texto,
+  giro,
+}: {
+  icon: LucideIcon
+  titulo: string
+  texto: string
+  giro: string
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 px-4 text-center">
+      <div
+        style={{ transform: `rotate(${giro})` }}
+        className={cn(
+          "flex h-24 w-24 shrink-0 items-center justify-center rounded-full",
+          "border-[1.5px] border-dashed border-primary/50 text-primary",
+        )}
+      >
+        <Icon className="h-8 w-8" strokeWidth={1.5} aria-hidden />
+      </div>
+      <div>
+        <h3 className="font-serif text-base">{titulo}</h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{texto}</p>
+      </div>
+    </div>
+  )
+}
 
 export function FinalCtaSection() {
   const ref = useRef<HTMLElement>(null)
@@ -55,7 +91,7 @@ export function FinalCtaSection() {
           </Reveal>
 
           <h2 className="mt-7 font-serif text-[clamp(2.25rem,5.5vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Vamos colocar sua", <em key="2" className="texto-dourado italic">barbearia no kairos?</em>]} />
+            <TextReveal delay={0.1} lines={["Vamos colocar sua", <em key="2" className="texto-dourado font-accent italic">barbearia no kairos?</em>]} />
           </h2>
 
           <Reveal delay={0.28}>
@@ -67,21 +103,13 @@ export function FinalCtaSection() {
         </div>
 
         {/* o que esperar depois de enviar, antes do botão */}
-        <div
-                className="relative -mr-px mt-16 grid grid-cols-1 overflow-hidden border-y border-border/60 sm:grid-cols-3"
-        >
-
-          {GARANTIAS.map((g, i) => (
-            <CelulaRecurso
-              key={g.titulo}
-              icon={g.icon}
-              titulo={g.titulo}
-              texto={g.texto}
-              indice={i}
-              className="text-left last:border-b-0 sm:border-b-0"
-            />
-          ))}
-        </div>
+        <Reveal delay={0.1}>
+          <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-6">
+            {GARANTIAS.map((g) => (
+              <SeloGarantia key={g.titulo} icon={g.icon} titulo={g.titulo} texto={g.texto} giro={g.giro} />
+            ))}
+          </div>
+        </Reveal>
 
         <Reveal delay={0.15}>
           <div className="mt-14 flex flex-col items-center gap-5">
