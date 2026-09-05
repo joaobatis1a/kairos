@@ -22,6 +22,7 @@ export function HorariosForm({ config }: { config: HorariosConfig }) {
   const [dias, setDias] = useState<number[]>(config.dias_abertos)
   const [horarios, setHorarios] = useState<string[]>([...config.horarios].sort())
   const [novoHorario, setNovoHorario] = useState("")
+  const [antecedencia, setAntecedencia] = useState(String(config.antecedencia_min_horas))
   const [pending, startTransition] = useTransition()
 
   function toggleDia(num: number) {
@@ -41,8 +42,9 @@ export function HorariosForm({ config }: { config: HorariosConfig }) {
   }
 
   function salvar() {
+    const ant = Math.max(0, Math.floor(Number(antecedencia) || 0))
     startTransition(async () => {
-      const res = await salvarHorarios({ dias_abertos: dias, horarios })
+      const res = await salvarHorarios({ dias_abertos: dias, horarios, antecedencia_min_horas: ant })
       if (res.ok) toast.success("Horários salvos!")
       else toast.error(res.error ?? "Erro ao salvar.")
     })
@@ -98,6 +100,23 @@ export function HorariosForm({ config }: { config: HorariosConfig }) {
           <Button variant="outline" size="sm" onClick={adicionarHorario}>
             <Plus className="h-4 w-4" /> Adicionar
           </Button>
+        </div>
+      </div>
+
+      {/* Antecedência mínima */}
+      <div>
+        <p className="mb-2 text-sm font-medium">Antecedência mínima</p>
+        <div className="flex items-center gap-2">
+          <Input
+            type="number"
+            min={0}
+            value={antecedencia}
+            onChange={(e) => setAntecedencia(e.target.value)}
+            className="w-24"
+          />
+          <span className="text-sm text-muted-foreground">
+            horas antes pra agendar ou cancelar (0 = sem trava)
+          </span>
         </div>
       </div>
 

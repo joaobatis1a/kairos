@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { salvarAvaliacao } from "@/app/actions/avaliacoes"
+import { cancelarMeuAgendamento } from "@/app/actions/agendamentos"
 import { Estrelas } from "@/components/estrelas"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -43,11 +45,26 @@ export type AgHistorico = {
 
 /** Atendimentos anteriores e as avaliações deles. */
 export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
+  const router = useRouter()
   const [agAvaliando, setAgAvaliando] = useState<AgHistorico | null>(null)
   const [notaServico, setNotaServico] = useState(0)
   const [notaBarbeiro, setNotaBarbeiro] = useState(0)
   const [comentario, setComentario] = useState("")
+  const [agCancelando, setAgCancelando] = useState<AgHistorico | null>(null)
+  const [motivoCancel, setMotivoCancel] = useState("")
   const [pending, startTransition] = useTransition()
+
+  function cancelar() {
+    if (!agCancelando) return
+    startTransition(async () => {
+      const res = await cancelarMeuAgendamento(agCancelando.id, motivoCancel)
+      if (!res.ok) { toast.error(res.error ?? "Erro ao cancelar."); return }
+      toast.success("Agendamento cancelado.")
+      setAgCancelando(null)
+      setMotivoCancel("")
+      router.refresh()
+    })
+  }
 
   function abrirAvaliacao(ag: AgHistorico) {
     const av = ag.avaliacao?.[0]
@@ -122,6 +139,17 @@ export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
               </div>
             </div>
 
+            {(ag.status === "pendente" || ag.status === "confirmado") && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setMotivoCancel(""); setAgCancelando(ag) }}
+                className="self-start rounded-full"
+              >
+                Cancelar agendamento
+              </Button>
+            )}
+
             {av ? (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-3">
                 <div className="flex flex-wrap items-center gap-4">
@@ -158,6 +186,33 @@ export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
           </div>
         )
       })}
+
+      <Dialog open={!!agCancelando} onOpenChange={(o) => !o && setAgCancelando(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Cancelar agendamento</DialogTitle>
+            <DialogDescription>
+              {agCancelando?.servico_nome} · {agCancelando?.data ? formatarData(agCancelando.data) : ""} às{" "}
+              {agCancelando?.horario.slice(0, 5)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 py-2">
+            <p className="text-sm font-medium">Motivo (opcional)</p>
+            <Textarea
+              value={motivoCancel}
+              onChange={(e) => setMotivoCancel(e.target.value)}
+              placeholder="Ex: imprevisto, vou remarcar depois..."
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAgCancelando(null)}>Voltar</Button>
+            <Button variant="destructive" onClick={cancelar} disabled={pending}>
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : "Confirmar cancelamento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!agAvaliando} onOpenChange={(o) => !o && setAgAvaliando(null)}>
         <DialogContent className="max-w-sm">

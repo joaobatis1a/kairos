@@ -175,6 +175,55 @@ export async function cancelarAgendamento(id: string, motivo: string) {
   return { ok: true }
 }
 
+function paraMinutos(hhmm: string): number {
+  const [h, m] = hhmm.slice(0, 5).split(":").map(Number)
+  return h * 60 + m
+}
+
+export async function remarcarAgendamento(id: string, novaData: string, novoHorario: string) {
+  const usuario = await getUsuario()
+  if (!usuario) return { ok: false, error: "Sem permissão." }
+
+  const supabase = await createClient()
+  const { data: ag } = await supabase
+    .from("agendamentos")
+    .select("id, company_id, barbeiro_id, status, servico:servicos!servico_id(duracao_min)")
+    .eq("id", id)
+    .single()
+
+  if (!ag) return { ok: false, error: "Agendamento não encontrado." }
+  if (ag.status === "cancelado" || ag.status === "finalizado") {
+    return { ok: false, error: "Não dá pra remarcar um agendamento já encerrado." }
+  }
+
+  const dur =
+    (Array.isArray(ag.servico) ? ag.servico[0]?.duracao_min : (ag.servico as { duracao_min: number } | null)?.duracao_min) ?? 30
+
+  const { data: intervalos } = await supabase.rpc("agenda_indisponivel", {
+    p_barbeiro_id: ag.barbeiro_id,
+    p_data: novaData,
+  })
+  const ini = paraMinutos(novoHorario)
+  const fim = ini + dur
+  const conflita = ((intervalos ?? []) as { inicio: string; fim: string }[]).some(
+    (o) => ini < paraMinutos(o.fim) && fim > paraMinutos(o.inicio),
+  )
+  if (conflita) return { ok: false, error: "O barbeiro já tem compromisso nesse horário." }
+
+  const { error } = await supabase
+    .from("agendamentos")
+    .update({ data: novaData, horario: novoHorario })
+    .eq("id", id)
+  if (error) return { ok: false, error: error.message }
+
+  registrarAuditoria(ag.company_id, usuario.nome, "Agendamento remarcado", `${novaData} ${novoHorario}`)
+
+  revalidatePath("/painel")
+  revalidatePath("/painel/agendamentos")
+  revalidatePath("/painel/agenda")
+  return { ok: true }
+}
+
 export async function excluirAgendamento(id: string) {
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
