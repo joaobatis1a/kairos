@@ -104,39 +104,6 @@ export async function getHorariosConfig(companyId: string): Promise<HorariosConf
   }
 }
 
-export type OnboardingStatus = {
-  dispensado: boolean
-  temServico: boolean
-  temHorario: boolean
-  temBarbeiro: boolean
-}
-
-// Progresso do checklist de "primeiros passos" do dashboard — calculado na
-// hora a partir do que já existe (serviço, horário configurado, barbeiro
-// além do dono), sem precisar guardar o progresso em lugar nenhum.
-export async function getOnboardingStatus(companyId: string): Promise<OnboardingStatus> {
-  const supabase = await createClient()
-
-  const [{ data: empresa }, { count: totalServicos }, { data: horarios }, { count: totalBarbeiros }] =
-    await Promise.all([
-      supabase.from("companies").select("onboarding_dismissed").eq("id", companyId).single(),
-      supabase.from("servicos").select("id", { count: "exact", head: true }).eq("company_id", companyId),
-      supabase.from("horarios_config").select("horarios").eq("company_id", companyId).single(),
-      supabase
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("company_id", companyId)
-        .eq("role", "barber"),
-    ])
-
-  return {
-    dispensado: empresa?.onboarding_dismissed ?? false,
-    temServico: (totalServicos ?? 0) > 0,
-    temHorario: (horarios?.horarios?.length ?? 0) > 0,
-    temBarbeiro: (totalBarbeiros ?? 0) > 0,
-  }
-}
-
 export async function enviarLogoEmpresa(formData: FormData) {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
@@ -193,20 +160,6 @@ export async function removerLogoEmpresa() {
 
   revalidatePath("/painel", "layout")
   revalidatePath("/b/[slug]", "page")
-  return { ok: true as const }
-}
-
-export async function dispensarOnboarding() {
-  if (DEMO_MODE) return bloqueadoNoDemo()
-
-  const owner = await verificarOwner()
-  if (!owner) return { ok: false as const, error: "Sem permissão." }
-
-  const admin = createAdminClient()
-  const { error } = await admin.from("companies").update({ onboarding_dismissed: true }).eq("id", owner.companyId)
-  if (error) return { ok: false as const, error: "Não foi possível dispensar o checklist." }
-
-  revalidatePath("/painel")
   return { ok: true as const }
 }
 

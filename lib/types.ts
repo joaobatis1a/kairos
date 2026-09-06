@@ -19,7 +19,6 @@ export type Company = {
   instagram: string
   instagram_url: string
   status: StatusEmpresa
-  onboarding_dismissed: boolean
   logo_url: string
   created_at: string
 }
