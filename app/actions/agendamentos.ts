@@ -16,7 +16,7 @@ export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profil
   const { data, error } = await supabase.rpc("barbeiros_publicos", { p_company_id: companyId })
 
   if (error) {
-    console.log("[v0] Erro ao buscar barbeiros:", error.message)
+    console.error("Erro ao buscar barbeiros:", error.message)
     return []
   }
 
@@ -44,7 +44,7 @@ export async function getHorariosOcupados(
   })
 
   if (error) {
-    console.log("[v0] Erro ao buscar agenda indisponível:", error.message)
+    console.error("Erro ao buscar agenda indisponível:", error.message)
     return []
   }
 
@@ -164,7 +164,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
   })
 
   if (error) {
-    console.log("[v0] Erro ao criar agendamento:", error.message)
+    console.error("Erro ao criar agendamento:", error.message)
     return { ok: false, error: "Não foi possível concluir o agendamento. Tente novamente." }
   }
 

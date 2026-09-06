@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { LandingPage } from "@/components/landing-page"
 import { getBarbeirosAtivos, getBarbeirosVitrine } from "@/app/actions/agendamentos"
 import { getClienteAtual, getPerfilAtual } from "@/lib/auth"
-import { getEmpresaPorSlug, getBarbeariaConfig, getServicos, getHorariosConfig } from "@/app/actions/config"
+import { getEmpresaPorSlug, getBarbeariaConfig, getServicos, getProdutos, getHorariosConfig } from "@/app/actions/config"
 import { getStatusAbertura } from "@/lib/datas"
 
 export const dynamic = "force-dynamic"
@@ -45,13 +45,14 @@ export default async function BarbeariaPage({ params }: { params: Promise<{ slug
   const empresa = await getEmpresaPorSlug(slug)
   if (!empresa) notFound()
 
-  const [barbeiros, barbeirosVitrine, cliente, perfil, config, servicos, horarios] = await Promise.all([
+  const [barbeiros, barbeirosVitrine, cliente, perfil, config, servicos, produtos, horarios] = await Promise.all([
     getBarbeirosAtivos(empresa.id),
     getBarbeirosVitrine(empresa.id),
     getClienteAtual(),
     getPerfilAtual(),
     getBarbeariaConfig(empresa.id),
     getServicos(empresa.id),
+    getProdutos(empresa.id),
     getHorariosConfig(empresa.id),
   ])
 
@@ -64,6 +65,7 @@ export default async function BarbeariaPage({ params }: { params: Promise<{ slug
       isEquipe={!!perfil}
       config={config}
       servicos={servicos}
+      produtos={produtos}
       horarios={horarios}
       statusAbertura={getStatusAbertura(horarios)}
     />

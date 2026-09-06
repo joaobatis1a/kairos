@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import type { ResumoCliente } from "@/app/actions/perfil-cliente"
 import { Store, Clock, User, CalendarPlus, ArrowRight, History, Check, Hourglass } from "lucide-react"
 

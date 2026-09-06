@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import { formatarDataExtenso } from "@/lib/datas"
 import { atualizarStatusAgendamento, excluirAgendamento, cancelarAgendamento, remarcarAgendamento } from "@/app/actions/painel"
 import { Button } from "@/components/ui/button"

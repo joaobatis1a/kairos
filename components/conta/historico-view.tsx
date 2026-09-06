@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import { cn } from "@/lib/utils"
 import { Scissors, Star, CalendarDays, Loader2 } from "lucide-react"
 

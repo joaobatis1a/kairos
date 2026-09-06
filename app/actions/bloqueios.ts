@@ -37,6 +37,7 @@ export async function listarBloqueios(): Promise<Bloqueio[]> {
   const { data } = await supabase
     .from("bloqueios_agenda")
     .select("id, barbeiro_id, inicio, fim, motivo, barbeiro:profiles!barbeiro_id(nome)")
+    .eq("company_id", u.companyId)
     .order("inicio", { ascending: true })
 
   return (data ?? []).map((b) => {
@@ -100,7 +101,11 @@ export async function excluirBloqueio(id: string) {
   if (!u) return { ok: false as const, error: "Sem permissão." }
 
   const supabase = await createClient()
-  const { error } = await supabase.from("bloqueios_agenda").delete().eq("id", id)
+  const { error } = await supabase
+    .from("bloqueios_agenda")
+    .delete()
+    .eq("id", id)
+    .eq("company_id", u.companyId)
   if (error) return { ok: false as const, error: "Não foi possível remover." }
 
   revalidatePath("/painel/gerenciamento")

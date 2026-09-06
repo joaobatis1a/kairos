@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { stagger, item } from "@/lib/motion"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Estrelas } from "@/components/estrelas"
 import { Badge } from "@/components/ui/badge"

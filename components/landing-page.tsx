@@ -5,13 +5,14 @@ import { AgendamentoDialog } from "@/components/agendamento-dialog"
 import { StorefrontHeader } from "@/components/storefront/storefront-header"
 import { StorefrontHero } from "@/components/storefront/storefront-hero"
 import { StorefrontServicos } from "@/components/storefront/storefront-servicos"
+import { StorefrontProdutos } from "@/components/storefront/storefront-produtos"
 import { StorefrontEquipe } from "@/components/storefront/storefront-equipe"
 import { StorefrontSobre } from "@/components/storefront/storefront-sobre"
 import { StorefrontContato } from "@/components/storefront/storefront-contato"
 import { StorefrontFooter } from "@/components/storefront/storefront-footer"
 import { BloqueioContaDialog } from "@/components/storefront/bloqueio-conta-dialog"
 import type { Profile, Cliente } from "@/lib/types"
-import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
+import type { BarbeariaConfig, ServicoDb, ProdutoDb, HorariosConfig } from "@/app/actions/config"
 import type { BarbeiroVitrine } from "@/app/actions/agendamentos"
 
 type Barbeiro = Pick<Profile, "id" | "nome">
@@ -24,6 +25,7 @@ export function LandingPage({
   isEquipe = false,
   config,
   servicos,
+  produtos,
   horarios,
   statusAbertura,
 }: {
@@ -34,6 +36,7 @@ export function LandingPage({
   isEquipe?: boolean
   config: BarbeariaConfig
   servicos: ServicoDb[]
+  produtos: ProdutoDb[]
   horarios: HorariosConfig
   statusAbertura: { aberto: boolean; texto: string }
 }) {
@@ -57,6 +60,7 @@ export function LandingPage({
         logoUrl={config.logo_url}
         cliente={cliente}
         isEquipe={isEquipe}
+        temProdutos={produtos.length > 0}
         onAgendar={() => abrirAgendamento()}
       />
 
@@ -69,6 +73,7 @@ export function LandingPage({
           onAgendar={() => abrirAgendamento()}
         />
         <StorefrontServicos servicos={servicos} onAgendar={abrirAgendamento} />
+        <StorefrontProdutos produtos={produtos} whatsapp={config.whatsapp} />
         <StorefrontEquipe barbeiros={barbeirosVitrine} onAgendar={() => abrirAgendamento()} />
         <StorefrontSobre descricao={config.descricao} />
         <StorefrontContato config={config} onAgendar={() => abrirAgendamento()} />

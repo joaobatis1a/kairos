@@ -52,6 +52,7 @@ export async function listarAvisos(): Promise<AvisoDb[]> {
     supabase
       .from("avisos")
       .select("id, titulo, mensagem, autor_id, destinatario_id, created_at, autor:profiles!autor_id(nome), destinatario:profiles!destinatario_id(nome)")
+      .eq("company_id", usuario.companyId)
       .order("created_at", { ascending: false }),
     supabase.from("aviso_leituras").select("aviso_id").eq("profile_id", usuario.id),
   ])

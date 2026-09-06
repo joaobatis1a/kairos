@@ -9,7 +9,7 @@ import { Magnetico } from "@/components/landing/magnetico"
 import { cn } from "@/lib/utils"
 import type { Cliente } from "@/lib/types"
 
-const LINKS = [
+const LINKS_BASE = [
   { href: "#servicos", label: "Serviços" },
   { href: "#equipe", label: "Quem corta" },
   { href: "#contato", label: "Contato" },
@@ -20,17 +20,23 @@ export function StorefrontHeader({
   logoUrl,
   cliente,
   isEquipe,
+  temProdutos = false,
   onAgendar,
 }: {
   nome: string
   logoUrl?: string
   cliente: Cliente | null
   isEquipe: boolean
+  temProdutos?: boolean
   onAgendar: () => void
 }) {
   const { scrollY } = useScroll()
   const [solido, setSolido] = useState(false)
   const [aberto, setAberto] = useState(false)
+
+  const LINKS = temProdutos
+    ? [...LINKS_BASE.slice(0, 1), { href: "#produtos", label: "Produtos" }, ...LINKS_BASE.slice(1)]
+    : LINKS_BASE
 
   useMotionValueEvent(scrollY, "change", (y) => setSolido(y > 40))
 

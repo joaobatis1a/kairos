@@ -120,6 +120,18 @@ export async function redefinirSenha(novaSenha: string) {
   return { ok: true }
 }
 
+// Pra onde mandar depois de um reset de senha: a mesma página serve equipe
+// e cliente (o link de e-mail é sempre o mesmo), então descobre aqui qual
+// login mostrar depois.
+export async function loginPosRedefinicao(): Promise<"/auth/login" | "/conta/login"> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return "/conta/login"
+
+  const { data: perfil } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle()
+  return perfil ? "/auth/login" : "/conta/login"
+}
+
 // Transferir cargo de owner para outro usuário
 export async function transferirOwner(novoOwnerId: string) {
   if (DEMO_MODE) return bloqueadoNoDemo()
