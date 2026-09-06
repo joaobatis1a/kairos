@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailCancelamento, enviarEmailPedidoAvaliacao } from "@/lib/emails"
 import { registrarAuditoria } from "@/lib/auditoria"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 import type { AgendamentoComBarbeiro, StatusAgendamento } from "@/lib/types"
 
 function hojeIso() {
@@ -60,6 +61,8 @@ export async function listarAgendamentos(filtro?: {
 }
 
 export async function atualizarStatusAgendamento(id: string, status: StatusAgendamento) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
 
@@ -119,6 +122,8 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
 }
 
 export async function cancelarAgendamento(id: string, motivo: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
 
@@ -181,6 +186,8 @@ function paraMinutos(hhmm: string): number {
 }
 
 export async function remarcarAgendamento(id: string, novaData: string, novoHorario: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
 
@@ -225,6 +232,8 @@ export async function remarcarAgendamento(id: string, novaData: string, novoHora
 }
 
 export async function excluirAgendamento(id: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuario()
   if (!usuario) return { ok: false, error: "Sem permissão." }
 

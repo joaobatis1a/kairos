@@ -6,6 +6,7 @@ import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailBoasVindas } from "@/lib/emails"
 import { registrarAuditoria } from "@/lib/auditoria"
 import { revalidatePath } from "next/cache"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 function senhaValidaServidor(senha: string) {
   const temTamanho = senha.length >= 8
@@ -23,6 +24,8 @@ type CadastroInput = {
 }
 
 export async function cadastrarCliente(input: CadastroInput) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const nome = input.nome.trim()
   const email = input.email.trim().toLowerCase()
   const whatsapp = input.whatsapp.trim()
@@ -81,6 +84,8 @@ export async function cadastrarCliente(input: CadastroInput) {
 }
 
 export async function solicitarRedefinicaoSenha(email: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 
@@ -96,6 +101,8 @@ export async function solicitarRedefinicaoSenha(email: string) {
 }
 
 export async function redefinirSenha(novaSenha: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   if (!senhaValidaServidor(novaSenha)) {
     return {
       ok: false,
@@ -115,6 +122,8 @@ export async function redefinirSenha(novaSenha: string) {
 
 // Transferir cargo de owner para outro usuário
 export async function transferirOwner(novoOwnerId: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Não autenticado." }
@@ -181,6 +190,8 @@ export async function transferirOwner(novoOwnerId: string) {
 
 // Deletar própria conta
 export async function deletarConta() {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Não autenticado." }

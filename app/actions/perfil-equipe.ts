@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 type AtualizarPerfilEquipeInput = {
   nome: string
@@ -9,6 +10,8 @@ type AtualizarPerfilEquipeInput = {
 }
 
 export async function atualizarPerfilEquipe(input: AtualizarPerfilEquipeInput) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const nome = input.nome.trim()
   const whatsapp = input.whatsapp.trim()
 
@@ -37,6 +40,8 @@ export async function atualizarPerfilEquipe(input: AtualizarPerfilEquipeInput) {
 }
 
 export async function trocarSenhaEquipe(novaSenha: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   if (novaSenha.length < 6) {
     return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
   }

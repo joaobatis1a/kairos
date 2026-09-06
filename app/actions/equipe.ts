@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { registrarAuditoria } from "@/lib/auditoria"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 function senhaValidaServidor(senha: string) {
   const temTamanho = senha.length >= 8
@@ -23,6 +24,8 @@ export async function cadastrarComCodigo(input: {
   senha?: string
   codigo: string
 }) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const codigo = input.codigo.trim().toUpperCase()
   if (!codigo) return { ok: false, error: "Informe o código de convite." }
 
@@ -155,6 +158,8 @@ export async function listarEquipe() {
 
 // Cria um barbeiro (somente dono)
 export async function criarBarbeiro(input: { nome: string; email: string; senha: string }) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await garantirOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -189,6 +194,8 @@ export async function criarBarbeiro(input: { nome: string; email: string; senha:
 
 // Ativa/desativa um barbeiro (somente dono)
 export async function alternarAtivoBarbeiro(id: string, ativo: boolean) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await garantirOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -223,6 +230,8 @@ export async function alternarAtivoBarbeiro(id: string, ativo: boolean) {
 
 // Remove um barbeiro (somente dono)
 export async function removerBarbeiro(id: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await garantirOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
   if (owner.id === id) return { ok: false, error: "Você não pode remover a si mesmo." }
@@ -251,6 +260,8 @@ export async function removerBarbeiro(id: string) {
 
 // Alterna se o owner atende como barbeiro
 export async function alternarAtendeBarbeiro(valor: boolean) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const {
     data: { user },

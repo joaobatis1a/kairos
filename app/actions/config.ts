@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { registrarAuditoria } from "@/lib/auditoria"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 import type { Company } from "@/lib/types"
 
 export type BarbeariaConfig = Pick<
@@ -116,6 +117,8 @@ export async function getOnboardingStatus(companyId: string): Promise<Onboarding
 }
 
 export async function enviarLogoEmpresa(formData: FormData) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false as const, error: "Sem permissão." }
 
@@ -158,6 +161,8 @@ export async function enviarLogoEmpresa(formData: FormData) {
 }
 
 export async function removerLogoEmpresa() {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false as const, error: "Sem permissão." }
 
@@ -171,6 +176,8 @@ export async function removerLogoEmpresa() {
 }
 
 export async function dispensarOnboarding() {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false as const, error: "Sem permissão." }
 
@@ -194,6 +201,8 @@ async function verificarOwner() {
 }
 
 export async function salvarBarbeariaConfig(config: BarbeariaConfig) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -209,6 +218,8 @@ export async function salvarBarbeariaConfig(config: BarbeariaConfig) {
 }
 
 export async function adicionarServico(dados: Omit<ServicoDb, "id" | "ordem" | "ativo">) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -235,6 +246,8 @@ export async function adicionarServico(dados: Omit<ServicoDb, "id" | "ordem" | "
 }
 
 export async function editarServico(id: string, dados: Omit<ServicoDb, "id" | "ordem" | "ativo">) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -247,6 +260,8 @@ export async function editarServico(id: string, dados: Omit<ServicoDb, "id" | "o
 }
 
 export async function excluirServico(id: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
@@ -263,6 +278,8 @@ export async function excluirServico(id: string) {
 }
 
 export async function salvarHorarios(config: HorariosConfig) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const owner = await verificarOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { getBarbeariaConfig } from "@/app/actions/config"
 import { enviarEmailConfirmacao } from "@/lib/emails"
 import { notificar } from "@/lib/notificacoes"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 import type { Profile, FormaPagamento } from "@/lib/types"
 
 export async function getBarbeirosAtivos(companyId: string): Promise<Pick<Profile, "id" | "nome">[]> {
@@ -70,6 +71,8 @@ type CriarAgendamentoInput = {
 }
 
 export async function criarAgendamento(input: CriarAgendamentoInput) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
 
   // Exige conta de cliente para agendar
@@ -192,6 +195,8 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
 
 // Cliente cancela o próprio agendamento (respeitando a antecedência da barbearia).
 export async function cancelarMeuAgendamento(id: string, motivo: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const {
     data: { user },

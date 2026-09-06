@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { notificar } from "@/lib/notificacoes"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 export type AvisoDb = {
   id: string
@@ -103,6 +104,8 @@ export async function listarEquipeParaAviso(): Promise<{ id: string; nome: strin
 }
 
 export async function criarAviso(input: { titulo: string; mensagem: string; destinatarioId: string | null }) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuarioAtual()
   if (!usuario || usuario.role !== "owner") return { ok: false as const, error: "Sem permissão." }
 
@@ -138,6 +141,8 @@ export async function criarAviso(input: { titulo: string; mensagem: string; dest
 }
 
 export async function marcarAvisoLido(avisoId: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuarioAtual()
   if (!usuario) return { ok: false as const, error: "Sessão expirada." }
 
@@ -175,6 +180,8 @@ export async function listarRespostas(avisoId: string): Promise<RespostaAvisoDb[
 }
 
 export async function responderAviso(avisoId: string, mensagem: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const usuario = await getUsuarioAtual()
   if (!usuario) return { ok: false as const, error: "Sessão expirada." }
 

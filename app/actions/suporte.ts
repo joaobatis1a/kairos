@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { getContaManutencaoOuRedirect } from "@/lib/auth"
 import { notificar } from "@/lib/notificacoes"
 import { revalidatePath } from "next/cache"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 export type MensagemSuporte = {
   id: string
@@ -63,6 +64,8 @@ export async function getConversaSuporte(): Promise<{ mensagens: MensagemSuporte
 }
 
 export async function enviarMensagemSuporte(texto: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const perfil = await getPerfilSuporte()
   if (!perfil || perfil.role !== "owner") return { ok: false as const, error: "Só o administrador fala com o suporte." }
 
@@ -154,6 +157,8 @@ export async function getConversaSuporteAdmin(
 }
 
 export async function responderSuporteAdmin(companyId: string, texto: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const user = await getContaManutencaoOuRedirect()
   const mensagem = texto.trim()
   if (!mensagem) return { ok: false as const, error: "Escreva uma mensagem." }
