@@ -11,12 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PasswordInput } from "@/components/password-input"
 import { PasswordRequisitos, REQUISITOS_SENHA } from "@/components/password-requisitos"
 import { DeletarConta } from "@/components/deletar-conta"
+import { FotoPerfil } from "@/components/foto-perfil"
 import { atualizarPerfilEquipe, trocarSenhaEquipe } from "@/app/actions/perfil-equipe"
 import { toast } from "sonner"
 import { User, Loader2, Sun, Moon, KeyRound } from "lucide-react"
 import type { Profile } from "@/lib/types"
 
-export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
+export function PerfilEquipeView({ perfil, fotoUrl }: { perfil: Profile; fotoUrl: string | null }) {
   const [nome, setNome] = useState(perfil.nome)
   const [whatsapp, setWhatsapp] = useState(perfil.whatsapp)
   const [senhaAtual, setSenhaAtual] = useState("")
@@ -78,8 +79,9 @@ export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
             {perfil.role === "owner" ? "Administrador" : "Barbeiro"}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={salvarPerfil} className="flex flex-col gap-4">
+        <CardContent className="flex flex-col gap-5">
+          <FotoPerfil nome={perfil.nome} fotoUrl={fotoUrl} />
+          <form onSubmit={salvarPerfil} className="flex flex-col gap-4 border-t border-border pt-5">
             <div className="grid gap-2">
               <Label htmlFor="nome">Nome</Label>
               <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
