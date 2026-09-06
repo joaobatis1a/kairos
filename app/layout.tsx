@@ -4,6 +4,7 @@ import { Geist_Mono, Nunito, Fredoka, Bodoni_Moda } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
+import { PwaRegister } from '@/components/pwa-register'
 import './globals.css'
 
 const nunito = Nunito({
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </a>
           <MotionProvider>{children}</MotionProvider>
           <Toaster />
+          <PwaRegister />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </ThemeProvider>
       </body>
