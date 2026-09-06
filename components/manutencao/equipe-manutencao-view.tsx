@@ -25,7 +25,13 @@ import {
 import { toast } from "sonner"
 import { ShieldCheck, UserPlus, Trash2, Loader2 } from "lucide-react"
 
-export function EquipeManutencaoView({ contasIniciais }: { contasIniciais: ContaManutencao[] }) {
+export function EquipeManutencaoView({
+  contasIniciais,
+  emailAtual,
+}: {
+  contasIniciais: ContaManutencao[]
+  emailAtual: string
+}) {
   const router = useRouter()
   const [contas, setContas] = useState(contasIniciais)
   const [open, setOpen] = useState(false)
@@ -136,6 +142,8 @@ export function EquipeManutencaoView({ contasIniciais }: { contasIniciais: Conta
               variant="ghost"
               className="text-muted-foreground hover:text-destructive"
               onClick={() => setRemovendo(c)}
+              disabled={c.email.toLowerCase() === emailAtual.toLowerCase()}
+              title={c.email.toLowerCase() === emailAtual.toLowerCase() ? "Você não pode remover a própria conta" : undefined}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

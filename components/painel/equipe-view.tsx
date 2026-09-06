@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordInput } from "@/components/password-input"
+import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -111,19 +113,18 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="senha">Senha provisória</Label>
-                <Input
+                <PasswordInput
                   id="senha"
-                  type="text"
                   required
-                  minLength={6}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Crie uma senha provisória"
                 />
+                <PasswordRequisitos senha={senha} />
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleCriar} disabled={pending} className="w-full">
+              <Button onClick={handleCriar} disabled={pending || !senhaValida(senha)} className="w-full">
                 {pending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" /> Criando...
