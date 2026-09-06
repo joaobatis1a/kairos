@@ -38,3 +38,9 @@ alter publication supabase_realtime add table public.maintenance_accounts;
 create policy "Conta de manutenção vê a própria linha"
   on public.maintenance_accounts for select
   using (lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
+
+-- 4) Cargos e permissões: hoje é tudo-ou-nada (dono vê tudo, barbeiro vê só
+-- o próprio). Isso dá ao dono controle fino sobre o que a equipe enxerga,
+-- sem precisar de um terceiro papel (gestor) que a Kairos não tem.
+alter table public.companies
+  add column if not exists permissoes jsonb not null default '{"ver_agendamentos_todos": false, "ver_faturamento": false}'::jsonb;
