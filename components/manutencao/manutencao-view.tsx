@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { ContadorCodigo } from "@/components/contador-codigo"
 import {
   Dialog,
   DialogContent,
@@ -41,7 +42,13 @@ export function ManutencaoView({
   const [pending, startTransition] = useTransition()
 
   const [novoNome, setNovoNome] = useState("")
-  const [codigoGerado, setCodigoGerado] = useState<{ nome: string; slug: string; code: string } | null>(null)
+  const [codigoGerado, setCodigoGerado] = useState<{
+    companyId: string
+    nome: string
+    slug: string
+    code: string
+    expiresAt: string
+  } | null>(null)
   const [carregandoCodigoId, setCarregandoCodigoId] = useState<string | null>(null)
   const [alternandoId, setAlternandoId] = useState<string | null>(null)
   const [excluindo, setExcluindo] = useState<EmpresaManutencao | null>(null)
@@ -56,7 +63,7 @@ export function ManutencaoView({
         toast.error(res.error)
         return
       }
-      setCodigoGerado({ nome, slug: res.slug, code: res.code })
+      setCodigoGerado({ companyId: res.id, nome, slug: res.slug, code: res.code, expiresAt: res.expiresAt })
       setNovoNome("")
       setEmpresas(await listarEmpresas())
       router.refresh()
@@ -81,13 +88,23 @@ export function ManutencaoView({
   function handleVerCodigo(empresa: EmpresaManutencao) {
     setCarregandoCodigoId(empresa.id)
     startTransition(async () => {
-      const code = await verCodigoConvite(empresa.id)
-      if (!code) {
+      const res = await verCodigoConvite(empresa.id)
+      if (!res) {
         toast.error("Nenhum código de convite encontrado para esta empresa.")
       } else {
-        setCodigoGerado({ nome: empresa.nome, slug: empresa.slug, code })
+        setCodigoGerado({ companyId: empresa.id, nome: empresa.nome, slug: empresa.slug, ...res })
       }
       setCarregandoCodigoId(null)
+    })
+  }
+
+  // onExpirar do contador chama de novo — verCodigoConvite já gera um
+  // código novo sozinho quando o vigente expirou, então isso simplesmente
+  // atualiza o dialog aberto sem a pessoa precisar fazer nada.
+  function refrescarCodigo(companyId: string) {
+    startTransition(async () => {
+      const res = await verCodigoConvite(companyId)
+      if (res) setCodigoGerado((prev) => (prev ? { ...prev, ...res } : prev))
     })
   }
 
@@ -98,7 +115,7 @@ export function ManutencaoView({
       if (!res.ok) {
         toast.error(res.error)
       } else {
-        setCodigoGerado({ nome: empresa.nome, slug: empresa.slug, code: res.code })
+        setCodigoGerado({ companyId: empresa.id, nome: empresa.nome, slug: empresa.slug, code: res.code, expiresAt: res.expiresAt })
         toast.success("Código novo gerado. O anterior não vale mais.")
       }
       setCarregandoCodigoId(null)
@@ -273,6 +290,12 @@ export function ManutencaoView({
               <Copy className="h-4 w-4" />
             </Button>
           </div>
+          {codigoGerado && (
+            <ContadorCodigo
+              expiresAt={codigoGerado.expiresAt}
+              onExpirar={() => refrescarCodigo(codigoGerado.companyId)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

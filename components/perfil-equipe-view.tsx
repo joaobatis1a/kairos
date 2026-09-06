@@ -18,13 +18,17 @@ import type { Profile } from "@/lib/types"
 export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
   const [nome, setNome] = useState(perfil.nome)
   const [whatsapp, setWhatsapp] = useState(perfil.whatsapp)
+  const [senhaAtual, setSenhaAtual] = useState("")
   const [novaSenha, setNovaSenha] = useState("")
+  const [confirmarSenha, setConfirmarSenha] = useState("")
   const [pendingPerfil, startPerfil] = useTransition()
   const [pendingSenha, startSenha] = useTransition()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
+
+  const senhasConferem = novaSenha.length > 0 && novaSenha === confirmarSenha
 
   function salvarPerfil(e: React.FormEvent) {
     e.preventDefault()
@@ -37,17 +41,22 @@ export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
 
   function salvarSenha(e: React.FormEvent) {
     e.preventDefault()
-    const valida = REQUISITOS_SENHA.every((r) => r.test(novaSenha))
-    if (!valida) {
+    if (!REQUISITOS_SENHA.every((r) => r.test(novaSenha))) {
       toast.error("A senha não atende aos requisitos mínimos.")
       return
     }
+    if (!senhasConferem) {
+      toast.error("As senhas não são iguais.")
+      return
+    }
     startSenha(async () => {
-      const res = await trocarSenhaEquipe(novaSenha)
+      const res = await trocarSenhaEquipe(senhaAtual, novaSenha)
       if (!res.ok) toast.error(res.error ?? "Erro ao trocar senha.")
       else {
         toast.success("Senha atualizada!")
+        setSenhaAtual("")
         setNovaSenha("")
+        setConfirmarSenha("")
       }
     })
   }
@@ -99,6 +108,16 @@ export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
         <CardContent>
           <form onSubmit={salvarSenha} className="flex flex-col gap-4">
             <div className="grid gap-2">
+              <Label htmlFor="senhaAtual">Senha atual</Label>
+              <PasswordInput
+                id="senhaAtual"
+                required
+                value={senhaAtual}
+                onChange={(e) => setSenhaAtual(e.target.value)}
+                placeholder="Confirme quem é você"
+              />
+            </div>
+            <div className="grid gap-2">
               <Label htmlFor="novaSenha">Nova senha</Label>
               <PasswordInput
                 id="novaSenha"
@@ -108,7 +127,22 @@ export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
               />
               <PasswordRequisitos senha={novaSenha} />
             </div>
-            <Button type="submit" disabled={pendingSenha} className="self-start">
+            <div className="grid gap-2">
+              <Label htmlFor="confirmarSenha">Confirmar nova senha</Label>
+              <PasswordInput
+                id="confirmarSenha"
+                value={confirmarSenha}
+                onChange={(e) => setConfirmarSenha(e.target.value)}
+              />
+              {confirmarSenha.length > 0 && !senhasConferem && (
+                <p className="text-xs text-destructive">As senhas não são iguais.</p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              disabled={pendingSenha || !senhaAtual || !senhasConferem}
+              className="self-start"
+            >
               {pendingSenha ? <Loader2 className="h-4 w-4 animate-spin" /> : "Atualizar senha"}
             </Button>
           </form>

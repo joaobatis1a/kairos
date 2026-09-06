@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
+import { senhaValidaServidor, ERRO_SENHA_FRACA } from "@/lib/senha"
 
 type AtualizarPerfilInput = {
   nome: string
@@ -48,19 +49,27 @@ export async function sairDaConta() {
   redirect("/")
 }
 
-export async function trocarSenhaCliente(novaSenha: string) {
+export async function trocarSenhaCliente(senhaAtual: string, novaSenha: string) {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
-  if (novaSenha.length < 6) {
-    return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
+  if (!senhaValidaServidor(novaSenha)) {
+    return { ok: false, error: ERRO_SENHA_FRACA }
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.updateUser({ password: novaSenha })
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user?.email) return { ok: false, error: "Sessão expirada. Faça login novamente." }
 
-  if (error) {
-    return { ok: false, error: "Não foi possível trocar sua senha." }
-  }
+  // Confirma a senha atual antes de trocar — mesma proteção que o painel
+  // da equipe: sem isso, qualquer um numa sessão já aberta troca a senha
+  // e toma a conta sem nunca ter sabido a senha original.
+  const { error: authError } = await supabase.auth.signInWithPassword({ email: user.email, password: senhaAtual })
+  if (authError) return { ok: false, error: "Senha atual incorreta." }
+
+  const { error } = await supabase.auth.updateUser({ password: novaSenha })
+  if (error) return { ok: false, error: "Não foi possível trocar sua senha." }
 
   return { ok: true }
 }
