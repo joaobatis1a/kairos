@@ -3,12 +3,14 @@
 import { useRef, useState, useTransition } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { enviarFotoCliente, removerFotoCliente } from "@/app/actions/perfil-cliente"
+import { enviarFotoPerfil, removerFotoPerfil } from "@/app/actions/avatar"
 import { toast } from "sonner"
 import { Camera, Trash2, Loader2 } from "lucide-react"
 
 /**
- * Foto de perfil com pré-visualização imediata.
+ * Foto de perfil com pré-visualização imediata. Comum a qualquer conta
+ * (cliente, dono, barbeiro ou manutenção) — todas guardam a foto no mesmo
+ * lugar (user_metadata do Auth), ver app/actions/avatar.ts.
  *
  * A prévia local (URL.createObjectURL) aparece antes do upload terminar,
  * então a troca parece instantânea mesmo em conexão ruim — e se o envio
@@ -42,7 +44,7 @@ export function FotoPerfil({
     dados.set("foto", arquivo)
 
     startEnvio(async () => {
-      const res = await enviarFotoCliente(dados)
+      const res = await enviarFotoPerfil(dados)
       URL.revokeObjectURL(local)
       if (!res.ok) {
         setPrevia(null) // desfaz a prévia: o servidor recusou
@@ -55,7 +57,7 @@ export function FotoPerfil({
 
   function remover() {
     startRemocao(async () => {
-      const res = await removerFotoCliente()
+      const res = await removerFotoPerfil()
       if (!res.ok) {
         toast.error(res.error ?? "Não foi possível remover a foto.")
         return
