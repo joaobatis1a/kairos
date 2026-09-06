@@ -6,15 +6,11 @@ import { motion } from "framer-motion"
 import { stagger, item } from "@/lib/motion"
 import type { Profile } from "@/lib/types"
 import {
-  criarBarbeiro,
+  gerarConviteBarbeiro,
   alternarAtivoBarbeiro,
   removerBarbeiro,
 } from "@/app/actions/equipe"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { PasswordInput } from "@/components/password-input"
-import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -24,34 +20,31 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { UserPlus, User, Trash2, Loader2, ShieldCheck } from "lucide-react"
+import { UserPlus, User, Trash2, Loader2, ShieldCheck, Copy } from "lucide-react"
 
 export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: string }) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [nome, setNome] = useState("")
-  const [email, setEmail] = useState("")
-  const [senha, setSenha] = useState("")
   const [pending, startTransition] = useTransition()
   const [removendo, setRemovendo] = useState<string | null>(null)
+  const [codigoGerado, setCodigoGerado] = useState<string | null>(null)
 
-  function handleCriar() {
+  function gerarConvite() {
     startTransition(async () => {
-      const res = await criarBarbeiro({ nome, email, senha })
+      const res = await gerarConviteBarbeiro()
       if (!res.ok) {
-        toast.error(res.error ?? "Erro ao criar barbeiro.")
+        toast.error(res.error ?? "Erro ao gerar convite.")
         return
       }
-      toast.success("Barbeiro adicionado com sucesso!")
-      setNome("")
-      setEmail("")
-      setSenha("")
-      setOpen(false)
-      router.refresh()
+      setCodigoGerado(res.code)
     })
+  }
+
+  function copiarCodigo() {
+    if (!codigoGerado) return
+    navigator.clipboard.writeText(codigoGerado)
+    toast.success("Código copiado!")
   }
 
   function alternar(id: string, ativo: boolean) {
@@ -81,61 +74,10 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
           <h1 className="font-serif text-3xl font-bold">Equipe</h1>
           <p className="text-muted-foreground">Gerencie os barbeiros da sua barbearia.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger
-            render={
-              <Button>
-                <UserPlus className="h-4 w-4" /> Adicionar barbeiro
-              </Button>
-          }
-        />
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="font-serif text-xl">Novo barbeiro</DialogTitle>
-              <DialogDescription>
-                Crie o acesso do barbeiro. Ele entrará com este e-mail e senha.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="nome">Nome</Label>
-                <Input id="nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="senha">Senha provisória</Label>
-                <PasswordInput
-                  id="senha"
-                  required
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  placeholder="Crie uma senha provisória"
-                />
-                <PasswordRequisitos senha={senha} />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleCriar} disabled={pending || !senhaValida(senha)} className="w-full">
-                {pending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Criando...
-                  </>
-                ) : (
-                  "Criar barbeiro"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={gerarConvite} disabled={pending}>
+          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+          Convidar barbeiro
+        </Button>
       </div>
 
       <motion.div
@@ -192,6 +134,24 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
           )
         })}
       </motion.div>
+
+      <Dialog open={!!codigoGerado} onOpenChange={(o) => !o && setCodigoGerado(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Código de convite gerado</DialogTitle>
+            <DialogDescription>
+              Envie esse código pro barbeiro. Ele entra em "Tem um código de convite?" na tela de
+              login e escolhe a própria senha.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-3">
+            <span className="flex-1 text-center font-mono text-lg tracking-widest">{codigoGerado}</span>
+            <Button size="icon" variant="ghost" onClick={copiarCodigo} aria-label="Copiar código">
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
         <DialogContent className="max-w-sm">

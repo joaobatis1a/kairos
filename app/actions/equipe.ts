@@ -177,49 +177,28 @@ export async function listarEquipe() {
   return data ?? []
 }
 
-// Cria um barbeiro (somente dono)
-export async function criarBarbeiro(input: { nome: string; email: string; senha: string }) {
+function gerarCodigoConvite(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // sem 0/O, 1/I pra evitar confusão
+  let code = ""
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)]
+  return code
+}
+
+// Gera um código de convite pra um barbeiro novo entrar (somente dono).
+// O barbeiro resgata em /auth/cadastro-equipe e escolhe a própria senha —
+// mesmo fluxo que já existia só pra dono, unificado aqui.
+export async function gerarConviteBarbeiro() {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
   const owner = await garantirOwner()
-  if (!owner) return { ok: false, error: "Sem permissão." }
-
-  if (!senhaValidaServidor(input.senha)) {
-    return {
-      ok: false,
-      error: "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, número e caractere especial.",
-    }
-  }
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
 
   const admin = createAdminClient()
-  const { data, error } = await admin.auth.admin.createUser({
-    email: input.email.trim(),
-    password: input.senha,
-    email_confirm: true,
-    user_metadata: { nome: input.nome.trim(), role: "barber" },
-  })
+  const code = gerarCodigoConvite()
+  const { error } = await admin.from("invite_codes").insert({ code, company_id: owner.companyId, role: "barber" })
+  if (error) return { ok: false as const, error: "Não foi possível gerar o código." }
 
-  if (error) {
-    console.error("Erro ao criar barbeiro:", error.message)
-    const jaExiste = error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already been registered")
-    return {
-      ok: false,
-      error: jaExiste
-        ? "Já existe uma conta com esse e-mail (pode ser de outra barbearia). Use outro e-mail."
-        : "Não foi possível criar o acesso do barbeiro.",
-    }
-  }
-
-  await admin.from("profiles").insert({
-    id: data.user.id,
-    company_id: owner.companyId,
-    nome: input.nome.trim(),
-    role: "barber",
-    ativo: true,
-  })
-
-  revalidatePath("/painel/equipe")
-  return { ok: true }
+  return { ok: true as const, code }
 }
 
 // Ativa/desativa um barbeiro (somente dono)
