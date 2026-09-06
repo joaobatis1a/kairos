@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/password-input"
 import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { redefinirSenha } from "@/app/actions/conta"
+import { redefinirSenha, loginPosRedefinicao } from "@/app/actions/conta"
 import { Loader2 } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
 
@@ -44,8 +44,9 @@ export default function RedefinirSenhaPage() {
     }
 
     setSucesso(true)
+    const destino = await loginPosRedefinicao()
     setTimeout(() => {
-      router.push("/conta/login")
+      router.push(destino)
     }, 1500)
   }
 

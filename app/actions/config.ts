@@ -32,6 +32,16 @@ export type ServicoDb = {
   ativo: boolean
 }
 
+export type ProdutoDb = {
+  id: string
+  nome: string
+  descricao: string
+  preco: number
+  foto_url: string
+  ordem: number
+  ativo: boolean
+}
+
 export type HorariosConfig = {
   dias_abertos: number[]
   horarios: string[]
@@ -66,6 +76,17 @@ export async function getServicos(companyId: string): Promise<ServicoDb[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("servicos")
+    .select("*")
+    .eq("company_id", companyId)
+    .eq("ativo", true)
+    .order("ordem")
+  return data ?? []
+}
+
+export async function getProdutos(companyId: string): Promise<ProdutoDb[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("produtos")
     .select("*")
     .eq("company_id", companyId)
     .eq("ativo", true)
@@ -275,6 +296,137 @@ export async function excluirServico(id: string) {
   if (error) return { ok: false, error: error.message }
   revalidatePath("/painel/config")
   return { ok: true }
+}
+
+export async function adicionarProduto(dados: Omit<ProdutoDb, "id" | "ordem" | "ativo" | "foto_url">) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const supabase = await createClient()
+  const { data: ultimo } = await supabase
+    .from("produtos")
+    .select("ordem")
+    .eq("company_id", owner.companyId)
+    .order("ordem", { ascending: false })
+    .limit(1)
+    .single()
+
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from("produtos")
+    .insert({
+      ...dados,
+      company_id: owner.companyId,
+      ordem: (ultimo?.ordem ?? 0) + 1,
+      ativo: true,
+    })
+    .select("id")
+    .single()
+
+  if (error || !data) return { ok: false as const, error: error?.message ?? "Não foi possível adicionar." }
+  revalidatePath("/painel/gerenciamento")
+  return { ok: true as const, id: data.id as string }
+}
+
+export async function editarProduto(id: string, dados: Omit<ProdutoDb, "id" | "ordem" | "ativo" | "foto_url">) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const admin = createAdminClient()
+  const { error } = await admin.from("produtos").update(dados).eq("id", id).eq("company_id", owner.companyId)
+
+  if (error) return { ok: false as const, error: error.message }
+  revalidatePath("/painel/gerenciamento")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const }
+}
+
+export async function excluirProduto(id: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from("produtos")
+    .update({ ativo: false })
+    .eq("id", id)
+    .eq("company_id", owner.companyId)
+
+  if (error) return { ok: false as const, error: error.message }
+  revalidatePath("/painel/gerenciamento")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const }
+}
+
+export async function enviarFotoProduto(produtoId: string, formData: FormData) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const arquivo = formData.get("foto")
+  if (!(arquivo instanceof File) || arquivo.size === 0) {
+    return { ok: false as const, error: "Escolha uma imagem." }
+  }
+  if (arquivo.size > 2 * 1024 * 1024) {
+    return { ok: false as const, error: "A imagem precisa ter no máximo 2 MB." }
+  }
+  if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
+    return { ok: false as const, error: "Use uma imagem JPG, PNG ou WebP." }
+  }
+
+  const supabase = await createClient()
+  const ext = arquivo.type === "image/png" ? "png" : arquivo.type === "image/webp" ? "webp" : "jpg"
+  const caminho = `${owner.companyId}/${produtoId}.${ext}`
+
+  const { error: erroUpload } = await supabase.storage
+    .from("produtos")
+    .upload(caminho, arquivo, { upsert: true, contentType: arquivo.type })
+
+  if (erroUpload) {
+    return { ok: false as const, error: "Não foi possível enviar a imagem." }
+  }
+
+  const { data: publica } = supabase.storage.from("produtos").getPublicUrl(caminho)
+  const fotoUrl = `${publica.publicUrl}?v=${Date.now()}`
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from("produtos")
+    .update({ foto_url: fotoUrl })
+    .eq("id", produtoId)
+    .eq("company_id", owner.companyId)
+
+  if (error) return { ok: false as const, error: "Imagem enviada, mas não foi possível salvar no produto." }
+
+  revalidatePath("/painel/gerenciamento")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const, fotoUrl }
+}
+
+export async function removerFotoProduto(produtoId: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const owner = await verificarOwner()
+  if (!owner) return { ok: false as const, error: "Sem permissão." }
+
+  const admin = createAdminClient()
+  const { error } = await admin
+    .from("produtos")
+    .update({ foto_url: "" })
+    .eq("id", produtoId)
+    .eq("company_id", owner.companyId)
+
+  if (error) return { ok: false as const, error: "Não foi possível remover a imagem." }
+  revalidatePath("/painel/gerenciamento")
+  revalidatePath("/b/[slug]", "page")
+  return { ok: true as const }
 }
 
 export async function salvarHorarios(config: HorariosConfig) {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import type { ServicoDb, HorariosConfig } from "@/app/actions/config"
 import { getDiasDisponiveis, formatarDataExtenso } from "@/lib/datas"
 import { criarAgendamento, getHorariosOcupados } from "@/app/actions/agendamentos"
@@ -46,8 +46,6 @@ type Props = {
   servicos: ServicoDb[]
   horariosConfig: HorariosConfig
 }
-
-const diasTodos = getDiasDisponiveis(60)
 
 const FORMAS_PAGAMENTO: {
   id: FormaPagamento
@@ -131,10 +129,7 @@ export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenC
     }
   }, [barbeiroId, data, duracaoSel, horariosConfig.horarios])
 
-  const dias = diasTodos.filter((d) => {
-    const diaSemana = new Date(d.value + "T12:00:00").getDay()
-    return horariosConfig.dias_abertos.includes(diaSemana)
-  })
+  const dias = getDiasDisponiveis(60, horariosConfig.dias_abertos)
 
   const servico = servicos.find((s) => s.id === servicoId)
   const barbeiro = barbeiros.find((b) => b.id === barbeiroId)

@@ -21,12 +21,23 @@ async function getUsuarioAtual() {
   return user
 }
 
+async function getUsuarioComEmpresa() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: perfil } = await supabase.from("profiles").select("company_id").eq("id", user.id).single()
+  if (!perfil) return null
+  return { id: user.id, companyId: perfil.company_id as string }
+}
+
 // As notificações já vêm filtradas por destinatário via RLS (ver
-// migration_07_notificacoes.sql); aqui só precisa cruzar com o que o próprio
-// usuário já marcou como lida.
+// migration_07_notificacoes.sql); o filtro de company_id abaixo é
+// redundante à RLS, mas fica como segunda camada.
 export async function listarNotificacoes(): Promise<NotificacaoDb[]> {
-  const user = await getUsuarioAtual()
-  if (!user) return []
+  const usuario = await getUsuarioComEmpresa()
+  if (!usuario) return []
 
   const supabase = await createClient()
 
@@ -34,9 +45,10 @@ export async function listarNotificacoes(): Promise<NotificacaoDb[]> {
     supabase
       .from("notifications")
       .select("id, titulo, corpo, link, created_at")
+      .eq("company_id", usuario.companyId)
       .order("created_at", { ascending: false })
       .limit(30),
-    supabase.from("notification_reads").select("notification_id").eq("profile_id", user.id),
+    supabase.from("notification_reads").select("notification_id").eq("profile_id", usuario.id),
   ])
 
   const idsLidas = new Set((lidas ?? []).map((l) => l.notification_id))

@@ -2,7 +2,7 @@
 
 import { Clock, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { formatarPreco } from "@/config/barbearia"
+import { formatarPreco } from "@/lib/format"
 import type { ServicoDb } from "@/app/actions/config"
 
 /**

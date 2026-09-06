@@ -54,7 +54,7 @@ export async function listarAgendamentos(filtro?: {
 
   const { data, error } = await query
   if (error) {
-    console.log("[v0] Erro ao listar agendamentos:", error.message)
+    console.error("Erro ao listar agendamentos:", error.message)
     return []
   }
   return (data ?? []) as AgendamentoComBarbeiro[]
@@ -84,7 +84,7 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
 
   const { error } = await supabase.from("agendamentos").update({ status }).eq("id", id)
   if (error) {
-    console.log("[v0] Erro ao atualizar status:", error.message)
+    console.error("Erro ao atualizar status:", error.message)
     return { ok: false, error: error.message }
   }
 

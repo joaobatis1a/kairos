@@ -1,6 +1,6 @@
 import { getPerfilOuRedirect } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { getBarbeariaConfig, getServicos, getHorariosConfig } from "@/app/actions/config"
+import { getBarbeariaConfig, getServicos, getProdutos, getHorariosConfig } from "@/app/actions/config"
 import { listarEquipe } from "@/app/actions/equipe"
 import { listarBloqueios } from "@/app/actions/bloqueios"
 import { GerenciamentoView } from "@/components/painel/gerenciamento-view"
@@ -11,9 +11,10 @@ export default async function GerenciamentoPage() {
   const perfil = await getPerfilOuRedirect()
   if (perfil.role !== "owner") redirect("/painel")
 
-  const [config, servicos, horarios, equipe, bloqueios] = await Promise.all([
+  const [config, servicos, produtos, horarios, equipe, bloqueios] = await Promise.all([
     getBarbeariaConfig(perfil.company_id),
     getServicos(perfil.company_id),
+    getProdutos(perfil.company_id),
     getHorariosConfig(perfil.company_id),
     listarEquipe(),
     listarBloqueios(),
@@ -30,6 +31,7 @@ export default async function GerenciamentoPage() {
         atende={perfil.atende_como_barbeiro ?? false}
         config={config}
         servicos={servicos}
+        produtos={produtos}
         horarios={horarios}
         bloqueios={bloqueios}
         barbeiros={equipe.map((e) => ({ id: e.id, nome: e.nome }))}

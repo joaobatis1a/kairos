@@ -7,15 +7,17 @@ import { ToggleAtendeBarbeiro } from "@/components/painel/toggle-atende-barbeiro
 import { ConfigGeralForm } from "@/components/painel/config-geral-form"
 import { LogoEmpresaUpload } from "@/components/painel/logo-empresa-upload"
 import { ServicosForm } from "@/components/painel/servicos-form"
+import { ProdutosForm } from "@/components/painel/produtos-form"
 import { HorariosForm } from "@/components/painel/horarios-form"
 import { FolgasForm } from "@/components/painel/folgas-form"
-import type { BarbeariaConfig, ServicoDb, HorariosConfig } from "@/app/actions/config"
+import type { BarbeariaConfig, ServicoDb, ProdutoDb, HorariosConfig } from "@/app/actions/config"
 import type { Bloqueio } from "@/app/actions/bloqueios"
 
 export function GerenciamentoView({
   atende,
   config,
   servicos,
+  produtos,
   horarios,
   bloqueios,
   barbeiros,
@@ -23,6 +25,7 @@ export function GerenciamentoView({
   atende: boolean
   config: BarbeariaConfig
   servicos: ServicoDb[]
+  produtos: ProdutoDb[]
   horarios: HorariosConfig
   bloqueios: Bloqueio[]
   barbeiros: { id: string; nome: string }[]
@@ -62,6 +65,18 @@ export function GerenciamentoView({
           </CardHeader>
           <CardContent>
             <ServicosForm servicos={servicos} />
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-serif">Produtos à venda</CardTitle>
+            <CardDescription>Uma vitrine dos produtos vendidos no balcão — a venda continua sendo presencial.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProdutosForm produtos={produtos} />
           </CardContent>
         </Card>
       </motion.div>

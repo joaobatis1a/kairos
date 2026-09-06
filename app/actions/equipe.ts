@@ -150,7 +150,7 @@ export async function listarEquipe() {
     .order("nome", { ascending: true })
 
   if (error) {
-    console.log("[v0] Erro ao listar equipe:", error.message)
+    console.error("Erro ao listar equipe:", error.message)
     return []
   }
   return data ?? []
@@ -176,7 +176,7 @@ export async function criarBarbeiro(input: { nome: string; email: string; senha:
   })
 
   if (error) {
-    console.log("[v0] Erro ao criar barbeiro:", error.message)
+    console.error("Erro ao criar barbeiro:", error.message)
     return { ok: false, error: error.message }
   }
 
@@ -250,7 +250,7 @@ export async function removerBarbeiro(id: string) {
 
   const { error } = await admin.auth.admin.deleteUser(id)
   if (error) {
-    console.log("[v0] Erro ao remover barbeiro:", error.message)
+    console.error("Erro ao remover barbeiro:", error.message)
     return { ok: false, error: error.message }
   }
 

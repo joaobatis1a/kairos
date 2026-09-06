@@ -1,7 +1,12 @@
-import { diasAbertos } from "@/config/barbearia"
+const TODOS_OS_DIAS = [0, 1, 2, 3, 4, 5, 6]
 
-// Gera os próximos N dias disponíveis (respeitando diasAbertos)
-export function getDiasDisponiveis(quantidade = 14): { value: string; label: string; diaSemana: string }[] {
+// Gera os próximos N dias disponíveis (respeitando diasAbertos da empresa —
+// por padrão considera todos os dias, use o dias_abertos real da empresa
+// quando o resultado precisar refletir os dias em que ela funciona de verdade).
+export function getDiasDisponiveis(
+  quantidade = 14,
+  diasAbertos: number[] = TODOS_OS_DIAS,
+): { value: string; label: string; diaSemana: string }[] {
   const dias: { value: string; label: string; diaSemana: string }[] = []
   const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
   const nomesMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]

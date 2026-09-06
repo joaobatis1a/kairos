@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { useTransition } from "react"
 import { cn } from "@/lib/utils"
 import { sair } from "@/app/actions/painel"
-import { barbearia } from "@/config/barbearia"
 import type { Profile } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
@@ -123,7 +122,7 @@ function RodapeConta({ perfil, isOwner, slugEmpresa }: { perfil: Profile; isOwne
 }
 
 export function PainelNav({ perfil, nomeNegocio, slugEmpresa }: { perfil: Profile; nomeNegocio?: string; slugEmpresa?: string }) {
-  const nome = nomeNegocio || barbearia.nome
+  const nome = nomeNegocio || "Minha Barbearia"
   const pathname = usePathname()
   const isOwner = perfil.role === "owner"
   const links = linksPara(isOwner)
