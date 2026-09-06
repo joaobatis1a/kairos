@@ -11,7 +11,13 @@ const NAVEGACAO = [
 export function LandingFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-border/60 bg-background">
-      <div className="mx-auto max-w-6xl px-6 pt-16">
+      {/* tesoura gigante sangrando pelo canto — a marca como assinatura do
+          rodapé, no lugar do nome repetido em texto */}
+      <ScissorMark
+        className="pointer-events-none absolute -right-16 -top-24 h-[380px] w-[380px] rotate-[18deg] text-primary/[0.06] md:h-[460px] md:w-[460px]"
+      />
+
+      <div className="relative mx-auto max-w-6xl px-6 pt-16 pb-12">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4 md:gap-8">
           {/* Marca */}
           <div className="col-span-2 md:col-span-2">
@@ -22,6 +28,9 @@ export function LandingFooter() {
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Sistema de agendamento para barbearias. Seus clientes marcam sozinhos, sua equipe
               trabalha com a agenda em dia.
+            </p>
+            <p className="texto-dourado font-accent mt-5 text-lg italic">
+              Bom corte começa com boa agenda.
             </p>
           </div>
 
@@ -57,14 +66,6 @@ export function LandingFooter() {
             </ul>
           </div>
         </div>
-
-        {/* marca d'água: o nome ocupando a largura, cortado pela borda inferior */}
-        <p
-          aria-hidden
-          className="pointer-events-none mt-14 select-none text-center font-serif text-[18vw] leading-[0.75] tracking-[0.08em] text-foreground/[0.035] md:text-[13rem]"
-        >
-          kairos
-        </p>
       </div>
 
       <div className="relative border-t border-border/40 py-5">

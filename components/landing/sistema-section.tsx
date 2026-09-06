@@ -24,26 +24,26 @@ function ColunaMockup({ children, invertido }: { children: React.ReactNode; inve
 
 const BLOCOS = [
   {
-    n: "01",
-    titulo: "A página da sua barbearia",
+    quem: "O cliente",
+    titulo: "Agenda sozinho, no link da sua barbearia",
     texto:
-      "Cada barbearia ganha um link próprio. O cliente entra, escolhe o serviço, o profissional e o horário livre, sem app pra instalar e sem conversa por mensagem.",
+      "Ele entra, escolhe o serviço, o profissional e o horário livre — sem app pra instalar e sem conversa por mensagem.",
     itens: ["Horários ocupados somem em tempo real", "Escolha de barbeiro e forma de pagamento", "Confirmação por e-mail automática"],
     Mockup: MockupAgendamento,
   },
   {
-    n: "02",
-    titulo: "A agenda que a equipe usa",
+    quem: "A equipe",
+    titulo: "Abre o painel e já sabe o dia inteiro",
     texto:
-      "Todo mundo abre o painel e vê o dia. O barbeiro enxerga só os próprios atendimentos; o dono vê a casa inteira e move o que precisar.",
+      "O barbeiro enxerga só os próprios atendimentos; o dono vê a casa inteira e move o que precisar.",
     itens: ["Confirmar, finalizar ou cancelar em um clique", "Acesso separado por cargo", "Atualiza sozinho, sem recarregar"],
     Mockup: MockupAgenda,
   },
   {
-    n: "03",
-    titulo: "Os números, sem planilha",
+    quem: "Você",
+    titulo: "Fecha o mês sem abrir uma planilha",
     texto:
-      "Faturamento do dia, da semana e do mês. Quanto cada barbeiro rendeu, quais serviços saem mais e o que os clientes acharam do atendimento.",
+      "Faturamento do dia, da semana e do mês. Quanto cada barbeiro rendeu e o que os clientes acharam do atendimento.",
     itens: ["Ranking de barbeiros por receita", "Serviços mais pedidos", "Avaliações do cliente após cada corte"],
     Mockup: MockupNumeros,
   },
@@ -55,15 +55,15 @@ export function SistemaSection() {
       <div className="mx-auto max-w-6xl px-6">
         <div className="max-w-2xl">
           <Reveal>
-            <Eyebrow>Por dentro</Eyebrow>
+            <Eyebrow>Três pontos de vista</Eyebrow>
           </Reveal>
           <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Três telas.", <em key="2" className="texto-dourado font-accent italic">Uma barbearia inteira.</em>]} />
+            <TextReveal delay={0.1} lines={["Uma tela pra cada um,", <em key="2" className="texto-dourado font-accent italic">sem se atropelar.</em>]} />
           </h2>
           <Reveal delay={0.25}>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Do agendamento do cliente ao fechamento do mês, é isso que você e sua equipe usam
-              todo dia.
+              Cliente, equipe e dono usam o kairos ao mesmo tempo — cada um vendo só o que
+              precisa ver.
             </p>
           </Reveal>
         </div>
@@ -73,12 +73,12 @@ export function SistemaSection() {
             const invertido = i % 2 === 1
             return (
               <div
-                key={b.n}
+                key={b.quem}
                 className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-20"
               >
                 <Reveal className={cn(invertido && "md:order-2")} y={36}>
                   <div className="text-sm">
-                    <span className="font-serif text-xs tracking-[0.3em] text-primary/50">{b.n}</span>
+                    <span className="texto-dourado text-xs font-bold tracking-[0.22em] uppercase">{b.quem}</span>
                     <h3 className="mt-4 font-serif text-2xl leading-tight md:text-3xl">{b.titulo}</h3>
                     <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
                     <ul className="mt-7 flex flex-col gap-3">

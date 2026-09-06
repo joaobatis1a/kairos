@@ -10,8 +10,12 @@ import { cn } from "@/lib/utils"
 /**
  * Moldura comum dos mockups. No desktop reage ao cursor; no celular, onde
  * hover não existe, levanta sozinha ao cruzar o meio da tela.
+ *
+ * A barra de endereço no topo (bolinhas + url falsa) ancora o painel como
+ * "isso é o produto rodando de verdade", não um card abstrato flutuando ao
+ * lado do texto.
  */
-function Painel({ children, className }: { children: React.ReactNode; className?: string }) {
+function Painel({ children, url, className }: { children: React.ReactNode; url: string; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const semCursor = useSemCursor()
   const noCentro = useInView(ref, { margin: "-40% 0px -40% 0px" })
@@ -25,11 +29,17 @@ function Painel({ children, className }: { children: React.ReactNode; className?
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className={cn(
-        "rounded-xl border border-border/80 bg-card/80 p-5 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-colors duration-500 hover:border-primary/30 data-[ativo=true]:border-primary/30",
+        "overflow-hidden rounded-xl border border-border/80 bg-card/80 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-colors duration-500 hover:border-primary/30 data-[ativo=true]:border-primary/30",
         className,
       )}
     >
-      {children}
+      <div className="flex items-center gap-1.5 border-b border-border/60 bg-black/15 px-3.5 py-2.5">
+        <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+        <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+        <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+        <span className="ml-2 truncate text-[10px] text-muted-foreground/60">{url}</span>
+      </div>
+      <div className="p-5">{children}</div>
     </motion.div>
   )
 }
@@ -61,7 +71,7 @@ export function MockupAgendamento() {
 
   return (
     <div ref={ref}>
-      <Painel>
+      <Painel url="kairos.app/sua-barbearia">
         <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Escolha o horário</p>
 
         <div className="mt-4 flex items-center gap-3 rounded-lg border border-primary/25 bg-primary/[0.06] p-3">
@@ -146,7 +156,7 @@ const CORES_STATUS: Record<string, string> = {
 /** 02 — a agenda do dia, do ponto de vista da equipe. */
 export function MockupAgenda() {
   return (
-    <Painel>
+    <Painel url="kairos.app/painel/agenda">
       <div className="flex items-baseline justify-between">
         <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Agenda de hoje</p>
         <p className="text-xs text-muted-foreground">4 atendimentos</p>
@@ -188,7 +198,7 @@ const RANKING = [
 /** 03 — os números do mês, do ponto de vista do dono. */
 export function MockupNumeros() {
   return (
-    <Painel>
+    <Painel url="kairos.app/painel">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Faturamento do mês</p>
