@@ -22,7 +22,7 @@ export default function TermosPage() {
         <h2 className="mt-4 text-lg font-semibold text-foreground">1. O que é o kairos</h2>
         <p>
           O kairos é uma plataforma que conecta clientes a barbearias para agendamento de
-          horários. Não somos parte da relação entre você e a barbearia — cada barbearia é
+          horários. Não somos parte da relação entre você e a barbearia: cada barbearia é
           responsável pelo serviço prestado, pelos preços e pela sua própria agenda.
         </p>
 

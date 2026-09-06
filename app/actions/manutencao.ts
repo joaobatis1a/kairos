@@ -94,7 +94,7 @@ export async function criarEmpresa(nome: string) {
   }
 
   const code = gerarCodigoConvite()
-  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
   const { error: codeError } = await admin
     .from("invite_codes")
     .insert({ code, company_id: empresa.id, role: "owner", expires_at: expiresAt })
@@ -119,7 +119,7 @@ export async function alternarStatusEmpresa(id: string, status: StatusEmpresa) {
 }
 
 // Retorna o código de owner vigente, gerando um novo na hora se o
-// existente já venceu (2 minutos de validade) — mesma lógica de
+// existente já venceu (5 minutos de validade) — mesma lógica de
 // "obterConviteBarbeiro" em app/actions/equipe.ts.
 export async function verCodigoConvite(companyId: string) {
   await getContaManutencaoOuRedirect()
@@ -146,7 +146,7 @@ export async function verCodigoConvite(companyId: string) {
   await admin.from("invite_codes").delete().eq("company_id", companyId).eq("role", "owner")
 
   const code = gerarCodigoConvite()
-  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
   const { error } = await admin
     .from("invite_codes")
     .insert({ code, company_id: companyId, role: "owner", expires_at: expiresAt })
@@ -175,7 +175,7 @@ export async function rotacionarConviteOwner(companyId: string) {
   await admin.from("invite_codes").delete().eq("company_id", companyId).eq("role", "owner")
 
   const code = gerarCodigoConvite()
-  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
   const { error } = await admin
     .from("invite_codes")
     .insert({ code, company_id: companyId, role: "owner", expires_at: expiresAt })
@@ -233,7 +233,7 @@ export async function excluirEmpresa(id: string) {
   if ((perfis ?? []).some((p) => p.id === contaAtual.id)) {
     return {
       ok: false as const,
-      error: "Sua própria conta faz parte dessa empresa — remova-se da equipe dela antes de excluir.",
+      error: "Sua própria conta faz parte dessa empresa. Remova-se da equipe dela antes de excluir.",
     }
   }
 

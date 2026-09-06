@@ -47,7 +47,7 @@ export async function cadastrarComCodigo(input: {
   // consome o convite atomicamente na mesma query, então dois resgates
   // simultâneos (ou o mesmo código usado duas vezes) não conseguem os dois
   // "ganhar" a leitura antes de invalidar. O filtro de expires_at faz o
-  // mesmo pra código vencido: nasce com 2 minutos de validade (ver
+  // mesmo pra código vencido: nasce com 5 minutos de validade (ver
   // /painel/equipe e /manutencao), então um código velho nem chega a ser
   // encontrado aqui, mesmo que a linha ainda exista no banco.
   const { data: invite } = await admin
@@ -127,13 +127,13 @@ export async function cadastrarComCodigo(input: {
 
   if (perfilExistente?.ativo && perfilExistente.company_id !== invite.company_id) {
     // o código já foi consumido (delete atômico lá em cima) — devolve, já
-    // que o resgate não vai completar. Novos 2 minutos de validade — mais
+    // que o resgate não vai completar. Novos 5 minutos de validade — mais
     // simples que guardar o expires_at original, e o efeito é o mesmo.
     await admin.from("invite_codes").insert({
       code: codigo,
       company_id: invite.company_id,
       role: invite.role,
-      expires_at: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+      expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
     })
     return {
       ok: false,
@@ -206,7 +206,7 @@ function gerarCodigoConvite(): string {
 
 // Retorna o código de convite de barbeiro vigente da empresa, gerando um
 // novo na hora se não existir um ainda válido (nunca gerado, ou o
-// anterior venceu — 2 minutos de validade). Chamado toda vez que a tela
+// anterior venceu — 5 minutos de validade). Chamado toda vez que a tela
 // de convite abre/atualiza, então o dono nunca vê um código morto.
 export async function obterConviteBarbeiro() {
   if (DEMO_MODE) return bloqueadoNoDemo()
@@ -230,7 +230,7 @@ export async function obterConviteBarbeiro() {
   await admin.from("invite_codes").delete().eq("company_id", owner.companyId).eq("role", "barber")
 
   const code = gerarCodigoConvite()
-  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
   const { error } = await admin
     .from("invite_codes")
     .insert({ code, company_id: owner.companyId, role: "barber", expires_at: expiresAt })

@@ -103,7 +103,7 @@ export async function enviarEmailConfirmacao(dados: DadosAgendamento) {
     await resend.emails.send({
       from: FROM,
       to: resolverDestinatario(dados.clienteEmail),
-      subject: `✓ Agendamento confirmado — ${dados.nomeBarbearia}`,
+      subject: `✓ Agendamento confirmado · ${dados.nomeBarbearia}`,
       html: layoutBase(conteudo, dados.nomeBarbearia),
     })
   } catch (e) {
@@ -142,7 +142,7 @@ export async function enviarEmailCancelamento(
     await resend.emails.send({
       from: FROM,
       to: resolverDestinatario(dados.clienteEmail),
-      subject: `Agendamento cancelado — ${dados.nomeBarbearia}`,
+      subject: `Agendamento cancelado · ${dados.nomeBarbearia}`,
       html: layoutBase(conteudo, dados.nomeBarbearia),
     })
   } catch (e) {
@@ -175,7 +175,7 @@ export async function enviarEmailLembrete(dados: DadosAgendamento) {
     await resend.emails.send({
       from: FROM,
       to: resolverDestinatario(dados.clienteEmail),
-      subject: `Lembrete: seu horário é amanhã — ${dados.nomeBarbearia}`,
+      subject: `Lembrete: seu horário é amanhã · ${dados.nomeBarbearia}`,
       html: layoutBase(conteudo, dados.nomeBarbearia),
     })
   } catch (e) {
@@ -246,7 +246,7 @@ export async function enviarEmailPedidoAvaliacao(dados: DadosAgendamento) {
     await resend.emails.send({
       from: FROM,
       to: resolverDestinatario(dados.clienteEmail),
-      subject: `Avalie seu atendimento — ${dados.nomeBarbearia}`,
+      subject: `Avalie seu atendimento · ${dados.nomeBarbearia}`,
       html: layoutBase(conteudo, dados.nomeBarbearia),
     })
   } catch (e) {
