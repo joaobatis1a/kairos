@@ -102,7 +102,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
             <motion.div
               key={membro.id}
               variants={item}
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+              className="cartao-interativo flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/15 text-primary">

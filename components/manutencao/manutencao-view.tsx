@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { ContadorCodigo } from "@/components/contador-codigo"
+import { NumeroAnimado } from "@/components/numero-animado"
 import {
   Dialog,
   DialogContent,
@@ -157,11 +158,19 @@ export function ManutencaoView({
           { label: "Pessoas na equipe", valor: metricas.totalEquipe },
           { label: "Clientes", valor: metricas.totalClientes },
           { label: "Agendamentos no mês", valor: metricas.agendamentosMes },
-        ].map((m) => (
-          <div key={m.label} className="rounded-xl border border-border bg-card p-3">
-            <p className="text-2xl font-bold tabular-nums">{m.valor}</p>
+        ].map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="cartao-interativo rounded-xl border border-border bg-card p-3"
+          >
+            <p className="text-2xl font-bold tabular-nums">
+              <NumeroAnimado valor={m.valor} />
+            </p>
             <p className="text-xs text-muted-foreground">{m.label}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
 
