@@ -67,13 +67,13 @@ export function LandingHeader() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+          "fixed inset-x-0 top-0 z-50 border-b transition-all duration-500",
           solido && !aberto
-            ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
-            : "border-b border-transparent",
+            ? "border-border/60 bg-background/80 backdrop-blur-xl"
+            : "border-border/0 bg-gradient-to-b from-background/50 to-transparent",
         )}
       >
-        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link
             href="/"
             className="flex items-center gap-2 font-serif text-xl tracking-[0.2em] transition-opacity hover:opacity-70"
@@ -82,7 +82,7 @@ export function LandingHeader() {
             kairos
           </Link>
 
-          <nav className="hidden items-center gap-2 md:flex">
+          <nav className="hidden items-center gap-1 md:flex">
             {LINKS.map((l) => {
               const estaAtivo = ativo === l.href
               return (
@@ -90,7 +90,7 @@ export function LandingHeader() {
                   key={l.href}
                   href={l.href}
                   className={cn(
-                    "relative rounded-full px-3.5 py-1.5 text-sm transition-colors duration-300",
+                    "group relative rounded-full px-3.5 py-1.5 text-sm transition-colors duration-300",
                     estaAtivo ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
@@ -100,6 +100,13 @@ export function LandingHeader() {
                       layoutId="nav-ativo"
                       transition={{ type: "spring", stiffness: 380, damping: 32 }}
                       className="absolute inset-0 -z-10 rounded-full bg-primary/12 ring-1 ring-primary/25"
+                    />
+                  )}
+                  {/* traço que cresce a partir do centro no hover dos itens ainda não ativos */}
+                  {!estaAtivo && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3.5 -bottom-0.5 h-px origin-center scale-x-0 bg-primary/50 transition-transform duration-300 group-hover:scale-x-100"
                     />
                   )}
                   {l.label}
@@ -163,7 +170,7 @@ export function LandingHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-background/97 pt-[72px] backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-background/97 pt-16 backdrop-blur-xl md:hidden"
           >
             <nav className="flex flex-1 flex-col justify-center gap-2 px-8">
               {LINKS.map((l, i) => (
@@ -177,9 +184,7 @@ export function LandingHeader() {
                   transition={{ delay: 0.06 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="group flex items-baseline gap-4 border-b border-border/50 py-5 active:text-primary"
                 >
-                  <span className="font-serif text-xs tracking-[0.3em] text-primary/40">
-                    0{i + 1}
-                  </span>
+                  <ScissorMark className="h-4 w-4 shrink-0 self-center text-primary/40" />
                   <span className="texto-dourado-interativo font-serif text-3xl">
                     {l.label}
                   </span>
