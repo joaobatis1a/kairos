@@ -86,7 +86,7 @@ export function EquipeManutencaoView({
               </Button>
             }
           />
-          <DialogContent className="max-w-md">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">Nova conta de manutenção</DialogTitle>
               <DialogDescription>
@@ -152,7 +152,7 @@ export function EquipeManutencaoView({
       </motion.div>
 
       <Dialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Remover conta de manutenção?</DialogTitle>
             <DialogDescription>

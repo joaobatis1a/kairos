@@ -45,7 +45,7 @@ export function TransferirOwner({ usuarios }: { usuarios: { id: string; nome: st
       </Button>
 
       <Dialog open={aberto} onOpenChange={setAberto}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Transferir administrador</DialogTitle>
             <DialogDescription>

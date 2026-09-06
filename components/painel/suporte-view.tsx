@@ -78,7 +78,7 @@ export function SuporteView({ chamadosIniciais }: { chamadosIniciais: ChamadoRes
       <div className="flex justify-end">
         <Dialog open={novoOpen} onOpenChange={setNovoOpen}>
           <DialogTrigger render={<Button><Plus className="h-4 w-4" /> Abrir chamado</Button>} />
-          <DialogContent className="max-w-md">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">Novo chamado</DialogTitle>
               <DialogDescription>Descreva sua dúvida. A equipe do kairos responde por aqui.</DialogDescription>

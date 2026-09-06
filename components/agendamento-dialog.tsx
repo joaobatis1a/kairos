@@ -160,7 +160,7 @@ export function AgendamentoDialog({ companyId, barbeiros, cliente, open, onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
         {concluido ? (
           <div className="flex flex-col items-center text-center gap-4 p-8">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary">

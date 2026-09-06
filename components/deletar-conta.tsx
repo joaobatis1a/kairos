@@ -46,7 +46,7 @@ export function DeletarConta() {
       </Button>
 
       <Dialog open={aberto} onOpenChange={setAberto}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Deletar conta</DialogTitle>
             <DialogDescription>

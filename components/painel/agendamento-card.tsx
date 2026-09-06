@@ -222,7 +222,7 @@ export function AgendamentoCard({
 
       {/* Modal cancelamento com motivo */}
       <Dialog open={modalCancelamento} onOpenChange={setModalCancelamento}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Cancelar agendamento</DialogTitle>
             <DialogDescription>
@@ -251,7 +251,7 @@ export function AgendamentoCard({
 
       {/* Modal remarcar */}
       <Dialog open={modalRemarcar} onOpenChange={setModalRemarcar}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Remarcar agendamento</DialogTitle>
             <DialogDescription>
@@ -291,7 +291,7 @@ export function AgendamentoCard({
 
       {/* Modal exclusão */}
       <Dialog open={confirmarExclusao} onOpenChange={setConfirmarExclusao}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Excluir agendamento?</DialogTitle>
             <DialogDescription>

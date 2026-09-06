@@ -146,7 +146,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
       </motion.div>
 
       <Dialog open={!!codigoGerado} onOpenChange={(o) => !o && setCodigoGerado(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Código de convite gerado</DialogTitle>
             <DialogDescription>
@@ -165,7 +165,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
       </Dialog>
 
       <Dialog open={!!removendo} onOpenChange={(o) => !o && setRemovendo(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Remover barbeiro?</DialogTitle>
             <DialogDescription>

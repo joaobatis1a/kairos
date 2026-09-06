@@ -188,7 +188,7 @@ export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
       })}
 
       <Dialog open={!!agCancelando} onOpenChange={(o) => !o && setAgCancelando(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="font-serif">Cancelar agendamento</DialogTitle>
             <DialogDescription>
@@ -215,7 +215,7 @@ export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
       </Dialog>
 
       <Dialog open={!!agAvaliando} onOpenChange={(o) => !o && setAgAvaliando(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="font-serif">Avaliar atendimento</DialogTitle>
             <DialogDescription>
