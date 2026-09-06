@@ -285,7 +285,7 @@ export function ManutencaoView({
       )}
 
       <Dialog open={!!codigoGerado} onOpenChange={(o) => !o && setCodigoGerado(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Código de convite gerado</DialogTitle>
             <DialogDescription>
@@ -317,7 +317,7 @@ export function ManutencaoView({
           }
         }}
       >
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Excluir empresa</DialogTitle>
             <DialogDescription>
