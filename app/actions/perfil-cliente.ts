@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 type AtualizarPerfilInput = {
   nome: string
@@ -10,6 +11,8 @@ type AtualizarPerfilInput = {
 }
 
 export async function atualizarPerfilCliente(input: AtualizarPerfilInput) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const nome = input.nome.trim()
   const whatsapp = input.whatsapp.trim()
 
@@ -46,6 +49,8 @@ export async function sairDaConta() {
 }
 
 export async function trocarSenhaCliente(novaSenha: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   if (novaSenha.length < 6) {
     return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
   }
@@ -157,6 +162,8 @@ export async function getResumoCliente(): Promise<ResumoCliente> {
  * usuário fora da própria sessão, aí sim vale mover pra coluna.
  */
 export async function enviarFotoCliente(formData: FormData) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const arquivo = formData.get("foto")
   if (!(arquivo instanceof File) || arquivo.size === 0) {
     return { ok: false, error: "Escolha uma imagem." }
@@ -198,6 +205,8 @@ export async function enviarFotoCliente(formData: FormData) {
 }
 
 export async function removerFotoCliente() {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Sessão expirada. Entre novamente." }

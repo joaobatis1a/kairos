@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { registrarAuditoria } from "@/lib/auditoria"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 export type Bloqueio = {
   id: string
@@ -57,6 +58,8 @@ export async function criarBloqueio(input: {
   fim: string
   motivo: string
 }) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const u = await getUsuario()
   if (!u) return { ok: false as const, error: "Sem permissão." }
 
@@ -91,6 +94,8 @@ export async function criarBloqueio(input: {
 }
 
 export async function excluirBloqueio(id: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const u = await getUsuario()
   if (!u) return { ok: false as const, error: "Sem permissão." }
 

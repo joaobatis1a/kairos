@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 export type NotificacaoDb = {
   id: string
@@ -48,6 +49,8 @@ export async function contarNaoLidas(): Promise<number> {
 }
 
 export async function marcarComoLida(notificationId: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const user = await getUsuarioAtual()
   if (!user) return { ok: false as const, error: "Sessão expirada." }
 
@@ -62,6 +65,8 @@ export async function marcarComoLida(notificationId: string) {
 }
 
 export async function marcarTodasComoLidas() {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const user = await getUsuarioAtual()
   if (!user) return { ok: false as const, error: "Sessão expirada." }
 

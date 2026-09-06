@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Loader2, ArrowLeft } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
+import { DEMO_MODE, DEMO_CLIENTE } from "@/lib/demo"
 
 export default function ContaLoginPage() {
   return (
@@ -30,13 +31,12 @@ function ContaLoginForm() {
   const [erro, setErro] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function entrar(emailInput: string, senhaInput: string) {
     setErro(null)
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
+    const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: senhaInput })
 
     if (error) {
       setErro("E-mail ou senha incorretos.")
@@ -45,6 +45,11 @@ function ContaLoginForm() {
     }
 
     window.location.href = next
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    entrar(email, senha)
   }
 
   return (
@@ -65,6 +70,23 @@ function ContaLoginForm() {
             <CardDescription>Acesse sua conta para agendar e ver seu histórico.</CardDescription>
           </CardHeader>
           <CardContent>
+            {DEMO_MODE && (
+              <div className="mb-5 rounded-lg border border-primary/30 bg-primary/[0.06] p-3 text-sm">
+                <p className="font-medium text-foreground">Isso é uma demonstração pública.</p>
+                <p className="mt-0.5 text-muted-foreground">
+                  Nada que você criar ou editar é salvo de verdade.
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-3 w-full"
+                  disabled={loading}
+                  onClick={() => entrar(DEMO_CLIENTE.email, DEMO_CLIENTE.senha)}
+                >
+                  Entrar como cliente
+                </Button>
+              </div>
+            )}
             <div className="flex flex-col gap-3">
               <GoogleButton redirectPath={next} />
             </div>

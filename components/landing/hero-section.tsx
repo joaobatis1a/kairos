@@ -1,10 +1,16 @@
 import { Mail, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LINK_CONTATO } from "@/components/landing/contato"
+import { DEMO_MODE } from "@/lib/demo"
 
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-32 md:pb-32 md:pt-40">
+      {DEMO_MODE && (
+        <p className="revelar relative mx-auto mb-8 w-fit rounded-full border border-primary/30 bg-primary/[0.08] px-4 py-1.5 text-xs font-bold text-primary">
+          Demonstração pública — navegue à vontade, nada é salvo
+        </p>
+      )}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-8 h-[420px] w-[820px] max-w-[120vw] -translate-x-1/2 rounded-full bg-primary/[0.14] blur-[130px]" />
         <div className="absolute left-1/2 top-32 h-[220px] w-[420px] max-w-[90vw] -translate-x-1/2 rounded-full bg-primary/[0.1] blur-[90px]" />

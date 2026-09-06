@@ -13,6 +13,7 @@ import { Suspense, useState } from "react"
 import Link from "next/link"
 import { Loader2, ArrowLeft } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
+import { DEMO_MODE, DEMO_OWNER } from "@/lib/demo"
 
 export default function LoginPage() {
   return (
@@ -37,14 +38,13 @@ function LoginForm() {
         ? "O acesso desta barbearia foi desativado."
         : null
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+  async function entrar(emailInput: string, senhaInput: string) {
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: senhaInput })
       if (error) throw error
       window.location.href = next
     } catch (err: unknown) {
@@ -52,6 +52,11 @@ function LoginForm() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    entrar(email, password)
   }
 
   return (
@@ -76,6 +81,23 @@ function LoginForm() {
               <p className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {mensagemErro}
               </p>
+            )}
+            {DEMO_MODE && (
+              <div className="mb-5 rounded-lg border border-primary/30 bg-primary/[0.06] p-3 text-sm">
+                <p className="font-medium text-foreground">Isso é uma demonstração pública.</p>
+                <p className="mt-0.5 text-muted-foreground">
+                  Nada que você criar ou editar é salvo de verdade.
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-3 w-full"
+                  disabled={isLoading}
+                  onClick={() => entrar(DEMO_OWNER.email, DEMO_OWNER.senha)}
+                >
+                  Entrar como dono da barbearia
+                </Button>
+              </div>
             )}
             <div className="flex flex-col gap-3">
               <GoogleButton redirectPath={next} />

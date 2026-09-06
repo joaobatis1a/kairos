@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { notificar } from "@/lib/notificacoes"
+import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
 export type Avaliacao = {
   id: string
@@ -30,6 +31,8 @@ export async function salvarAvaliacao(input: {
   notaBarbeiro: number | null
   comentario: string
 }) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: "Não autenticado." }
