@@ -130,7 +130,7 @@ export function HistoricoView({ historico }: { historico: AgHistorico[] }) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="texto-dourado font-serif font-bold tabular-nums">
+                <span className="texto-dourado font-bold tabular-nums">
                   {formatarPreco(Number(ag.servico_preco))}
                 </span>
                 <Badge variant="outline" className={statusConfig[ag.status]?.classe}>

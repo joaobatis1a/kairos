@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { stagger, item } from "@/lib/motion"
 import { formatarPreco } from "@/lib/format"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { NumeroAnimado } from "@/components/numero-animado"
 import { Estrelas } from "@/components/estrelas"
 import { Badge } from "@/components/ui/badge"
 import type { DashboardData } from "@/app/actions/dashboard"
@@ -44,7 +45,9 @@ function CartaoReceita({
             <Icon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="texto-dourado truncate font-serif text-2xl leading-tight">{formatarPreco(valor)}</p>
+            <p className="texto-dourado truncate text-2xl font-bold leading-tight tabular-nums">
+              <NumeroAnimado valor={valor} formatar={formatarPreco} />
+            </p>
             <p className="mt-0.5 text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</p>
           </div>
         </CardContent>
@@ -88,7 +91,7 @@ export function DashboardView({ dados }: { dados: DashboardData }) {
                       className="flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 font-serif text-xs font-bold text-primary">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-xs font-bold tabular-nums text-primary">
                           {i + 1}
                         </span>
                         <div>
@@ -96,7 +99,9 @@ export function DashboardView({ dados }: { dados: DashboardData }) {
                           <p className="text-xs text-muted-foreground">{b.total} atendimentos</p>
                         </div>
                       </div>
-                      <span className="texto-dourado font-serif text-sm">{formatarPreco(b.receita)}</span>
+                      <span className="texto-dourado text-sm font-bold tabular-nums">
+                        <NumeroAnimado valor={b.receita} formatar={formatarPreco} />
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -163,8 +168,8 @@ export function DashboardView({ dados }: { dados: DashboardData }) {
                 <p className="text-xs text-muted-foreground">Nota média do serviço</p>
                 <div className="flex items-center gap-2">
                   <Estrelas valor={Math.round(avaliacoesGerais.mediaServico)} readonly />
-                  <span className="font-serif text-sm font-semibold">
-                    {avaliacoesGerais.mediaServico.toFixed(1)}
+                  <span className="text-sm font-semibold tabular-nums">
+                    <NumeroAnimado valor={avaliacoesGerais.mediaServico} formatar={(v) => v.toFixed(1)} />
                   </span>
                 </div>
               </div>
@@ -172,14 +177,16 @@ export function DashboardView({ dados }: { dados: DashboardData }) {
                 <p className="text-xs text-muted-foreground">Nota média dos barbeiros</p>
                 <div className="flex items-center gap-2">
                   <Estrelas valor={Math.round(avaliacoesGerais.mediaBarbeiro)} readonly />
-                  <span className="font-serif text-sm font-semibold">
-                    {avaliacoesGerais.mediaBarbeiro.toFixed(1)}
+                  <span className="text-sm font-semibold tabular-nums">
+                    <NumeroAnimado valor={avaliacoesGerais.mediaBarbeiro} formatar={(v) => v.toFixed(1)} />
                   </span>
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <p className="text-xs text-muted-foreground">Total de avaliações</p>
-                <p className="font-serif text-lg font-bold">{avaliacoesGerais.totalAvaliacoes}</p>
+                <p className="text-lg font-bold tabular-nums">
+                  <NumeroAnimado valor={avaliacoesGerais.totalAvaliacoes} />
+                </p>
               </div>
             </div>
 

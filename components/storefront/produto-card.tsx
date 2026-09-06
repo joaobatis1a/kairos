@@ -36,7 +36,7 @@ export function ProdutoCard({ produto, whatsapp }: { produto: ProdutoDb; whatsap
       <div className="flex flex-1 flex-col gap-2 p-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="min-w-0 text-pretty font-serif text-lg font-semibold leading-tight">{produto.nome}</h3>
-          <span className="texto-dourado shrink-0 font-serif text-lg font-bold tabular-nums">
+          <span className="texto-dourado shrink-0 text-lg font-bold tabular-nums">
             {formatarPreco(produto.preco)}
           </span>
         </div>

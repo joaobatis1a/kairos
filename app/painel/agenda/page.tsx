@@ -20,15 +20,15 @@ export default async function AgendaBarbeiroPage() {
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl border border-border/60 bg-card/40 p-4">
             <p className="text-xs text-muted-foreground">Hoje</p>
-            <p className="font-serif text-lg font-semibold text-primary">{formatarPreco(faturamento.receitaHoje)}</p>
+            <p className="text-lg font-bold tabular-nums text-primary">{formatarPreco(faturamento.receitaHoje)}</p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card/40 p-4">
             <p className="text-xs text-muted-foreground">Semana</p>
-            <p className="font-serif text-lg font-semibold text-primary">{formatarPreco(faturamento.receitaSemana)}</p>
+            <p className="text-lg font-bold tabular-nums text-primary">{formatarPreco(faturamento.receitaSemana)}</p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card/40 p-4">
             <p className="text-xs text-muted-foreground">Mês</p>
-            <p className="font-serif text-lg font-semibold text-primary">{formatarPreco(faturamento.receitaMes)}</p>
+            <p className="text-lg font-bold tabular-nums text-primary">{formatarPreco(faturamento.receitaMes)}</p>
           </div>
         </div>
       )}
