@@ -3,23 +3,35 @@
 import { useState, useRef, useEffect, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import {
-  listarConversasSuporte,
-  getConversaSuporteAdmin,
-  responderSuporteAdmin,
-  type ConversaSuporte,
-  type MensagemSuporte,
+  listarChamadosAdmin,
+  getChamadoAdmin,
+  responderChamadoAdmin,
+  alternarStatusChamadoAdmin,
+  type ChamadoAdminResumo,
+  type MensagemChamado,
+  type StatusChamado,
 } from "@/app/actions/suporte"
 import { toast } from "sonner"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Send, Loader2, LifeBuoy, ArrowLeft } from "lucide-react"
+import { Send, Loader2, LifeBuoy, ArrowLeft, Lock, LockOpen } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function SuporteManutencaoView({ conversasIniciais }: { conversasIniciais: ConversaSuporte[] }) {
-  const [conversas, setConversas] = useState(conversasIniciais)
-  const [aberta, setAberta] = useState<ConversaSuporte | null>(null)
-  const [mensagens, setMensagens] = useState<MensagemSuporte[] | null>(null)
+function BadgeStatus({ status }: { status: StatusChamado }) {
+  return (
+    <Badge variant={status === "aberto" ? "default" : "outline"} className="shrink-0">
+      {status === "aberto" ? "Aberto" : "Encerrado"}
+    </Badge>
+  )
+}
+
+export function SuporteManutencaoView({ chamadosIniciais }: { chamadosIniciais: ChamadoAdminResumo[] }) {
+  const [chamados, setChamados] = useState(chamadosIniciais)
+  const [aberto, setAberto] = useState<ChamadoAdminResumo | null>(null)
+  const [status, setStatus] = useState<StatusChamado>("aberto")
+  const [mensagens, setMensagens] = useState<MensagemChamado[] | null>(null)
   const [texto, setTexto] = useState("")
   const [pending, startTransition] = useTransition()
   const fimRef = useRef<HTMLDivElement>(null)
@@ -28,47 +40,79 @@ export function SuporteManutencaoView({ conversasIniciais }: { conversasIniciais
     fimRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [mensagens])
 
-  function abrir(c: ConversaSuporte) {
-    setAberta(c)
+  function abrir(c: ChamadoAdminResumo) {
+    setAberto(c)
+    setStatus(c.status)
     setMensagens(null)
-    getConversaSuporteAdmin(c.companyId).then((res) => setMensagens(res?.mensagens ?? []))
-    // zera o contador de não lidas localmente
-    setConversas((prev) => prev.map((x) => (x.companyId === c.companyId ? { ...x, naoLidas: 0 } : x)))
+    getChamadoAdmin(c.id).then((res) => {
+      if (res) setStatus(res.status)
+      setMensagens(res?.mensagens ?? [])
+    })
+    setChamados((prev) => prev.map((x) => (x.id === c.id ? { ...x, naoLidas: 0 } : x)))
   }
 
   function responder() {
-    if (!aberta) return
+    if (!aberto) return
     const msg = texto.trim()
     if (!msg) return
     startTransition(async () => {
-      const res = await responderSuporteAdmin(aberta.companyId, msg)
+      const res = await responderChamadoAdmin(aberto.id, msg)
       if (!res.ok) {
         toast.error(res.error)
         return
       }
       setTexto("")
-      const [conv, lista] = await Promise.all([
-        getConversaSuporteAdmin(aberta.companyId),
-        listarConversasSuporte(),
-      ])
+      const [conv, lista] = await Promise.all([getChamadoAdmin(aberto.id), listarChamadosAdmin()])
+      if (conv) setStatus(conv.status)
       setMensagens(conv?.mensagens ?? [])
-      setConversas(lista)
+      setChamados(lista)
     })
   }
 
-  if (aberta) {
+  function alternarStatus() {
+    if (!aberto) return
+    const novo: StatusChamado = status === "aberto" ? "encerrado" : "aberto"
+    startTransition(async () => {
+      const res = await alternarStatusChamadoAdmin(aberto.id, novo)
+      if (!res.ok) {
+        toast.error(res.error)
+        return
+      }
+      setStatus(novo)
+    })
+  }
+
+  if (aberto) {
     return (
       <div className="flex flex-col gap-4">
         <button
           type="button"
-          onClick={() => setAberta(null)}
+          onClick={() => setAberto(null)}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-4 w-4" /> Todas as conversas
+          <ArrowLeft className="h-4 w-4" /> Todos os chamados
         </button>
-        <div>
-          <h1 className="font-serif text-2xl font-bold">{aberta.nome}</h1>
-          <p className="text-sm text-muted-foreground">/b/{aberta.slug}</p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="font-serif text-2xl font-bold">{aberto.titulo}</h1>
+            <p className="text-sm text-muted-foreground">
+              {aberto.empresaNome} · /b/{aberto.empresaSlug}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <BadgeStatus status={status} />
+            <Button variant="outline" size="sm" onClick={alternarStatus} disabled={pending}>
+              {status === "aberto" ? (
+                <>
+                  <Lock className="h-3.5 w-3.5" /> Encerrar
+                </>
+              ) : (
+                <>
+                  <LockOpen className="h-3.5 w-3.5" /> Reabrir
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="flex h-[65vh] flex-col rounded-xl border border-border bg-card">
@@ -123,19 +167,19 @@ export function SuporteManutencaoView({ conversasIniciais }: { conversasIniciais
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-serif text-3xl font-bold">Suporte</h1>
-        <p className="text-muted-foreground">Conversas abertas pelas barbearias.</p>
+        <p className="text-muted-foreground">Chamados abertos pelas barbearias.</p>
       </div>
 
-      {conversas.length === 0 ? (
+      {chamados.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
           <LifeBuoy className="h-10 w-10 text-muted-foreground" />
-          <p className="text-muted-foreground">Nenhuma conversa de suporte ainda.</p>
+          <p className="text-muted-foreground">Nenhum chamado ainda.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {conversas.map((c) => (
+          {chamados.map((c) => (
             <button
-              key={c.companyId}
+              key={c.id}
               type="button"
               onClick={() => abrir(c)}
               className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/30"
@@ -143,19 +187,17 @@ export function SuporteManutencaoView({ conversasIniciais }: { conversasIniciais
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   {c.naoLidas > 0 && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />}
-                  <p className={cn("truncate font-medium", c.naoLidas > 0 && "text-foreground")}>{c.nome}</p>
+                  <p className={cn("truncate font-medium", c.naoLidas > 0 && "text-foreground")}>{c.titulo}</p>
                 </div>
-                <p className="mt-0.5 truncate text-sm text-muted-foreground">{c.ultimaMensagem}</p>
+                <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                  {c.empresaNome} · {c.autorNome}
+                </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
+                <BadgeStatus status={c.status} />
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(c.ultimaEm), { addSuffix: true, locale: ptBR })}
+                  {formatDistanceToNow(new Date(c.updatedAt), { addSuffix: true, locale: ptBR })}
                 </span>
-                {c.naoLidas > 0 && (
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
-                    {c.naoLidas}
-                  </span>
-                )}
               </div>
             </button>
           ))}

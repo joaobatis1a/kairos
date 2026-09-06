@@ -7,7 +7,9 @@ import { notificar } from "@/lib/notificacoes"
 import { revalidatePath } from "next/cache"
 import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
 
-export type MensagemSuporte = {
+export type StatusChamado = "aberto" | "encerrado"
+
+export type MensagemChamado = {
   id: string
   origem: "empresa" | "suporte"
   autor_nome: string
@@ -15,13 +17,19 @@ export type MensagemSuporte = {
   created_at: string
 }
 
-export type ConversaSuporte = {
-  companyId: string
-  nome: string
-  slug: string
-  ultimaMensagem: string
-  ultimaEm: string
+export type ChamadoResumo = {
+  id: string
+  titulo: string
+  status: StatusChamado
+  autorNome: string
+  updatedAt: string
   naoLidas: number
+}
+
+export type ChamadoAdminResumo = ChamadoResumo & {
+  companyId: string
+  empresaNome: string
+  empresaSlug: string
 }
 
 async function getPerfilSuporte() {
@@ -39,49 +47,135 @@ async function getPerfilSuporte() {
   return { id: user.id, nome: perfil.nome as string, role: perfil.role as string, companyId: perfil.company_id as string }
 }
 
-// ── Lado da barbearia ────────────────────────────────────────
+// ── Lado da barbearia (dono ou barbeiro — qualquer um da equipe) ────────
 
-export async function getConversaSuporte(): Promise<{ mensagens: MensagemSuporte[]; isOwner: boolean }> {
+export async function listarChamados(): Promise<ChamadoResumo[]> {
   const perfil = await getPerfilSuporte()
-  if (!perfil) return { mensagens: [], isOwner: false }
+  if (!perfil) return []
 
   const supabase = await createClient()
-  const { data } = await supabase
-    .from("suporte_mensagens")
-    .select("id, origem, autor_nome, mensagem, created_at")
+  const { data: chamados } = await supabase
+    .from("chamados")
+    .select("id, titulo, status, autor_nome, updated_at")
     .eq("company_id", perfil.companyId)
-    .order("created_at", { ascending: true })
+    .order("updated_at", { ascending: false })
 
-  // marca a conversa como lida pelo lado da empresa
-  await supabase
-    .from("suporte_leituras")
-    .upsert(
-      { company_id: perfil.companyId, lado: "empresa", last_read_at: new Date().toISOString() },
-      { onConflict: "company_id,lado" },
-    )
+  if (!chamados?.length) return []
 
-  return { mensagens: (data ?? []) as MensagemSuporte[], isOwner: perfil.role === "owner" }
+  const ids = chamados.map((c) => c.id)
+  const [{ data: mensagens }, { data: leituras }] = await Promise.all([
+    supabase.from("chamado_mensagens").select("chamado_id, origem, created_at").in("chamado_id", ids),
+    supabase.from("chamado_leituras").select("chamado_id, last_read_at").eq("lado", "empresa").in("chamado_id", ids),
+  ])
+
+  const lidoEm = new Map((leituras ?? []).map((l) => [l.chamado_id, l.last_read_at]))
+
+  return chamados.map((c) => {
+    const lastRead = lidoEm.get(c.id)
+    const naoLidas = (mensagens ?? []).filter(
+      (m) => m.chamado_id === c.id && m.origem === "suporte" && (!lastRead || m.created_at > lastRead),
+    ).length
+    return {
+      id: c.id,
+      titulo: c.titulo,
+      status: c.status as StatusChamado,
+      autorNome: c.autor_nome,
+      updatedAt: c.updated_at,
+      naoLidas,
+    }
+  })
 }
 
-export async function enviarMensagemSuporte(texto: string) {
+export async function abrirChamado(titulo: string, mensagem: string) {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
   const perfil = await getPerfilSuporte()
-  if (!perfil || perfil.role !== "owner") return { ok: false as const, error: "Só o administrador fala com o suporte." }
+  if (!perfil) return { ok: false as const, error: "Não autenticado." }
+
+  const tituloTratado = titulo.trim()
+  const mensagemTratada = mensagem.trim()
+  if (!tituloTratado || !mensagemTratada) return { ok: false as const, error: "Preencha título e mensagem." }
+
+  const supabase = await createClient()
+  const { data: chamado, error } = await supabase
+    .from("chamados")
+    .insert({ company_id: perfil.companyId, autor_id: perfil.id, autor_nome: perfil.nome || "Equipe", titulo: tituloTratado })
+    .select("id")
+    .single()
+
+  if (error || !chamado) return { ok: false as const, error: "Não foi possível abrir o chamado." }
+
+  const { error: msgError } = await supabase.from("chamado_mensagens").insert({
+    chamado_id: chamado.id,
+    autor_id: perfil.id,
+    origem: "empresa",
+    autor_nome: perfil.nome || "Equipe",
+    mensagem: mensagemTratada,
+  })
+  if (msgError) return { ok: false as const, error: "Chamado aberto, mas a mensagem não foi enviada." }
+
+  revalidatePath("/painel/suporte")
+  return { ok: true as const, id: chamado.id as string }
+}
+
+export async function getChamado(id: string): Promise<{ titulo: string; status: StatusChamado; mensagens: MensagemChamado[] } | null> {
+  const perfil = await getPerfilSuporte()
+  if (!perfil) return null
+
+  const supabase = await createClient()
+  const { data: chamado } = await supabase
+    .from("chamados")
+    .select("titulo, status")
+    .eq("id", id)
+    .eq("company_id", perfil.companyId)
+    .maybeSingle()
+  if (!chamado) return null
+
+  const { data: mensagens } = await supabase
+    .from("chamado_mensagens")
+    .select("id, origem, autor_nome, mensagem, created_at")
+    .eq("chamado_id", id)
+    .order("created_at", { ascending: true })
+
+  await supabase
+    .from("chamado_leituras")
+    .upsert({ chamado_id: id, lado: "empresa", last_read_at: new Date().toISOString() }, { onConflict: "chamado_id,lado" })
+
+  return { titulo: chamado.titulo, status: chamado.status as StatusChamado, mensagens: (mensagens ?? []) as MensagemChamado[] }
+}
+
+export async function responderChamado(id: string, texto: string) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const perfil = await getPerfilSuporte()
+  if (!perfil) return { ok: false as const, error: "Não autenticado." }
 
   const mensagem = texto.trim()
   if (!mensagem) return { ok: false as const, error: "Escreva uma mensagem." }
 
   const supabase = await createClient()
-  const { error } = await supabase.from("suporte_mensagens").insert({
-    company_id: perfil.companyId,
+  const { error } = await supabase.from("chamado_mensagens").insert({
+    chamado_id: id,
     autor_id: perfil.id,
     origem: "empresa",
-    autor_nome: perfil.nome || "Barbearia",
+    autor_nome: perfil.nome || "Equipe",
     mensagem,
   })
-
   if (error) return { ok: false as const, error: "Não foi possível enviar a mensagem." }
+
+  revalidatePath("/painel/suporte")
+  return { ok: true as const }
+}
+
+export async function alternarStatusChamado(id: string, status: StatusChamado) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  const perfil = await getPerfilSuporte()
+  if (!perfil) return { ok: false as const, error: "Não autenticado." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from("chamados").update({ status }).eq("id", id).eq("company_id", perfil.companyId)
+  if (error) return { ok: false as const, error: "Não foi possível atualizar o chamado." }
 
   revalidatePath("/painel/suporte")
   return { ok: true as const }
@@ -89,98 +183,111 @@ export async function enviarMensagemSuporte(texto: string) {
 
 // ── Lado da manutenção (admin client, gated por ehContaManutencao) ────
 
-export async function listarConversasSuporte(): Promise<ConversaSuporte[]> {
+export async function listarChamadosAdmin(): Promise<ChamadoAdminResumo[]> {
   await getContaManutencaoOuRedirect()
   const admin = createAdminClient()
 
-  const { data: mensagens } = await admin
-    .from("suporte_mensagens")
-    .select("company_id, origem, mensagem, created_at")
-    .order("created_at", { ascending: false })
+  const { data: chamados } = await admin
+    .from("chamados")
+    .select("id, company_id, titulo, status, autor_nome, updated_at")
+    .order("updated_at", { ascending: false })
 
-  if (!mensagens?.length) return []
+  if (!chamados?.length) return []
 
-  const companyIds = Array.from(new Set(mensagens.map((m) => m.company_id)))
+  const companyIds = Array.from(new Set(chamados.map((c) => c.company_id)))
+  const ids = chamados.map((c) => c.id)
 
-  const [{ data: empresas }, { data: leituras }] = await Promise.all([
+  const [{ data: empresas }, { data: mensagens }, { data: leituras }] = await Promise.all([
     admin.from("companies").select("id, nome, slug").in("id", companyIds),
-    admin.from("suporte_leituras").select("company_id, last_read_at").eq("lado", "suporte").in("company_id", companyIds),
+    admin.from("chamado_mensagens").select("chamado_id, origem, created_at").in("chamado_id", ids),
+    admin.from("chamado_leituras").select("chamado_id, last_read_at").eq("lado", "suporte").in("chamado_id", ids),
   ])
 
   const empresaPorId = new Map((empresas ?? []).map((e) => [e.id, e]))
-  const lidoEm = new Map((leituras ?? []).map((l) => [l.company_id, l.last_read_at]))
+  const lidoEm = new Map((leituras ?? []).map((l) => [l.chamado_id, l.last_read_at]))
 
-  return companyIds
-    .map((cid) => {
-      const daEmpresa = mensagens.filter((m) => m.company_id === cid)
-      const ultima = daEmpresa[0] // já vem desc
-      const lastRead = lidoEm.get(cid)
-      const naoLidas = daEmpresa.filter(
-        (m) => m.origem === "empresa" && (!lastRead || m.created_at > lastRead),
-      ).length
-      const empresa = empresaPorId.get(cid)
-      return {
-        companyId: cid,
-        nome: empresa?.nome ?? "Empresa",
-        slug: empresa?.slug ?? "",
-        ultimaMensagem: ultima.mensagem,
-        ultimaEm: ultima.created_at,
-        naoLidas,
-      }
-    })
-    .sort((a, b) => b.ultimaEm.localeCompare(a.ultimaEm))
+  return chamados.map((c) => {
+    const lastRead = lidoEm.get(c.id)
+    const naoLidas = (mensagens ?? []).filter(
+      (m) => m.chamado_id === c.id && m.origem === "empresa" && (!lastRead || m.created_at > lastRead),
+    ).length
+    const empresa = empresaPorId.get(c.company_id)
+    return {
+      id: c.id,
+      companyId: c.company_id,
+      empresaNome: empresa?.nome ?? "Empresa",
+      empresaSlug: empresa?.slug ?? "",
+      titulo: c.titulo,
+      status: c.status as StatusChamado,
+      autorNome: c.autor_nome,
+      updatedAt: c.updated_at,
+      naoLidas,
+    }
+  })
 }
 
-export async function getConversaSuporteAdmin(
-  companyId: string,
-): Promise<{ nome: string; mensagens: MensagemSuporte[] } | null> {
+export async function getChamadoAdmin(id: string): Promise<{ titulo: string; status: StatusChamado; empresaNome: string; mensagens: MensagemChamado[] } | null> {
   await getContaManutencaoOuRedirect()
   const admin = createAdminClient()
 
-  const { data: empresa } = await admin.from("companies").select("nome").eq("id", companyId).maybeSingle()
-  if (!empresa) return null
+  const { data: chamado } = await admin.from("chamados").select("titulo, status, company_id").eq("id", id).maybeSingle()
+  if (!chamado) return null
 
-  const { data } = await admin
-    .from("suporte_mensagens")
-    .select("id, origem, autor_nome, mensagem, created_at")
-    .eq("company_id", companyId)
-    .order("created_at", { ascending: true })
+  const [{ data: empresa }, { data: mensagens }] = await Promise.all([
+    admin.from("companies").select("nome").eq("id", chamado.company_id).maybeSingle(),
+    admin.from("chamado_mensagens").select("id, origem, autor_nome, mensagem, created_at").eq("chamado_id", id).order("created_at", { ascending: true }),
+  ])
 
   await admin
-    .from("suporte_leituras")
-    .upsert(
-      { company_id: companyId, lado: "suporte", last_read_at: new Date().toISOString() },
-      { onConflict: "company_id,lado" },
-    )
+    .from("chamado_leituras")
+    .upsert({ chamado_id: id, lado: "suporte", last_read_at: new Date().toISOString() }, { onConflict: "chamado_id,lado" })
 
-  return { nome: empresa.nome, mensagens: (data ?? []) as MensagemSuporte[] }
+  return {
+    titulo: chamado.titulo,
+    status: chamado.status as StatusChamado,
+    empresaNome: empresa?.nome ?? "Empresa",
+    mensagens: (mensagens ?? []) as MensagemChamado[],
+  }
 }
 
-export async function responderSuporteAdmin(companyId: string, texto: string) {
+export async function responderChamadoAdmin(id: string, texto: string) {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
-  const user = await getContaManutencaoOuRedirect()
+  await getContaManutencaoOuRedirect()
   const mensagem = texto.trim()
   if (!mensagem) return { ok: false as const, error: "Escreva uma mensagem." }
 
   const admin = createAdminClient()
-  const { error } = await admin.from("suporte_mensagens").insert({
-    company_id: companyId,
-    autor_id: user.id,
+  const { data: chamado } = await admin.from("chamados").select("company_id, autor_id").eq("id", id).maybeSingle()
+  if (!chamado) return { ok: false as const, error: "Chamado não encontrado." }
+
+  const { error } = await admin.from("chamado_mensagens").insert({
+    chamado_id: id,
     origem: "suporte",
     autor_nome: "Suporte",
     mensagem,
   })
-
   if (error) return { ok: false as const, error: "Não foi possível enviar a resposta." }
 
   notificar({
-    companyId,
+    companyId: chamado.company_id,
     titulo: "Resposta do suporte",
     corpo: mensagem.length > 80 ? mensagem.slice(0, 80) + "…" : mensagem,
     link: "/painel/suporte",
-    destinatarioRole: "owner",
+    destinatarioId: chamado.autor_id ?? undefined,
   })
+
+  revalidatePath("/manutencao/suporte")
+  return { ok: true as const }
+}
+
+export async function alternarStatusChamadoAdmin(id: string, status: StatusChamado) {
+  if (DEMO_MODE) return bloqueadoNoDemo()
+
+  await getContaManutencaoOuRedirect()
+  const admin = createAdminClient()
+  const { error } = await admin.from("chamados").update({ status }).eq("id", id)
+  if (error) return { ok: false as const, error: "Não foi possível atualizar o chamado." }
 
   revalidatePath("/manutencao/suporte")
   return { ok: true as const }

@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { getPermissoesEquipe } from "@/app/actions/permissoes"
 
 async function getUsuarioDashboard() {
   const supabase = await createClient()
@@ -215,4 +216,36 @@ export async function getAvaliacoesDoBarbeiro() {
   })
 
   return { mediaServico, mediaBarbeiro, totalAvaliacoes, recentes }
+}
+
+export type FaturamentoResumo = { receitaHoje: number; receitaSemana: number; receitaMes: number }
+
+// Versão enxuta (só receita, sem ranking/avaliações) liberada pra barbeiro
+// quando a empresa ativa "ver_faturamento" em /painel/cargos.
+export async function getFaturamentoResumo(): Promise<FaturamentoResumo | null> {
+  const usuario = await getUsuarioDashboard()
+  if (!usuario) return null
+
+  if (usuario.role !== "owner") {
+    const permissoes = await getPermissoesEquipe(usuario.companyId)
+    if (!permissoes.ver_faturamento) return null
+  }
+
+  const supabase = await createClient()
+  const hoje = hojeIso()
+  const inicioSemana = inicioSemanaIso()
+  const inicioMes = inicioMesIso()
+
+  const { data } = await supabase
+    .from("agendamentos")
+    .select("servico_preco, data")
+    .eq("status", "finalizado")
+    .gte("data", inicioMes)
+
+  const lista = data ?? []
+  return {
+    receitaHoje: lista.filter((a) => a.data === hoje).reduce((sum, a) => sum + Number(a.servico_preco), 0),
+    receitaSemana: lista.filter((a) => a.data >= inicioSemana).reduce((sum, a) => sum + Number(a.servico_preco), 0),
+    receitaMes: lista.reduce((sum, a) => sum + Number(a.servico_preco), 0),
+  }
 }

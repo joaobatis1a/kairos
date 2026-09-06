@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getBarbeariaConfig } from "@/app/actions/config"
+import { getPermissoesEquipe } from "@/app/actions/permissoes"
 import { enviarEmailCancelamento, enviarEmailPedidoAvaliacao } from "@/lib/emails"
 import { registrarAuditoria } from "@/lib/auditoria"
 import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
@@ -25,13 +26,16 @@ async function getUsuario() {
   if (!user) return null
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role, nome")
+    .select("id, role, nome, company_id")
     .eq("id", user.id)
     .single()
-  return profile ? { id: profile.id, role: profile.role as string, nome: profile.nome as string } : null
+  return profile
+    ? { id: profile.id, role: profile.role as string, nome: profile.nome as string, companyId: profile.company_id as string }
+    : null
 }
 
-// Lista agendamentos. Dono vê todos; barbeiro vê os seus.
+// Lista agendamentos. Dono vê todos; barbeiro vê os seus, a menos que a
+// empresa tenha liberado "ver_agendamentos_todos" pra equipe (/painel/cargos).
 export async function listarAgendamentos(filtro?: {
   data?: string
   status?: StatusAgendamento
@@ -47,7 +51,10 @@ export async function listarAgendamentos(filtro?: {
     .order("horario", { ascending: true })
 
   if (usuario.role !== "owner") {
-    query = query.eq("barbeiro_id", usuario.id)
+    const permissoes = await getPermissoesEquipe(usuario.companyId)
+    if (!permissoes.ver_agendamentos_todos) {
+      query = query.eq("barbeiro_id", usuario.id)
+    }
   }
   if (filtro?.data) query = query.eq("data", filtro.data)
   if (filtro?.status) query = query.eq("status", filtro.status)

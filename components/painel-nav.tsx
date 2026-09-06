@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useTransition } from "react"
+import { useState, useTransition } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { sair } from "@/app/actions/painel"
 import type { Profile } from "@/lib/types"
@@ -26,13 +27,13 @@ import {
   Settings,
   ShieldAlert,
   Star,
-  History,
   ExternalLink,
   LogOut,
   Menu,
-  Megaphone,
   LifeBuoy,
   User,
+  ChevronUp,
+  KeyRound,
 } from "lucide-react"
 
 function linksPara(isOwner: boolean) {
@@ -42,16 +43,15 @@ function linksPara(isOwner: boolean) {
         { href: "/painel/agendamentos", label: "Agendamentos", icon: CalendarDays },
         { href: "/painel/equipe", label: "Equipe", icon: Users },
         { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
-        { href: "/painel/avisos", label: "Avisos", icon: Megaphone },
         { href: "/painel/gerenciamento", label: "Gerenciamento", icon: Settings },
-        { href: "/painel/auditoria", label: "Auditoria", icon: History },
+        { href: "/painel/cargos", label: "Cargos e permissões", icon: KeyRound },
         { href: "/painel/suporte", label: "Suporte", icon: LifeBuoy },
         { href: "/painel/configuracoes", label: "Configurações", icon: ShieldAlert },
       ]
     : [
         { href: "/painel/agenda", label: "Minha agenda", icon: CalendarCheck },
         { href: "/painel/avaliacoes", label: "Avaliações", icon: Star },
-        { href: "/painel/avisos", label: "Avisos", icon: Megaphone },
+        { href: "/painel/suporte", label: "Suporte", icon: LifeBuoy },
       ]
 }
 
@@ -90,6 +90,10 @@ function ItemNav({
   )
 }
 
+/** Clicar no avatar/nome abre um popup com "Meu perfil" e "Sair" — mesmo
+ * padrão do práxis (footer da sidebar é um gatilho, não uma lista de botões
+ * já visível). "Ver site" mora na barra de cima no desktop; só repete aqui
+ * dentro da gaveta mobile, que não tem essa barra. */
 function RodapeConta({
   perfil,
   isOwner,
@@ -99,46 +103,78 @@ function RodapeConta({
   perfil: Profile
   isOwner: boolean
   slugEmpresa?: string
-  /** "Ver site" mora na barra de cima no desktop — só repete aqui dentro
-   * da gaveta mobile, que não tem essa barra. */
   mostrarVerSite?: boolean
 }) {
   const [pending, startTransition] = useTransition()
+  const [aberto, setAberto] = useState(false)
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border/60 p-3 pt-4">
-      <div className="flex items-center gap-3 px-1">
+    <div className="relative border-t border-border/60 p-3">
+      <motion.button
+        type="button"
+        onClick={() => setAberto((v) => !v)}
+        whileTap={{ scale: 0.98 }}
+        className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-muted/60"
+      >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 font-serif text-sm font-bold text-primary">
           {perfil.nome?.[0]?.toUpperCase() || "?"}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{perfil.nome || "Usuário"}</p>
           <p className="text-xs text-primary">{isOwner ? "Administrador" : "Barbeiro"}</p>
         </div>
-      </div>
-      <div className="flex flex-col gap-1">
-        <Button variant="ghost" size="sm" asChild className="justify-start text-muted-foreground">
-          <Link href="/painel/minha-conta">
-            <User className="h-4 w-4" /> Meu perfil
-          </Link>
-        </Button>
-        {mostrarVerSite && (
-          <Button variant="ghost" size="sm" asChild disabled={!slugEmpresa} className="justify-start text-muted-foreground">
-            <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
-              <ExternalLink className="h-4 w-4" /> Ver site
-            </Link>
-          </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="justify-start text-muted-foreground"
-          disabled={pending}
-          onClick={() => startTransition(() => sair())}
+        <motion.span
+          animate={{ rotate: aberto ? 180 : 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 24 }}
+          className="shrink-0 text-muted-foreground"
         >
-          <LogOut className="h-4 w-4" /> Sair
-        </Button>
-      </div>
+          <ChevronUp className="h-4 w-4" />
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence>
+        {aberto && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setAberto(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8, transition: { duration: 0.12 } }}
+              transition={{ type: "spring", stiffness: 420, damping: 30 }}
+              className="absolute bottom-full left-3 right-3 z-20 mb-2 rounded-lg border border-border bg-card p-1.5 shadow-lg"
+            >
+              <Button variant="ghost" size="sm" asChild className="w-full justify-start text-muted-foreground" onClick={() => setAberto(false)}>
+                <Link href="/painel/minha-conta">
+                  <User className="h-4 w-4" /> Meu perfil
+                </Link>
+              </Button>
+              {mostrarVerSite && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  disabled={!slugEmpresa}
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => setAberto(false)}
+                >
+                  <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
+                    <ExternalLink className="h-4 w-4" /> Ver site
+                  </Link>
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-destructive hover:text-destructive"
+                disabled={pending}
+                onClick={() => startTransition(() => sair())}
+              >
+                <LogOut className="h-4 w-4" /> Sair
+              </Button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
