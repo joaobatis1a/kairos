@@ -81,7 +81,7 @@ export function SuporteView({ chamadosIniciais }: { chamadosIniciais: ChamadoRes
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">Novo chamado</DialogTitle>
-              <DialogDescription>Descreva sua dúvida ou problema — a equipe do kairos responde por aqui.</DialogDescription>
+              <DialogDescription>Descreva sua dúvida. A equipe do kairos responde por aqui.</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-3">
               <Input placeholder="Título (ex: dúvida sobre pagamento)" value={titulo} onChange={(e) => setTitulo(e.target.value)} />

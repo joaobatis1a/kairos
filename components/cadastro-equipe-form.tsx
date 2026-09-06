@@ -15,6 +15,7 @@ import { GoogleButton } from "@/components/google-button"
 import { Loader2, KeyRound, ArrowLeft } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }) {
   const [step, setStep] = useState<"codigo" | "dados">("codigo")
@@ -27,6 +28,14 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
   const router = useRouter()
 
   const senhasConferem = senha.length > 0 && senha === confirmarSenha
+
+  function voltar() {
+    if (!emailAtual && step === "dados") {
+      setStep("codigo")
+      return
+    }
+    router.push("/")
+  }
 
   // Só valida se o código existe/não expirou — não consome. O resgate de
   // verdade acontece no submit final, depois de nome/e-mail/senha, pra
@@ -62,9 +71,19 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <ScissorMark className="h-6 w-6 text-primary" />
-          <span className="font-serif text-xl font-semibold">kairos</span>
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ScissorMark className="h-6 w-6 text-primary" />
+            <span className="font-serif text-xl font-semibold">kairos</span>
+          </div>
+          <button
+            type="button"
+            onClick={voltar}
+            aria-label="Voltar"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
         </div>
         <Card>
           <CardHeader className="items-center text-center">
@@ -81,6 +100,12 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
                   ? "Peça o código de convite pra quem administra o kairos ou pro dono da sua barbearia."
                   : `Código ${codigo} confirmado. Agora crie seu acesso.`}
             </CardDescription>
+            {!emailAtual && (
+              <div className="mt-2 flex w-full gap-1.5">
+                <div className="h-1 flex-1 rounded-full bg-primary" />
+                <div className={cn("h-1 flex-1 rounded-full", step === "dados" ? "bg-primary" : "bg-muted")} />
+              </div>
+            )}
             {emailAtual && (
               <button
                 type="button"
@@ -194,13 +219,6 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
                     "Criar conta"
                   )}
                 </Button>
-                <button
-                  type="button"
-                  onClick={() => setStep("codigo")}
-                  className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Trocar código
-                </button>
               </form>
             )}
           </CardContent>

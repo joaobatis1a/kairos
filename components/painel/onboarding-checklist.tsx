@@ -49,7 +49,7 @@ export function OnboardingChecklist({ status }: { status: OnboardingStatus }) {
             <p className="text-sm text-muted-foreground">
               {completo
                 ? "Sua barbearia já está configurada e pronta para receber agendamentos."
-                : `${feitos} de ${PASSOS.length} concluídos — falta pouco para sua barbearia ficar pronta.`}
+                : `${feitos} de ${PASSOS.length} concluídos. Falta pouco.`}
             </p>
           </div>
 

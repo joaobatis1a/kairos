@@ -27,7 +27,7 @@ const BLOCOS = [
     quem: "O cliente",
     titulo: "Agenda sozinho, no link da sua barbearia",
     texto:
-      "Ele entra, escolhe o serviço, o profissional e o horário livre — sem app pra instalar e sem conversa por mensagem.",
+      "Ele entra, escolhe o serviço, o profissional e o horário livre, sem app pra instalar e sem conversa por mensagem.",
     itens: ["Horários ocupados somem em tempo real", "Escolha de barbeiro e forma de pagamento", "Confirmação por e-mail automática"],
     Mockup: MockupAgendamento,
   },
@@ -62,7 +62,7 @@ export function SistemaSection() {
           </h2>
           <Reveal delay={0.25}>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Cliente, equipe e dono usam o kairos ao mesmo tempo — cada um vendo só o que
+              Cliente, equipe e dono usam o kairos ao mesmo tempo, cada um vendo só o que
               precisa ver.
             </p>
           </Reveal>

@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
 import { PwaRegister } from '@/components/pwa-register'
+import { DEMO_MODE } from '@/lib/demo'
 import './globals.css'
 
 const nunito = Nunito({
@@ -33,9 +34,9 @@ const bodoniModa = Bodoni_Moda({
 })
 
 export const metadata: Metadata = {
-  title: 'kairos | Sistema de agendamento para barbearias',
+  title: DEMO_MODE ? 'Kairos: demonstração' : 'Kairos',
   description: 'Agendamento online pros seus clientes e um painel completo pra gerenciar equipe, horários e faturamento da sua barbearia.',
-  appleWebApp: { capable: true, title: 'kairos', statusBarStyle: 'black-translucent' },
+  appleWebApp: { capable: true, title: 'Kairos', statusBarStyle: 'black-translucent' },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

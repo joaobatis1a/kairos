@@ -58,7 +58,7 @@ export function CargosView({ permissoesIniciais }: { permissoesIniciais: Permiss
             <KeyRound className="h-4 w-4 text-primary" /> Barbeiro
           </CardTitle>
           <CardDescription>
-            Vale pra toda a equipe — dono sempre vê tudo, não precisa configurar nada pra ele.
+            Vale pra toda a equipe. Dono sempre vê tudo, não precisa configurar nada pra ele.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-1">

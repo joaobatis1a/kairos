@@ -33,7 +33,7 @@ export function ContadorCodigo({ expiresAt, onExpirar }: { expiresAt: string; on
 
   return (
     <p className="text-center text-xs text-muted-foreground">
-      {restante > 0 ? `Expira em ${min}:${String(seg).padStart(2, "0")} — depois disso um novo é gerado sozinho` : "Gerando um novo código…"}
+      {restante > 0 ? `Expira em ${min}:${String(seg).padStart(2, "0")}` : "Gerando um novo código…"}
     </p>
   )
 }

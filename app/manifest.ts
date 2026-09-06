@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "kairos — agendamento para barbearias",
-    short_name: "kairos",
+    name: "Kairos: agendamento para barbearias",
+    short_name: "Kairos",
     description: "Agende seu horário e acompanhe seus atendimentos.",
     start_url: "/",
     display: "standalone",

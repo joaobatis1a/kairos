@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { useTheme } from "next-themes"
 import { useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -108,7 +109,15 @@ export function PerfilEquipeView({ perfil }: { perfil: Profile }) {
         <CardContent>
           <form onSubmit={salvarSenha} className="flex flex-col gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="senhaAtual">Senha atual</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="senhaAtual">Senha atual</Label>
+                <Link
+                  href="/auth/esqueci-senha"
+                  className="text-xs text-primary underline-offset-4 hover:underline"
+                >
+                  Esqueceu sua senha atual?
+                </Link>
+              </div>
               <PasswordInput
                 id="senhaAtual"
                 required

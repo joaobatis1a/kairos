@@ -214,7 +214,7 @@ export function ManutencaoView({
               </div>
 
               <div className="text-sm text-muted-foreground">
-                <p>Dono: {empresa.ownerNome ?? "— (código ainda não resgatado)"}</p>
+                <p>Dono: {empresa.ownerNome ?? "código ainda não resgatado"}</p>
                 <p>{empresa.totalEquipe} pessoa(s) na equipe</p>
               </div>
 

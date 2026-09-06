@@ -73,7 +73,7 @@ export function GerenciamentoView({
         <Card>
           <CardHeader>
             <CardTitle className="font-serif">Produtos à venda</CardTitle>
-            <CardDescription>Uma vitrine dos produtos vendidos no balcão — a venda continua sendo presencial.</CardDescription>
+            <CardDescription>Vitrine dos produtos vendidos no balcão. A venda continua presencial.</CardDescription>
           </CardHeader>
           <CardContent>
             <ProdutosForm produtos={produtos} />
@@ -97,7 +97,7 @@ export function GerenciamentoView({
         <Card>
           <CardHeader>
             <CardTitle className="font-serif">Folgas e bloqueios</CardTitle>
-            <CardDescription>Bloqueie períodos da agenda — da barbearia inteira ou de um barbeiro específico.</CardDescription>
+            <CardDescription>Bloqueie períodos da agenda inteira ou de um barbeiro específico.</CardDescription>
           </CardHeader>
           <CardContent>
             <FolgasForm bloqueios={bloqueios} barbeiros={barbeiros} />
