@@ -70,8 +70,8 @@ function ContaLoginForm() {
             <CardDescription>Acesse sua conta para agendar e ver seu histórico.</CardDescription>
           </CardHeader>
           <CardContent>
-            {DEMO_MODE && (
-              <div className="mb-5 rounded-lg border border-primary/30 bg-primary/[0.06] p-3 text-sm">
+            {DEMO_MODE ? (
+              <div className="rounded-lg border border-primary/30 bg-primary/[0.06] p-3 text-sm">
                 <p className="font-medium text-foreground">Isso é uma demonstração pública.</p>
                 <p className="mt-0.5 text-muted-foreground">
                   Nada que você criar ou editar é salvo de verdade.
@@ -86,63 +86,66 @@ function ContaLoginForm() {
                   Entrar como cliente
                 </Button>
               </div>
-            )}
-            <div className="flex flex-col gap-3">
-              <GoogleButton redirectPath={next} />
-            </div>
-            <div className="my-5 flex items-center gap-2">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">ou</span>
-              <Separator className="flex-1" />
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="voce@exemplo.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+            ) : (
+              <>
+                <div className="flex flex-col gap-3">
+                  <GoogleButton redirectPath={next} />
                 </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="senha">Senha</Label>
-                    <Link
-                      href="/conta/esqueci-senha"
-                      className="text-xs text-primary underline-offset-4 hover:underline"
-                    >
-                      Esqueci minha senha
-                    </Link>
+                <div className="my-5 flex items-center gap-2">
+                  <Separator className="flex-1" />
+                  <span className="text-xs text-muted-foreground">ou</span>
+                  <Separator className="flex-1" />
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="flex flex-col gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">E-mail</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="voce@exemplo.com"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="senha">Senha</Label>
+                        <Link
+                          href="/conta/esqueci-senha"
+                          className="text-xs text-primary underline-offset-4 hover:underline"
+                        >
+                          Esqueci minha senha
+                        </Link>
+                      </div>
+                      <PasswordInput
+                        id="senha"
+                        required
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                      />
+                    </div>
+                    {erro && <p className="text-sm text-destructive">{erro}</p>}
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" /> Entrando...
+                        </>
+                      ) : (
+                        "Entrar"
+                      )}
+                    </Button>
                   </div>
-                  <PasswordInput
-                    id="senha"
-                    required
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-                {erro && <p className="text-sm text-destructive">{erro}</p>}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Entrando...
-                    </>
-                  ) : (
-                    "Entrar"
-                  )}
-                </Button>
-              </div>
-            </form>
-            <p className="mt-5 text-center text-sm text-muted-foreground">
-              Ainda não tem conta?{" "}
-              <Link href="/conta/cadastro" className="text-primary underline-offset-4 hover:underline">
-                Criar conta
-              </Link>
-            </p>
+                </form>
+                <p className="mt-5 text-center text-sm text-muted-foreground">
+                  Ainda não tem conta?{" "}
+                  <Link href="/conta/cadastro" className="text-primary underline-offset-4 hover:underline">
+                    Criar conta
+                  </Link>
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

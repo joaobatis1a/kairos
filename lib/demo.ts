@@ -27,3 +27,6 @@ export function bloqueadoNoDemo() {
  */
 export const DEMO_OWNER = { email: "dono@demo.kairos.app", senha: "Demo1234!" }
 export const DEMO_CLIENTE = { email: "cliente@demo.kairos.app", senha: "Demo1234!" }
+
+/** Slug da barbearia fake usada pra popular o deploy de demo. */
+export const DEMO_SLUG = "barbearia-kairos-demo"
