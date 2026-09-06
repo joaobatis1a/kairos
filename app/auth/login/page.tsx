@@ -13,9 +13,14 @@ import { Suspense, useState } from "react"
 import Link from "next/link"
 import { Loader2, ArrowLeft } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
-import { DEMO_MODE, DEMO_OWNER, DEMO_BARBEIRO } from "@/lib/demo"
+import { DEMO_MODE, DEMO_OWNER, DEMO_BARBEIRO, DEMO_CLIENTE } from "@/lib/demo"
 
-const DEMO_CONTAS = [DEMO_OWNER, DEMO_BARBEIRO]
+// O login de equipe autentica qualquer conta válida e deixa o redirecionamento
+// pro lugar certo por conta do getPerfilOuRedirect (que manda cliente pra
+// /conta sozinho) — então dá pra listar as três contas de demo aqui, como
+// o práxis faz, sem precisar mandar quem quer testar como cliente pra uma
+// segunda tela de login.
+const DEMO_CONTAS = [DEMO_OWNER, DEMO_BARBEIRO, DEMO_CLIENTE]
 
 export default function LoginPage() {
   return (
