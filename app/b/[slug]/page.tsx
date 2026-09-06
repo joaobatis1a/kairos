@@ -26,6 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: titulo,
     description: descricao,
+    manifest: `/api/manifest-loja/${slug}`,
+    appleWebApp: { capable: true, title: titulo, statusBarStyle: "black-translucent" },
     openGraph: {
       title: titulo,
       description: descricao,
