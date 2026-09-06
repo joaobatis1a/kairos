@@ -192,10 +192,21 @@ export async function getMetricasPlataforma(): Promise<MetricasPlataforma> {
 // então apagar o usuário já limpa o profile; só depois disso dá pra apagar a
 // company (que em cascata leva servicos/horarios_config/agendamentos/invite_codes).
 export async function excluirEmpresa(id: string) {
-  await getContaManutencaoOuRedirect()
+  const contaAtual = await getContaManutencaoOuRedirect()
   const admin = createAdminClient()
 
   const { data: perfis } = await admin.from("profiles").select("id").eq("company_id", id)
+
+  // Se a própria conta de manutenção (por engano, ou por ter testado o
+  // onboarding com a própria conta) também é perfil dessa empresa, apagar
+  // a empresa apagaria o login dela sem aviso nenhum — mesmo cuidado que
+  // já existe pra removerContaManutencao, só que faltava aqui.
+  if ((perfis ?? []).some((p) => p.id === contaAtual.id)) {
+    return {
+      ok: false as const,
+      error: "Sua própria conta faz parte dessa empresa — remova-se da equipe dela antes de excluir.",
+    }
+  }
 
   for (const perfil of perfis ?? []) {
     await admin.auth.admin.deleteUser(perfil.id)

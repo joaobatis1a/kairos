@@ -8,7 +8,9 @@ import { sair } from "@/app/actions/painel"
 import type { Profile } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
+import { ThemeTogglePainel } from "@/components/painel/theme-toggle-painel"
 import { ScissorMark } from "@/components/scissor-mark"
+import { DEMO_MODE } from "@/lib/demo"
 import {
   Sheet,
   SheetContent,
@@ -30,6 +32,7 @@ import {
   Menu,
   Megaphone,
   LifeBuoy,
+  User,
 } from "lucide-react"
 
 function linksPara(isOwner: boolean) {
@@ -87,7 +90,19 @@ function ItemNav({
   )
 }
 
-function RodapeConta({ perfil, isOwner, slugEmpresa }: { perfil: Profile; isOwner: boolean; slugEmpresa?: string }) {
+function RodapeConta({
+  perfil,
+  isOwner,
+  slugEmpresa,
+  mostrarVerSite = false,
+}: {
+  perfil: Profile
+  isOwner: boolean
+  slugEmpresa?: string
+  /** "Ver site" mora na barra de cima no desktop — só repete aqui dentro
+   * da gaveta mobile, que não tem essa barra. */
+  mostrarVerSite?: boolean
+}) {
   const [pending, startTransition] = useTransition()
 
   return (
@@ -102,11 +117,18 @@ function RodapeConta({ perfil, isOwner, slugEmpresa }: { perfil: Profile; isOwne
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <Button variant="ghost" size="sm" asChild disabled={!slugEmpresa} className="justify-start text-muted-foreground">
-          <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
-            <ExternalLink className="h-4 w-4" /> Ver site
+        <Button variant="ghost" size="sm" asChild className="justify-start text-muted-foreground">
+          <Link href="/painel/minha-conta">
+            <User className="h-4 w-4" /> Meu perfil
           </Link>
         </Button>
+        {mostrarVerSite && (
+          <Button variant="ghost" size="sm" asChild disabled={!slugEmpresa} className="justify-start text-muted-foreground">
+            <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
+              <ExternalLink className="h-4 w-4" /> Ver site
+            </Link>
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="sm"
@@ -117,6 +139,31 @@ function RodapeConta({ perfil, isOwner, slugEmpresa }: { perfil: Profile; isOwne
           <LogOut className="h-4 w-4" /> Sair
         </Button>
       </div>
+    </div>
+  )
+}
+
+/** Barra utilitária acima do conteúdo (desktop): site público, notificações
+ * e tema — separada da navegação (sidebar) e da conta (rodapé), mesmo
+ * corte que o práxis usa (cabeçalho próprio ao lado do toggle de tema). */
+export function PainelTopBar({ slugEmpresa }: { slugEmpresa?: string }) {
+  return (
+    <div className="sticky top-0 z-30 hidden items-center justify-end gap-1 border-b border-border/60 bg-background/90 px-6 py-2 backdrop-blur md:flex">
+      {DEMO_MODE && (
+        <Link
+          href="/conta/login"
+          className="mr-auto text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+        >
+          Ver como cliente
+        </Link>
+      )}
+      <Button variant="ghost" size="sm" asChild disabled={!slugEmpresa} className="text-muted-foreground">
+        <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
+          <ExternalLink className="h-4 w-4" /> Ver site
+        </Link>
+      </Button>
+      <SinoNotificacoes />
+      <ThemeTogglePainel />
     </div>
   )
 }
@@ -134,7 +181,6 @@ export function PainelNav({ perfil, nomeNegocio, slugEmpresa }: { perfil: Profil
         <div className="flex items-center gap-2 px-5 py-5">
           <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
           <span className="flex-1 truncate font-serif text-lg">{nome}</span>
-          <SinoNotificacoes />
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
           {links.map((l) => (
@@ -174,6 +220,7 @@ function MenuMobile({
 
       <div className="flex items-center gap-1">
         <SinoNotificacoes />
+        <ThemeTogglePainel />
         <Sheet>
           <SheetTrigger
             render={
@@ -192,7 +239,7 @@ function MenuMobile({
                 <ItemNav key={l.href} {...l} ativo={pathname === l.href} />
               ))}
             </nav>
-            <RodapeConta perfil={perfil} isOwner={isOwner} slugEmpresa={slugEmpresa} />
+            <RodapeConta perfil={perfil} isOwner={isOwner} slugEmpresa={slugEmpresa} mostrarVerSite />
           </SheetContent>
         </Sheet>
       </div>

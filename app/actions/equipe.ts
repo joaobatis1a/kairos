@@ -100,6 +100,27 @@ export async function cadastrarComCodigo(input: {
     nomeFinal = nome
   }
 
+  // Sem isso, alguém já ativo numa empresa A que resgata um código de uma
+  // empresa B é reatribuído em silêncio (o upsert é por id) — some da
+  // equipe de A sem o dono de A saber. Só bloqueia quando a empresa atual
+  // já tem outro dono; empresa nova (sem perfil ainda) ou já da mesma
+  // empresa passa direto.
+  const { data: perfilExistente } = await admin
+    .from("profiles")
+    .select("company_id, ativo")
+    .eq("id", userId)
+    .maybeSingle()
+
+  if (perfilExistente?.ativo && perfilExistente.company_id !== invite.company_id) {
+    // o código já foi consumido (delete atômico lá em cima) — devolve, já
+    // que o resgate não vai completar
+    await admin.from("invite_codes").insert({ code: codigo, company_id: invite.company_id, role: invite.role })
+    return {
+      ok: false,
+      error: "Essa conta já pertence a outra barbearia ativa. Peça pro dono de lá remover o acesso antes de trocar.",
+    }
+  }
+
   const { error: profileError } = await admin.from("profiles").upsert({
     id: userId,
     company_id: invite.company_id,
@@ -163,8 +184,11 @@ export async function criarBarbeiro(input: { nome: string; email: string; senha:
   const owner = await garantirOwner()
   if (!owner) return { ok: false, error: "Sem permissão." }
 
-  if (input.senha.length < 6) {
-    return { ok: false, error: "A senha deve ter ao menos 6 caracteres." }
+  if (!senhaValidaServidor(input.senha)) {
+    return {
+      ok: false,
+      error: "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, número e caractere especial.",
+    }
   }
 
   const admin = createAdminClient()
@@ -177,7 +201,13 @@ export async function criarBarbeiro(input: { nome: string; email: string; senha:
 
   if (error) {
     console.error("Erro ao criar barbeiro:", error.message)
-    return { ok: false, error: error.message }
+    const jaExiste = error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already been registered")
+    return {
+      ok: false,
+      error: jaExiste
+        ? "Já existe uma conta com esse e-mail (pode ser de outra barbearia). Use outro e-mail."
+        : "Não foi possível criar o acesso do barbeiro.",
+    }
   }
 
   await admin.from("profiles").insert({

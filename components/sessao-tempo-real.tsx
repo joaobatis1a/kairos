@@ -12,6 +12,11 @@ import { createClient } from "@/lib/supabase/client"
  * lib/auth.ts). Isso assina Realtime no próprio perfil e na própria empresa
  * pra derrubar a sessão na hora, mesmo que a pessoa fique parada numa
  * página sem navegar pra lugar nenhum.
+ *
+ * Um único listener com event: "*" por canal (em vez de um .on() por tipo
+ * de evento) — mesmo padrão usado no práxis depois de um bug idêntico lá
+ * (só UPDATE era escutado, então uma remoção não derrubava a sessão até
+ * a pessoa recarregar por conta própria).
  */
 export function SessaoTempoReal({
   perfilId,
@@ -30,26 +35,30 @@ export function SessaoTempoReal({
       router.replace(`/auth/login?erro=${motivo}`)
     }
 
-    const channel = supabase
-      .channel(`sessao-tempo-real-${perfilId}`)
+    const canalPerfil = supabase
+      .channel(`sessao-tempo-real-perfil-${perfilId}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${perfilId}` },
+        { event: "*", schema: "public", table: "profiles", filter: `id=eq.${perfilId}` },
         (payload: RealtimePostgresChangesPayload<{ ativo: boolean }>) => {
+          if (payload.eventType === "DELETE") {
+            encerrarSessao("inativo")
+            return
+          }
           if ("ativo" in payload.new && payload.new.ativo === false) {
             encerrarSessao("inativo")
           }
         },
       )
+      .subscribe()
+
+    const canalEmpresa = supabase
+      .channel(`sessao-tempo-real-empresa-${companyId}`)
       .on(
         "postgres_changes",
-        { event: "DELETE", schema: "public", table: "profiles", filter: `id=eq.${perfilId}` },
-        () => encerrarSessao("inativo"),
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "companies", filter: `id=eq.${companyId}` },
+        { event: "*", schema: "public", table: "companies", filter: `id=eq.${companyId}` },
         (payload: RealtimePostgresChangesPayload<{ status: string }>) => {
+          if (payload.eventType === "DELETE") return // excluirEmpresa já apaga o profile primeiro
           if ("status" in payload.new && payload.new.status === "inativo") {
             encerrarSessao("empresa-inativa")
           }
@@ -58,7 +67,8 @@ export function SessaoTempoReal({
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(canalPerfil)
+      supabase.removeChannel(canalEmpresa)
     }
   }, [perfilId, companyId, router])
 

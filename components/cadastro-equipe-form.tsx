@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { cadastrarComCodigo } from "@/app/actions/equipe"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -59,6 +60,18 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
                 ? `Entrando como ${emailAtual}. Informe o código de convite recebido.`
                 : "Peça o código de convite pra quem administra o kairos ou pro dono da sua barbearia."}
             </CardDescription>
+            {emailAtual && (
+              <button
+                type="button"
+                onClick={() => {
+                  const supabase = createClient()
+                  supabase.auth.signOut().then(() => window.location.reload())
+                }}
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              >
+                Não é você? Sair e usar outra conta
+              </button>
+            )}
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
             {!emailAtual && (
