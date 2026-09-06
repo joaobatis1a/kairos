@@ -72,7 +72,7 @@ export function StorefrontHeader({
           do site inteiro sumia se a animação não rodasse */}
       <header
         className={cn(
-          "surgir fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-500",
+          "surgir transition-[background-color,border-color,backdrop-filter] duration-500",
           solido && !aberto
             ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
             : "border-b border-transparent",
