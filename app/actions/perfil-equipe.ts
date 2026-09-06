@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
+import { senhaValidaServidor, ERRO_SENHA_FRACA } from "@/lib/senha"
 
 type AtualizarPerfilEquipeInput = {
   nome: string
@@ -39,19 +40,28 @@ export async function atualizarPerfilEquipe(input: AtualizarPerfilEquipeInput) {
   return { ok: true }
 }
 
-export async function trocarSenhaEquipe(novaSenha: string) {
+export async function trocarSenhaEquipe(senhaAtual: string, novaSenha: string) {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
-  if (novaSenha.length < 6) {
-    return { ok: false, error: "A senha precisa ter pelo menos 6 caracteres." }
+  if (!senhaValidaServidor(novaSenha)) {
+    return { ok: false, error: ERRO_SENHA_FRACA }
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.updateUser({ password: novaSenha })
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user?.email) return { ok: false, error: "Sessão expirada. Faça login novamente." }
 
-  if (error) {
-    return { ok: false, error: "Não foi possível trocar sua senha." }
-  }
+  // Confirma a senha atual antes de trocar — sem isso, qualquer um que
+  // acesse uma sessão já aberta (computador compartilhado, sessão
+  // esquecida logada) consegue trocar a senha e tomar a conta sem nunca
+  // ter sabido a senha original.
+  const { error: authError } = await supabase.auth.signInWithPassword({ email: user.email, password: senhaAtual })
+  if (authError) return { ok: false, error: "Senha atual incorreta." }
+
+  const { error } = await supabase.auth.updateUser({ password: novaSenha })
+  if (error) return { ok: false, error: "Não foi possível trocar sua senha." }
 
   return { ok: true }
 }

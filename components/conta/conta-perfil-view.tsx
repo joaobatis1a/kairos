@@ -64,11 +64,14 @@ function Secao({
 export function ContaPerfilView({ cliente, fotoUrl }: { cliente: Cliente; fotoUrl: string | null }) {
   const [nome, setNome] = useState(cliente.nome)
   const [whatsapp, setWhatsapp] = useState(cliente.whatsapp)
+  const [senhaAtual, setSenhaAtual] = useState("")
   const [novaSenha, setNovaSenha] = useState("")
+  const [confirmarSenha, setConfirmarSenha] = useState("")
   const [pendingPerfil, startPerfil] = useTransition()
   const [pendingSenha, startSenha] = useTransition()
 
   const alterouDados = nome !== cliente.nome || whatsapp !== cliente.whatsapp
+  const senhasConferem = novaSenha.length > 0 && novaSenha === confirmarSenha
 
   function salvarPerfil(e: React.FormEvent) {
     e.preventDefault()
@@ -85,12 +88,18 @@ export function ContaPerfilView({ cliente, fotoUrl }: { cliente: Cliente; fotoUr
       toast.error("A senha não atende aos requisitos.")
       return
     }
+    if (!senhasConferem) {
+      toast.error("As senhas não são iguais.")
+      return
+    }
     startSenha(async () => {
-      const res = await trocarSenhaCliente(novaSenha)
+      const res = await trocarSenhaCliente(senhaAtual, novaSenha)
       if (!res.ok) toast.error(res.error ?? "Não foi possível trocar a senha.")
       else {
         toast.success("Senha atualizada.")
+        setSenhaAtual("")
         setNovaSenha("")
+        setConfirmarSenha("")
       }
     })
   }
@@ -151,6 +160,17 @@ export function ContaPerfilView({ cliente, fotoUrl }: { cliente: Cliente; fotoUr
       <Secao icon={KeyRound} titulo="Senha" descricao="Trocar a senha desconecta você dos outros aparelhos.">
         <form onSubmit={salvarSenha} className="flex flex-col gap-4">
           <div className="grid max-w-md gap-2">
+            <Label htmlFor="senhaAtual">Senha atual</Label>
+            <PasswordInput
+              id="senhaAtual"
+              name="current-password"
+              autoComplete="current-password"
+              value={senhaAtual}
+              onChange={(e) => setSenhaAtual(e.target.value)}
+              placeholder="Confirme quem é você"
+            />
+          </div>
+          <div className="grid max-w-md gap-2">
             <Label htmlFor="novaSenha">Nova senha</Label>
             <PasswordInput
               id="novaSenha"
@@ -162,9 +182,22 @@ export function ContaPerfilView({ cliente, fotoUrl }: { cliente: Cliente; fotoUr
             />
             {novaSenha.length > 0 && <PasswordRequisitos senha={novaSenha} />}
           </div>
+          <div className="grid max-w-md gap-2">
+            <Label htmlFor="confirmarSenha">Confirmar nova senha</Label>
+            <PasswordInput
+              id="confirmarSenha"
+              name="new-password"
+              autoComplete="new-password"
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
+            />
+            {confirmarSenha.length > 0 && !senhasConferem && (
+              <p className="text-xs text-destructive">As senhas não são iguais.</p>
+            )}
+          </div>
           <Button
             type="submit"
-            disabled={pendingSenha || novaSenha.length === 0}
+            disabled={pendingSenha || !senhaAtual || !senhasConferem}
             className="self-start rounded-full font-bold"
           >
             {pendingSenha ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}

@@ -6,13 +6,14 @@ import { motion } from "framer-motion"
 import { stagger, item } from "@/lib/motion"
 import type { Profile } from "@/lib/types"
 import {
-  gerarConviteBarbeiro,
+  obterConviteBarbeiro,
   alternarAtivoBarbeiro,
   removerBarbeiro,
 } from "@/app/actions/equipe"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
+import { ContadorCodigo } from "@/components/contador-codigo"
 import {
   Dialog,
   DialogContent,
@@ -28,22 +29,31 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [removendo, setRemovendo] = useState<string | null>(null)
-  const [codigoGerado, setCodigoGerado] = useState<string | null>(null)
+  const [codigoGerado, setCodigoGerado] = useState<{ code: string; expiresAt: string } | null>(null)
 
-  function gerarConvite() {
+  function abrirConvite() {
     startTransition(async () => {
-      const res = await gerarConviteBarbeiro()
+      const res = await obterConviteBarbeiro()
       if (!res.ok) {
         toast.error(res.error ?? "Erro ao gerar convite.")
         return
       }
-      setCodigoGerado(res.code)
+      setCodigoGerado({ code: res.code, expiresAt: res.expiresAt })
+    })
+  }
+
+  // onExpirar do contador chama de novo — obterConviteBarbeiro já gera um
+  // código novo sozinho quando o vigente expirou.
+  function refrescarConvite() {
+    startTransition(async () => {
+      const res = await obterConviteBarbeiro()
+      if (res.ok) setCodigoGerado({ code: res.code, expiresAt: res.expiresAt })
     })
   }
 
   function copiarCodigo() {
     if (!codigoGerado) return
-    navigator.clipboard.writeText(codigoGerado)
+    navigator.clipboard.writeText(codigoGerado.code)
     toast.success("Código copiado!")
   }
 
@@ -74,7 +84,7 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
           <h1 className="font-serif text-3xl font-bold">Equipe</h1>
           <p className="text-muted-foreground">Gerencie os barbeiros da sua barbearia.</p>
         </div>
-        <Button onClick={gerarConvite} disabled={pending}>
+        <Button onClick={abrirConvite} disabled={pending}>
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
           Convidar barbeiro
         </Button>
@@ -145,11 +155,12 @@ export function EquipeView({ equipe, ownerId }: { equipe: Profile[]; ownerId: st
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-3">
-            <span className="flex-1 text-center font-mono text-lg tracking-widest">{codigoGerado}</span>
+            <span className="flex-1 text-center font-mono text-lg tracking-widest">{codigoGerado?.code}</span>
             <Button size="icon" variant="ghost" onClick={copiarCodigo} aria-label="Copiar código">
               <Copy className="h-4 w-4" />
             </Button>
           </div>
+          {codigoGerado && <ContadorCodigo expiresAt={codigoGerado.expiresAt} onExpirar={refrescarConvite} />}
         </DialogContent>
       </Dialog>
 

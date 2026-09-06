@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { cadastrarComCodigo } from "@/app/actions/equipe"
+import { cadastrarComCodigo, validarCodigoConvite } from "@/app/actions/equipe"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,17 +12,36 @@ import { Separator } from "@/components/ui/separator"
 import { PasswordInput } from "@/components/password-input"
 import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { GoogleButton } from "@/components/google-button"
-import { Loader2, KeyRound } from "lucide-react"
+import { Loader2, KeyRound, ArrowLeft } from "lucide-react"
 import { ScissorMark } from "@/components/scissor-mark"
 import { toast } from "sonner"
 
 export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }) {
+  const [step, setStep] = useState<"codigo" | "dados">("codigo")
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
+  const [confirmarSenha, setConfirmarSenha] = useState("")
   const [codigo, setCodigo] = useState("")
   const [pending, startTransition] = useTransition()
   const router = useRouter()
+
+  const senhasConferem = senha.length > 0 && senha === confirmarSenha
+
+  // Só valida se o código existe/não expirou — não consome. O resgate de
+  // verdade acontece no submit final, depois de nome/e-mail/senha, pra
+  // não ter uma segunda janela de corrida entre os dois passos.
+  function handleProximo(e: React.FormEvent) {
+    e.preventDefault()
+    startTransition(async () => {
+      const res = await validarCodigoConvite(codigo)
+      if (!res.ok) {
+        toast.error(res.error)
+        return
+      }
+      setStep("dados")
+    })
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -53,12 +72,14 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
               <KeyRound className="h-6 w-6" />
             </div>
             <CardTitle className="font-serif text-2xl">
-              {emailAtual ? "Só falta o código" : "Cadastro da equipe"}
+              {emailAtual ? "Só falta o código" : step === "codigo" ? "Cadastro da equipe" : "Seus dados"}
             </CardTitle>
             <CardDescription>
               {emailAtual
                 ? `Entrando como ${emailAtual}. Informe o código de convite recebido.`
-                : "Peça o código de convite pra quem administra o kairos ou pro dono da sua barbearia."}
+                : step === "codigo"
+                  ? "Peça o código de convite pra quem administra o kairos ou pro dono da sua barbearia."
+                  : `Código ${codigo} confirmado. Agora crie seu acesso.`}
             </CardDescription>
             {emailAtual && (
               <button
@@ -74,7 +95,7 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
             )}
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
-            {!emailAtual && (
+            {!emailAtual && step === "codigo" && (
               <>
                 <GoogleButton redirectPath="/auth/cadastro-equipe" label="Continuar com Google" />
                 <div className="flex items-center gap-2">
@@ -85,56 +106,103 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
               </>
             )}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {!emailAtual && (
-                <>
-                  <div className="grid gap-2">
-                    <Label htmlFor="nome">Seu nome</Label>
-                    <Input id="nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="senha">Senha</Label>
-                    <PasswordInput id="senha" required value={senha} onChange={(e) => setSenha(e.target.value)} />
-                    <PasswordRequisitos senha={senha} />
-                  </div>
-                </>
-              )}
-              <div className="grid gap-2">
-                <Label htmlFor="codigo">Código de convite</Label>
-                <Input
-                  id="codigo"
-                  required
-                  autoFocus={!!emailAtual}
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value.toUpperCase())}
-                  placeholder="Ex: AB12CD34"
-                  className="tracking-widest"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={pending || (!emailAtual && !senhaValida(senha))}
-              >
-                {pending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Entrando...
-                  </>
-                ) : (
-                  "Entrar"
-                )}
-              </Button>
-            </form>
+            {emailAtual ? (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="codigo">Código de convite</Label>
+                  <Input
+                    id="codigo"
+                    required
+                    autoFocus
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                    placeholder="Ex: AB12CD34"
+                    className="tracking-widest"
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={pending}>
+                  {pending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Entrando...
+                    </>
+                  ) : (
+                    "Entrar"
+                  )}
+                </Button>
+              </form>
+            ) : step === "codigo" ? (
+              <form onSubmit={handleProximo} className="flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="codigo">Código de convite</Label>
+                  <Input
+                    id="codigo"
+                    required
+                    autoFocus
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                    placeholder="Ex: AB12CD34"
+                    className="tracking-widest"
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={pending || !codigo.trim()}>
+                  {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Próximo"}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="nome">Seu nome</Label>
+                  <Input id="nome" required autoFocus value={nome} onChange={(e) => setNome(e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="senha">Senha</Label>
+                  <PasswordInput id="senha" required value={senha} onChange={(e) => setSenha(e.target.value)} />
+                  <PasswordRequisitos senha={senha} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirmarSenha">Confirmar senha</Label>
+                  <PasswordInput
+                    id="confirmarSenha"
+                    required
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                  />
+                  {confirmarSenha.length > 0 && !senhasConferem && (
+                    <p className="text-xs text-destructive">As senhas não são iguais.</p>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={pending || !senhaValida(senha) || !senhasConferem}
+                >
+                  {pending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Criando...
+                    </>
+                  ) : (
+                    "Criar conta"
+                  )}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setStep("codigo")}
+                  className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Trocar código
+                </button>
+              </form>
+            )}
           </CardContent>
         </Card>
       </div>

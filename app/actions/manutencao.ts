@@ -94,9 +94,10 @@ export async function criarEmpresa(nome: string) {
   }
 
   const code = gerarCodigoConvite()
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
   const { error: codeError } = await admin
     .from("invite_codes")
-    .insert({ code, company_id: empresa.id, role: "owner" })
+    .insert({ code, company_id: empresa.id, role: "owner", expires_at: expiresAt })
 
   if (codeError) {
     return { ok: false as const, error: "Empresa criada, mas não foi possível gerar o código de convite." }
@@ -105,7 +106,7 @@ export async function criarEmpresa(nome: string) {
   await admin.from("horarios_config").insert({ company_id: empresa.id })
 
   revalidatePath("/manutencao")
-  return { ok: true as const, code, slug }
+  return { ok: true as const, id: empresa.id as string, code, expiresAt, slug }
 }
 
 export async function alternarStatusEmpresa(id: string, status: StatusEmpresa) {
@@ -117,21 +118,46 @@ export async function alternarStatusEmpresa(id: string, status: StatusEmpresa) {
   return { ok: true as const }
 }
 
+// Retorna o código de owner vigente, gerando um novo na hora se o
+// existente já venceu (2 minutos de validade) — mesma lógica de
+// "obterConviteBarbeiro" em app/actions/equipe.ts.
 export async function verCodigoConvite(companyId: string) {
   await getContaManutencaoOuRedirect()
   const admin = createAdminClient()
-  const { data } = await admin
+  const agora = new Date().toISOString()
+
+  const { data: existente } = await admin
     .from("invite_codes")
-    .select("code")
+    .select("code, expires_at")
     .eq("company_id", companyId)
     .eq("role", "owner")
+    .gt("expires_at", agora)
     .maybeSingle()
-  return data?.code ?? null
+
+  if (existente) return { code: existente.code, expiresAt: existente.expires_at }
+
+  const { count } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("company_id", companyId)
+    .eq("role", "owner")
+  if ((count ?? 0) > 0) return null // já tem dono, não faz sentido gerar código novo
+
+  await admin.from("invite_codes").delete().eq("company_id", companyId).eq("role", "owner")
+
+  const code = gerarCodigoConvite()
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const { error } = await admin
+    .from("invite_codes")
+    .insert({ code, company_id: companyId, role: "owner", expires_at: expiresAt })
+  if (error) return null
+
+  return { code, expiresAt }
 }
 
-// Gera um código de convite de owner novo (o antigo pode ter vazado, ou a
-// empresa foi criada antes desse fluxo). Só funciona enquanto ninguém
-// resgatou — depois que existe um owner, não faz sentido um segundo código.
+// Força um código de owner novo agora, mesmo que o atual ainda seja
+// válido (ex: foi enviado pra pessoa errada). Só funciona enquanto
+// ninguém resgatou — depois que existe um owner, não faz sentido.
 export async function rotacionarConviteOwner(companyId: string) {
   await getContaManutencaoOuRedirect()
   const admin = createAdminClient()
@@ -149,11 +175,14 @@ export async function rotacionarConviteOwner(companyId: string) {
   await admin.from("invite_codes").delete().eq("company_id", companyId).eq("role", "owner")
 
   const code = gerarCodigoConvite()
-  const { error } = await admin.from("invite_codes").insert({ code, company_id: companyId, role: "owner" })
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const { error } = await admin
+    .from("invite_codes")
+    .insert({ code, company_id: companyId, role: "owner", expires_at: expiresAt })
   if (error) return { ok: false as const, error: "Não foi possível gerar o código." }
 
   revalidatePath("/manutencao")
-  return { ok: true as const, code }
+  return { ok: true as const, code, expiresAt }
 }
 
 export type MetricasPlataforma = {

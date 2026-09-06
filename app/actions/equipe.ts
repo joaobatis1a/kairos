@@ -5,13 +5,26 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import { registrarAuditoria } from "@/lib/auditoria"
 import { DEMO_MODE, bloqueadoNoDemo } from "@/lib/demo"
+import { senhaValidaServidor, ERRO_SENHA_FRACA } from "@/lib/senha"
 
-function senhaValidaServidor(senha: string) {
-  const temTamanho = senha.length >= 8
-  const temMaiuscula = /[A-Z]/.test(senha)
-  const temNumero = /[0-9]/.test(senha)
-  const temEspecial = /[^A-Za-z0-9]/.test(senha)
-  return temTamanho && temMaiuscula && temNumero && temEspecial
+// Checagem só de leitura, sem consumir o código — usada no primeiro passo
+// do cadastro (antes de pedir nome/e-mail/senha) pra avisar cedo se o
+// código já não existe mais ou expirou, em vez da pessoa preencher tudo
+// pra só então descobrir.
+export async function validarCodigoConvite(codigoInput: string) {
+  const codigo = codigoInput.trim().toUpperCase()
+  if (!codigo) return { ok: false as const, error: "Informe o código de convite." }
+
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from("invite_codes")
+    .select("code")
+    .eq("code", codigo)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle()
+
+  if (!data) return { ok: false as const, error: "Código inválido ou expirado. Peça um novo." }
+  return { ok: true as const }
 }
 
 // Cadastro de equipe via código de convite (gerado no /manutencao pra um
@@ -33,15 +46,19 @@ export async function cadastrarComCodigo(input: {
   // delete + select devolve a linha apagada só se ela ainda existia — isso
   // consome o convite atomicamente na mesma query, então dois resgates
   // simultâneos (ou o mesmo código usado duas vezes) não conseguem os dois
-  // "ganhar" a leitura antes de invalidar.
+  // "ganhar" a leitura antes de invalidar. O filtro de expires_at faz o
+  // mesmo pra código vencido: nasce com 2 minutos de validade (ver
+  // /painel/equipe e /manutencao), então um código velho nem chega a ser
+  // encontrado aqui, mesmo que a linha ainda exista no banco.
   const { data: invite } = await admin
     .from("invite_codes")
     .delete()
     .eq("code", codigo)
+    .gt("expires_at", new Date().toISOString())
     .select("company_id, role")
     .maybeSingle()
 
-  if (!invite) return { ok: false, error: "Código inválido ou já utilizado." }
+  if (!invite) return { ok: false, error: "Código inválido ou expirado. Peça um novo." }
 
   const supabase = await createClient()
   const {
@@ -67,10 +84,7 @@ export async function cadastrarComCodigo(input: {
       return { ok: false, error: "Preencha todos os campos." }
     }
     if (!senhaValidaServidor(senha)) {
-      return {
-        ok: false,
-        error: "A senha precisa ter no mínimo 8 caracteres, com letra maiúscula, número e caractere especial.",
-      }
+      return { ok: false, error: ERRO_SENHA_FRACA }
     }
 
     // Cria já confirmado (via admin) em vez de signUp comum: o projeto exige
@@ -113,8 +127,14 @@ export async function cadastrarComCodigo(input: {
 
   if (perfilExistente?.ativo && perfilExistente.company_id !== invite.company_id) {
     // o código já foi consumido (delete atômico lá em cima) — devolve, já
-    // que o resgate não vai completar
-    await admin.from("invite_codes").insert({ code: codigo, company_id: invite.company_id, role: invite.role })
+    // que o resgate não vai completar. Novos 2 minutos de validade — mais
+    // simples que guardar o expires_at original, e o efeito é o mesmo.
+    await admin.from("invite_codes").insert({
+      code: codigo,
+      company_id: invite.company_id,
+      role: invite.role,
+      expires_at: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+    })
     return {
       ok: false,
       error: "Essa conta já pertence a outra barbearia ativa. Peça pro dono de lá remover o acesso antes de trocar.",
@@ -184,21 +204,39 @@ function gerarCodigoConvite(): string {
   return code
 }
 
-// Gera um código de convite pra um barbeiro novo entrar (somente dono).
-// O barbeiro resgata em /auth/cadastro-equipe e escolhe a própria senha —
-// mesmo fluxo que já existia só pra dono, unificado aqui.
-export async function gerarConviteBarbeiro() {
+// Retorna o código de convite de barbeiro vigente da empresa, gerando um
+// novo na hora se não existir um ainda válido (nunca gerado, ou o
+// anterior venceu — 2 minutos de validade). Chamado toda vez que a tela
+// de convite abre/atualiza, então o dono nunca vê um código morto.
+export async function obterConviteBarbeiro() {
   if (DEMO_MODE) return bloqueadoNoDemo()
 
   const owner = await garantirOwner()
   if (!owner) return { ok: false as const, error: "Sem permissão." }
 
   const admin = createAdminClient()
+  const agora = new Date().toISOString()
+
+  const { data: existente } = await admin
+    .from("invite_codes")
+    .select("code, expires_at")
+    .eq("company_id", owner.companyId)
+    .eq("role", "barber")
+    .gt("expires_at", agora)
+    .maybeSingle()
+
+  if (existente) return { ok: true as const, code: existente.code, expiresAt: existente.expires_at }
+
+  await admin.from("invite_codes").delete().eq("company_id", owner.companyId).eq("role", "barber")
+
   const code = gerarCodigoConvite()
-  const { error } = await admin.from("invite_codes").insert({ code, company_id: owner.companyId, role: "barber" })
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString()
+  const { error } = await admin
+    .from("invite_codes")
+    .insert({ code, company_id: owner.companyId, role: "barber", expires_at: expiresAt })
   if (error) return { ok: false as const, error: "Não foi possível gerar o código." }
 
-  return { ok: true as const, code }
+  return { ok: true as const, code, expiresAt }
 }
 
 // Ativa/desativa um barbeiro (somente dono)
