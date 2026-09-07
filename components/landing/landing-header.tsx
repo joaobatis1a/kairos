@@ -133,19 +133,10 @@ export function LandingHeader() {
           </Magnetico>
         </div>
 
-        {/* ilha do CTA compacta — só mobile: a ação principal fica a um toque,
-            sem precisar abrir o menu inteiro só pra falar com a gente */}
-        <a
-          href={LINK_CONTATO}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Falar com a gente"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_20px_-6px_var(--primary)] md:hidden"
-        >
-          <Mail className="h-4.5 w-4.5" />
-        </a>
-
-        {/* ilha do hambúrguer — só mobile, cápsula própria como as outras */}
+        {/* ilha do hambúrguer — só mobile, cápsula própria como as outras.
+            Chegou a ter uma terceira ilha só com o ícone de mail pro CTA,
+            mas ficou confuso (dois círculos de ícone lado a lado) — o CTA
+            já é o primeiro botão grande dentro do próprio menu. */}
         <button
           type="button"
           onClick={() => setAberto((v) => !v)}
