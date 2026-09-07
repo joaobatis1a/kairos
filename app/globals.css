@@ -591,6 +591,10 @@ html {
 }
 .feixe-3 { left: 80%; width: 70px; }
 
+@media (max-width: 767px) {
+  .feixe-2 { display: none; }
+}
+
 .poeira {
   position: absolute;
   inset: 0;

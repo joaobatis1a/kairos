@@ -10,10 +10,15 @@
  * amostrando o que passa atrás), então não paga custo por frame de
  * scroll. Ver landing-background.tsx pro porquê disso importar tanto
  * aqui: esse elemento fica de pé o scroll inteiro.
+ *
+ * No mobile aparecem só 2 dos 3 feixes (o do meio some via .feixe-2 em
+ * globals.css) — tela estreita não precisa da mesma densidade pra ler
+ * como "luz atravessando o ambiente", e cada feixe a menos é menos
+ * camada composta num aparelho mais fraco.
  */
 export function LandingLight() {
   return (
-    <div aria-hidden className="hidden md:block">
+    <div aria-hidden>
       <div className="feixe feixe-1" />
       <div className="feixe feixe-2" />
       <div className="feixe feixe-3" />
