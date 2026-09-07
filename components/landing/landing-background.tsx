@@ -1,4 +1,4 @@
-import { BarberPole } from "@/components/landing/barber-pole"
+import { LandingLight } from "@/components/landing/landing-light"
 
 /**
  * Cenário fixo atrás da landing inteira (não só do hero) — fica parado
@@ -13,7 +13,7 @@ export function LandingBackground() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent)]" />
-      <BarberPole />
+      <LandingLight />
     </div>
   )
 }
