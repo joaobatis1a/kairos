@@ -44,6 +44,10 @@ function ContaLoginForm() {
       return
     }
 
+    // Ver comentário equivalente em app/auth/login/page.tsx: espera a sessão
+    // realmente persistir antes da navegação cheia, senão o middleware pode
+    // ainda não ver ninguém logado e mandar de volta pro login.
+    await supabase.auth.getSession()
     window.location.href = next
   }
 
