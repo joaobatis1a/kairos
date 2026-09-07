@@ -144,7 +144,7 @@ export function ManutencaoNav({ email }: { email: string }) {
       </aside>
 
       {/* Barra + gaveta no mobile */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background px-4 py-3 md:hidden">
         <div className="flex items-center gap-2">
           <ScissorMark className="h-5 w-5 text-primary" />
           <span className="font-serif font-semibold">kairos · Manutenção</span>
