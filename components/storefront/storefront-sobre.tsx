@@ -8,7 +8,7 @@ export function StorefrontSobre({ descricao }: { descricao: string }) {
   if (!descricao.trim()) return null
 
   return (
-    <section id="sobre" className="mx-auto max-w-3xl scroll-mt-24 px-6 py-20 md:py-24">
+    <section id="sobre" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-20 md:py-24">
       <h2 className="font-serif text-[clamp(1.75rem,4vw,2.5rem)] font-semibold tracking-[-0.02em]">
         Sobre a casa
       </h2>
