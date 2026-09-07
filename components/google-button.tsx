@@ -30,6 +30,13 @@ export function GoogleButton({
       provider: "google",
       options: {
         redirectTo: callbackBase,
+        // Sem isso o Google pode pular a tela de escolha de conta e reusar a
+        // sessão silenciosamente (SSO automático) sempre que já tiver uma
+        // conta logada no dispositivo — no iOS/Safari (ITP bloqueia acesso a
+        // storage de terceiro) essa reautenticação silenciosa também pode
+        // falhar sem aviso, exigindo tentar de novo. Forçando o seletor,
+        // toda entrada com Google vira uma volta completa e interativa.
+        queryParams: { prompt: "select_account" },
       },
     })
   }
