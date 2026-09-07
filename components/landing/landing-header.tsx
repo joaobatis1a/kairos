@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "framer-motion"
-import { Mail, ArrowUpRight } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Mail, ArrowUpRight, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Magnetico } from "@/components/landing/magnetico"
 import { LINK_CONTATO } from "@/components/landing/contato"
@@ -17,17 +17,15 @@ const LINKS = [
   { href: "#contato", label: "Contato" },
 ]
 
+/** Classe compartilhada por cada "ilha" flutuante (logo, nav, ações) —
+ * mesmo tratamento visual, cápsulas separadas em vez de uma barra única. */
+const ILHA = "rounded-full border border-border/50 bg-background/65 backdrop-blur-xl"
+
 export function LandingHeader() {
-  const { scrollY } = useScroll()
-  const [solido, setSolido] = useState(false)
   const [ativo, setAtivo] = useState<string | null>(null)
   const [aberto, setAberto] = useState(false)
 
-  useMotionValueEvent(scrollY, "change", (y) => setSolido(y > 40))
-
   useEffect(() => {
-    setSolido(window.scrollY > 40)
-
     // marca como ativa a seção que estiver cruzando o meio da tela
     const secoes = LINKS.map((l) => document.querySelector(l.href)).filter(Boolean) as Element[]
     const observador = new IntersectionObserver(
@@ -66,103 +64,85 @@ export function LandingHeader() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
+        className="fixed inset-x-0 top-4 z-50 flex items-center justify-center gap-2.5 px-4 sm:gap-3"
       >
-        <div
+        {/* ilha 1: marca */}
+        <Link
+          href="/"
           className={cn(
-            "flex h-14 w-full items-center justify-between gap-4 rounded-full border px-4 backdrop-blur-xl transition-all duration-300 sm:px-5",
-            solido && !aberto
-              ? "max-w-3xl border-border/70 bg-background/85 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]"
-              : "max-w-5xl border-border/40 bg-background/60",
+            ILHA,
+            "flex shrink-0 items-center gap-2 px-4 py-2.5 font-serif text-base tracking-[0.16em] transition-colors hover:bg-background/85 sm:px-5",
           )}
         >
-          <Link
-            href="/"
-            className="flex shrink-0 items-center gap-2 font-serif text-lg tracking-[0.18em] transition-opacity hover:opacity-70"
-          >
-            <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
-            kairos
-          </Link>
+          <ScissorMark className="h-4.5 w-4.5 shrink-0 text-primary" />
+          kairos
+        </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
-            {LINKS.map((l) => {
-              const estaAtivo = ativo === l.href
-              return (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  className={cn(
-                    "group relative rounded-full px-3.5 py-1.5 text-sm transition-colors duration-300",
-                    estaAtivo ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {/* pastilha que desliza entre os itens ao trocar de seção */}
-                  {estaAtivo && (
-                    <motion.span
-                      layoutId="nav-ativo"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      className="absolute inset-0 -z-10 rounded-full bg-primary/12 ring-1 ring-primary/25"
-                    />
-                  )}
-                  {/* traço que cresce a partir do centro no hover dos itens ainda não ativos */}
-                  {!estaAtivo && (
-                    <span
-                      aria-hidden
-                      className="absolute inset-x-3.5 -bottom-0.5 h-px origin-center scale-x-0 bg-primary/50 transition-transform duration-300 group-hover:scale-x-100"
-                    />
-                  )}
-                  {l.label}
-                </a>
-              )
-            })}
-          </nav>
-
-          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="hidden text-muted-foreground hover:text-foreground sm:inline-flex"
-            >
-              <Link href="/auth/login">Entrar</Link>
-            </Button>
-
-            <Magnetico forca={0.2} className="hidden md:inline-block">
-              <Button
-                size="sm"
-                asChild
-                className="h-9 rounded-full font-bold"
+        {/* ilha 2: navegação — só desktop */}
+        <nav className={cn(ILHA, "hidden items-center gap-1 px-2 py-2 md:flex")}>
+          {LINKS.map((l) => {
+            const estaAtivo = ativo === l.href
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  "group relative rounded-full px-3.5 py-1.5 text-sm transition-colors duration-300",
+                  estaAtivo ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                <a href={LINK_CONTATO} target="_blank" rel="noopener noreferrer">
-                  <Mail className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-rotate-12" />
-                  Falar com a gente
-                </a>
-              </Button>
-            </Magnetico>
+                {/* pastilha que desliza entre os itens ao trocar de seção */}
+                {estaAtivo && (
+                  <motion.span
+                    layoutId="nav-ativo"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    className="absolute inset-0 -z-10 rounded-full bg-primary/12 ring-1 ring-primary/25"
+                  />
+                )}
+                {/* traço que cresce a partir do centro no hover dos itens ainda não ativos */}
+                {!estaAtivo && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-3.5 -bottom-0.5 h-px origin-center scale-x-0 bg-primary/50 transition-transform duration-300 group-hover:scale-x-100"
+                  />
+                )}
+                {l.label}
+              </a>
+            )
+          })}
+        </nav>
 
-            {/* hambúrguer: as duas linhas viram um X ao abrir */}
-            <button
-              type="button"
-              onClick={() => setAberto((v) => !v)}
-              aria-label={aberto ? "Fechar menu" : "Abrir menu"}
-              aria-expanded={aberto}
-              className="-mr-1.5 flex h-9 w-9 items-center justify-center md:hidden"
-            >
-              <span className="relative block h-3 w-5">
-                <motion.span
-                  animate={{ rotate: aberto ? 45 : 0, y: aberto ? 6 : 0 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute left-0 top-0 block h-px w-full bg-foreground"
-                />
-                <motion.span
-                  animate={{ rotate: aberto ? -45 : 0, y: aberto ? -5 : 0 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute bottom-0 left-0 block h-px w-full bg-foreground"
-                />
-              </span>
-            </button>
-          </div>
+        {/* ilha 3: ações — só desktop (Entrar fica dentro dela, sem cápsula própria) */}
+        <div className={cn(ILHA, "hidden items-center gap-1 py-1.5 pl-1.5 pr-1.5 md:flex")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="rounded-full text-muted-foreground hover:bg-transparent hover:text-foreground"
+          >
+            <Link href="/auth/login">Entrar</Link>
+          </Button>
+
+          <Magnetico forca={0.2}>
+            <Button size="sm" asChild className="h-9 rounded-full font-bold">
+              <a href={LINK_CONTATO} target="_blank" rel="noopener noreferrer">
+                <Mail className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-rotate-12" />
+                Falar com a gente
+              </a>
+            </Button>
+          </Magnetico>
         </div>
+
+        {/* ilha do hambúrguer — só mobile, cápsula própria como as outras */}
+        <button
+          type="button"
+          onClick={() => setAberto((v) => !v)}
+          aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={aberto}
+          className={cn(ILHA, "flex h-11 w-11 shrink-0 items-center justify-center md:hidden")}
+        >
+          {aberto ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+        </button>
       </motion.header>
 
       <AnimatePresence>
