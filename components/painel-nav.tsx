@@ -266,9 +266,11 @@ function MenuMobile({
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger
             render={
-              <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted">
-                <Menu className="h-4 w-4" />
-                <span>{perfil.nome?.split(" ")[0] || "Menu"}</span>
+              <button
+                aria-label="Abrir menu"
+                className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Menu className="h-5 w-5" />
               </button>
             }
           />
