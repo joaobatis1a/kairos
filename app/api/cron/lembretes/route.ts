@@ -51,6 +51,7 @@ export async function GET(request: Request) {
       data: ag.data,
       horario: ag.horario,
       nomeBarbearia: config.nome,
+      slug: config.slug,
     })
   }
 

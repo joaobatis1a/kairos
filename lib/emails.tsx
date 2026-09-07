@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { DEMO_SLUG } from "@/lib/demo"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -20,6 +21,21 @@ type DadosAgendamento = {
   data: string // YYYY-MM-DD
   horario: string
   nomeBarbearia: string
+  // Slug da empresa dona do agendamento — usado só pra barrar envio real
+  // pra empresa de demonstração (ver comentário em enviarEmailLembrete).
+  slug: string
+}
+
+// A empresa de demo é uma linha real em `companies` (precisa ser, pro
+// resto do sistema funcionar nela), então qualquer cron ou action que roda
+// na Vercel de produção (sem DEMO_MODE) não tem como saber que é "só
+// demo" — sem essa checagem, agendamentos de exemplo seedados nela geram
+// lembrete/confirmação/avaliação de verdade via Resend. Como não existe
+// domínio verificado ainda, todo email de teste cai na caixa pessoal do
+// dev (`resolverDestinatario`) — por isso a demo "manda notificação"
+// pra ele mesmo enquanto isso não tinha essa barreira.
+function ehEmpresaDemo(slug: string) {
+  return slug === DEMO_SLUG
 }
 
 function formatarData(data: string) {
@@ -81,6 +97,7 @@ function linhaInfo(label: string, valor: string) {
 // ── Email 1: Confirmação ──────────────────────────────────────
 
 export async function enviarEmailConfirmacao(dados: DadosAgendamento) {
+  if (ehEmpresaDemo(dados.slug)) return
   const conteudo = `
     <h2 style="margin:0 0 8px;font-size:20px;color:#d4b896;">Agendamento confirmado! ✓</h2>
     <p style="margin:0 0 24px;color:#888;font-size:14px;">Olá, <strong style="color:#e5e5e5;">${dados.clienteNome}</strong>! Seu horário está reservado.</p>
@@ -117,6 +134,7 @@ export async function enviarEmailCancelamento(
   dados: DadosAgendamento,
   motivo: string,
 ) {
+  if (ehEmpresaDemo(dados.slug)) return
   const conteudo = `
     <h2 style="margin:0 0 8px;font-size:20px;color:#e05555;">Agendamento cancelado</h2>
     <p style="margin:0 0 24px;color:#888;font-size:14px;">Olá, <strong style="color:#e5e5e5;">${dados.clienteNome}</strong>. Infelizmente seu agendamento foi cancelado.</p>
@@ -153,6 +171,7 @@ export async function enviarEmailCancelamento(
 // ── Email 3: Lembrete ─────────────────────────────────────────
 
 export async function enviarEmailLembrete(dados: DadosAgendamento) {
+  if (ehEmpresaDemo(dados.slug)) return
   const conteudo = `
     <h2 style="margin:0 0 8px;font-size:20px;color:#d4b896;">Lembrete de agendamento 🕐</h2>
     <p style="margin:0 0 24px;color:#888;font-size:14px;">Olá, <strong style="color:#e5e5e5;">${dados.clienteNome}</strong>! Seu horário é amanhã.</p>
@@ -216,6 +235,7 @@ export async function enviarEmailBoasVindas(dados: { clienteNome: string; client
 // ── Email 4: Pedido de avaliação ────────────────────────────────
 
 export async function enviarEmailPedidoAvaliacao(dados: DadosAgendamento) {
+  if (ehEmpresaDemo(dados.slug)) return
   const linkAvaliacao = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/conta/historico`
 
   const conteudo = `
