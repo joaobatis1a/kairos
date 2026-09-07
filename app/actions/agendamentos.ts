@@ -179,6 +179,7 @@ export async function criarAgendamento(input: CriarAgendamentoInput) {
       data: input.data,
       horario: input.horario,
       nomeBarbearia: config.nome,
+      slug: config.slug,
     })
   })
 

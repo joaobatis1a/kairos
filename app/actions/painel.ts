@@ -118,6 +118,7 @@ export async function atualizarStatusAgendamento(id: string, status: StatusAgend
         data: ag.data,
         horario: "",
         nomeBarbearia: config.nome,
+        slug: config.slug,
       })
     })
   }
@@ -177,6 +178,7 @@ export async function cancelarAgendamento(id: string, motivo: string) {
         data: ag.data,
         horario: ag.horario,
         nomeBarbearia: config.nome,
+        slug: config.slug,
       }, motivo)
     })
   }
