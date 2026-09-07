@@ -228,7 +228,7 @@ export function ManutencaoView({
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Buscar por nome da empresa..."
-                className="pl-9"
+                className="h-9 bg-card pl-9"
               />
             </div>
             {/* status + ordenação lado a lado mesmo no mobile (sm:contents
