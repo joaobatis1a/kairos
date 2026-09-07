@@ -66,17 +66,19 @@ export function LandingHeader() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b transition-all duration-500",
-          solido && !aberto
-            ? "border-border/60 bg-background/80 backdrop-blur-xl"
-            : "border-border/0 bg-gradient-to-b from-background/50 to-transparent",
-        )}
+        className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
       >
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <div
+          className={cn(
+            "flex h-14 w-full items-center justify-between gap-4 rounded-full border px-4 backdrop-blur-xl transition-all duration-300 sm:px-5",
+            solido && !aberto
+              ? "max-w-3xl border-border/70 bg-background/85 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]"
+              : "max-w-5xl border-border/40 bg-background/60",
+          )}
+        >
           <Link
             href="/"
-            className="flex items-center gap-2 font-serif text-xl tracking-[0.2em] transition-opacity hover:opacity-70"
+            className="flex shrink-0 items-center gap-2 font-serif text-lg tracking-[0.18em] transition-opacity hover:opacity-70"
           >
             <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
             kairos
@@ -115,7 +117,7 @@ export function LandingHeader() {
             })}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -144,9 +146,9 @@ export function LandingHeader() {
               onClick={() => setAberto((v) => !v)}
               aria-label={aberto ? "Fechar menu" : "Abrir menu"}
               aria-expanded={aberto}
-              className="-mr-2 flex h-10 w-10 items-center justify-center md:hidden"
+              className="-mr-1.5 flex h-9 w-9 items-center justify-center md:hidden"
             >
-              <span className="relative block h-3 w-6">
+              <span className="relative block h-3 w-5">
                 <motion.span
                   animate={{ rotate: aberto ? 45 : 0, y: aberto ? 6 : 0 }}
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -170,7 +172,7 @@ export function LandingHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-background/97 pt-16 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-background/97 pt-24 backdrop-blur-xl md:hidden"
           >
             <nav className="flex flex-1 flex-col justify-center gap-2 px-8">
               {LINKS.map((l, i) => (
