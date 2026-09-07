@@ -22,7 +22,7 @@ export function ContaNav({
   const secao = SECOES_CONTA.find((s) => s.href === pathname)
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background">
       <div className="mx-auto flex h-16 max-w-4xl items-center gap-3 px-4 md:px-6">
         <Link
           href={barbearia ? `/b/${barbearia.slug}` : "/"}

@@ -22,6 +22,8 @@ export function FinalCtaSection() {
           src="/images/hero-barbearia.png"
           alt=""
           aria-hidden
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-[124%] w-full object-cover object-center opacity-40 mix-blend-luminosity"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background" />
