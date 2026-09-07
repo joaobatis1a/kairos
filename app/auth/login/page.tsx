@@ -53,6 +53,15 @@ function LoginForm() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: senhaInput })
       if (error) throw error
+      // Garante que a sessão terminou de ser persistida (cookie escrito) antes
+      // da navegação cheia: window.location.href dispara uma requisição nova
+      // pro servidor, e é o middleware que decide pra onde mandar cada tipo
+      // de conta a partir desse cookie. Sem esperar aqui, em conexões mais
+      // lentas (comum no Safari/PWA) a navegação às vezes saía antes do
+      // cookie existir — o middleware não via ninguém logado e mandava de
+      // volta pro login, dando a impressão de que "não fez nada" na primeira
+      // tentativa.
+      await supabase.auth.getSession()
       window.location.href = next
     } catch (err: unknown) {
       setError(err instanceof Error ? "E-mail ou senha incorretos." : "Ocorreu um erro.")
