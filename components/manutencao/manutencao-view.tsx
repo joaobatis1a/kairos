@@ -221,7 +221,7 @@ export function ManutencaoView({
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -231,26 +231,32 @@ export function ManutencaoView({
                 className="pl-9"
               />
             </div>
-            <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as typeof statusFiltro)}>
-              <SelectTrigger className="sm:w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todos os status</SelectItem>
-                <SelectItem value="ativo">Ativas</SelectItem>
-                <SelectItem value="inativo">Inativas</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={ordenacao} onValueChange={(v) => setOrdenacao(v as typeof ordenacao)}>
-              <SelectTrigger className="sm:w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recentes">Mais recentes</SelectItem>
-                <SelectItem value="antigas">Mais antigas</SelectItem>
-                <SelectItem value="nome">Nome (A-Z)</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* status + ordenação lado a lado mesmo no mobile (sm:contents
+                tira essa div do layout no desktop, viram itens soltos da
+                linha de cima) — empilhar os 3 controles um embaixo do
+                outro no celular ficava desorganizado */}
+            <div className="grid grid-cols-2 gap-3 sm:contents">
+              <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as typeof statusFiltro)}>
+                <SelectTrigger className="sm:w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todos os status</SelectItem>
+                  <SelectItem value="ativo">Ativas</SelectItem>
+                  <SelectItem value="inativo">Inativas</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={ordenacao} onValueChange={(v) => setOrdenacao(v as typeof ordenacao)}>
+                <SelectTrigger className="sm:w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recentes">Mais recentes</SelectItem>
+                  <SelectItem value="antigas">Mais antigas</SelectItem>
+                  <SelectItem value="nome">Nome (A-Z)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {empresasFiltradas.length === 0 ? (

@@ -593,6 +593,11 @@ html {
 
 @media (max-width: 767px) {
   .feixe-2 { display: none; }
+  /* largura em px fixo lia bem numa tela de 1500px, mas numa tela de
+     380px o mesmo feixe vira uma faixa grossa e desproporcional — reduz
+     proporcionalmente pra manter a mesma leveza visual do desktop */
+  .feixe { width: 70px; opacity: 0.8; }
+  .feixe-3 { width: 40px; }
 }
 
 .poeira {
