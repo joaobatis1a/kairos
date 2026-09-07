@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SECOES_CONTA } from "@/components/conta/menu-conta"
-import { DEMO_MODE } from "@/lib/demo"
 import { ArrowLeft } from "lucide-react"
 
 /**
@@ -38,14 +37,6 @@ export function ContaNav({
         <h1 className="flex-1 truncate font-serif text-lg font-semibold">
           {secao?.label ?? "Minha conta"}
         </h1>
-        {DEMO_MODE && (
-          <Link
-            href="/auth/login"
-            className="shrink-0 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            Ver painel do dono
-          </Link>
-        )}
       </div>
     </header>
   )
