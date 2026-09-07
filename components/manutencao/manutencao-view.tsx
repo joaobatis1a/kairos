@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { stagger, item } from "@/lib/motion"
@@ -18,6 +18,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { ContadorCodigo } from "@/components/contador-codigo"
 import { NumeroAnimado } from "@/components/numero-animado"
 import {
@@ -29,7 +36,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Building2, Plus, KeyRound, RefreshCw, Power, PowerOff, Trash2, Loader2, Copy } from "lucide-react"
+import { Building2, Plus, KeyRound, RefreshCw, Power, PowerOff, Trash2, Loader2, Copy, Search } from "lucide-react"
 
 export function ManutencaoView({
   empresasIniciais,
@@ -144,6 +151,24 @@ export function ManutencaoView({
     toast.success("Código copiado.")
   }
 
+  // Filtro de empresas — mesmo padrão do práxis (busca por nome + status +
+  // ordenação), tudo client-side em cima do que já veio do servidor: com
+  // poucas dezenas de empresas não vale a pena ida ao banco a cada troca.
+  const [busca, setBusca] = useState("")
+  const [statusFiltro, setStatusFiltro] = useState<"todas" | "ativo" | "inativo">("todas")
+  const [ordenacao, setOrdenacao] = useState<"recentes" | "antigas" | "nome">("recentes")
+
+  const empresasFiltradas = useMemo(() => {
+    return empresas
+      .filter((e) => statusFiltro === "todas" || e.status === statusFiltro)
+      .filter((e) => !busca.trim() || e.nome.toLowerCase().includes(busca.trim().toLowerCase()))
+      .sort((a, b) => {
+        if (ordenacao === "nome") return a.nome.localeCompare(b.nome)
+        if (ordenacao === "antigas") return a.createdAt.localeCompare(b.createdAt)
+        return b.createdAt.localeCompare(a.createdAt)
+      })
+  }, [empresas, busca, statusFiltro, ordenacao])
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -195,14 +220,50 @@ export function ManutencaoView({
           <p className="text-muted-foreground">Nenhuma empresa cadastrada ainda.</p>
         </div>
       ) : (
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {empresas.map((empresa) => (
+        <>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Buscar por nome da empresa..."
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as typeof statusFiltro)}>
+              <SelectTrigger className="sm:w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todos os status</SelectItem>
+                <SelectItem value="ativo">Ativas</SelectItem>
+                <SelectItem value="inativo">Inativas</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={ordenacao} onValueChange={(v) => setOrdenacao(v as typeof ordenacao)}>
+              <SelectTrigger className="sm:w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recentes">Mais recentes</SelectItem>
+                <SelectItem value="antigas">Mais antigas</SelectItem>
+                <SelectItem value="nome">Nome (A-Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {empresasFiltradas.length === 0 ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma empresa encontrada.</p>
+          ) : (
             <motion.div
+              variants={stagger}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {empresasFiltradas.map((empresa) => (
+                <motion.div
               key={empresa.id}
               variants={item}
               className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
@@ -279,9 +340,11 @@ export function ManutencaoView({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
+          )}
+        </>
       )}
 
       <Dialog open={!!codigoGerado} onOpenChange={(o) => !o && setCodigoGerado(null)}>

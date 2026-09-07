@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { sair } from "@/app/actions/painel"
@@ -127,6 +127,12 @@ function RodapeConta({ email }: { email: string }) {
 export function ManutencaoNav({ email }: { email: string }) {
   const pathname = usePathname()
 
+  // Sheet controlada só pra fechar sozinha ao navegar — mesmo motivo do
+  // painel-nav.tsx: sem isso, a gaveta ficava aberta por cima da página
+  // nova até o usuário fechar na mão.
+  const [aberto, setAberto] = useState(false)
+  useEffect(() => setAberto(false), [pathname])
+
   return (
     <>
       {/* Sidebar fixa no desktop */}
@@ -150,7 +156,7 @@ export function ManutencaoNav({ email }: { email: string }) {
           <span className="font-serif font-semibold">kairos · Manutenção</span>
         </div>
 
-        <Sheet>
+        <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger
             render={
               <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted">

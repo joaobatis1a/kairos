@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { sair } from "@/app/actions/painel"
@@ -247,6 +247,12 @@ function MenuMobile({
   isOwner: boolean
   slugEmpresa?: string
 }) {
+  // Sheet controlada só pra fechar sozinha ao navegar — sem isso, clicar
+  // num link do menu troca de página mas a gaveta fica aberta por cima,
+  // esperando o usuário fechar na mão.
+  const [aberto, setAberto] = useState(false)
+  useEffect(() => setAberto(false), [pathname])
+
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background px-4 py-3 md:hidden">
       <div className="flex items-center gap-2">
@@ -257,7 +263,7 @@ function MenuMobile({
       <div className="flex items-center gap-1">
         <SinoNotificacoes />
         <ThemeTogglePainel />
-        <Sheet>
+        <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger
             render={
               <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted">
