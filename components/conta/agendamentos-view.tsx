@@ -140,49 +140,30 @@ export function AgendamentosView({
         </article>
       )}
 
-      {/* Atalhos — lista simples, sem cartão de número decorativo */}
-      <div className="flex flex-col gap-2">
-        {resumo.totalFinalizados > 0 && (
-          <Link
-            href="/conta/historico"
-            className="group flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
-          >
-            <History className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
-            <span className="min-w-0 flex-1">
-              <span className="block font-semibold">Histórico</span>
-              <span className="block text-sm text-muted-foreground">
-                <span className="tabular-nums">{resumo.totalFinalizados}</span>{" "}
-                {resumo.totalFinalizados === 1 ? "atendimento" : "atendimentos"}
-              </span>
+      {/* Atalho de histórico — o de "marcar outro horário" foi removido: já
+          existe um horário marcado nesse ponto, empurrar outro agendamento
+          antes até de passar por esse era prematuro. Quem quer agendar de
+          novo já tem o site da barbearia a um clique (topo, no cartão do
+          próximo horário, ou pelo histórico). */}
+      {resumo.totalFinalizados > 0 && (
+        <Link
+          href="/conta/historico"
+          className="group flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
+        >
+          <History className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Histórico</span>
+            <span className="block text-sm text-muted-foreground">
+              <span className="tabular-nums">{resumo.totalFinalizados}</span>{" "}
+              {resumo.totalFinalizados === 1 ? "atendimento" : "atendimentos"}
             </span>
-            <ArrowRight
-              className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-              aria-hidden
-            />
-          </Link>
-        )}
-
-        {proximo &&
-          resumo.barbearias.map((b) => (
-            <Link
-              key={b.slug}
-              href={`/b/${b.slug}`}
-              className="group flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-muted/30"
-            >
-              <Store className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-semibold">{b.nome}</span>
-                <span className="block text-sm text-muted-foreground">
-                  Marcar outro horário
-                </span>
-              </span>
-              <ArrowRight
-                className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-                aria-hidden
-              />
-            </Link>
-          ))}
-      </div>
+          </span>
+          <ArrowRight
+            className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+            aria-hidden
+          />
+        </Link>
+      )}
     </div>
   )
 }
