@@ -256,6 +256,15 @@ html {
   }
   .anim-flutuar { animation: flutuar 5.5s ease-in-out infinite; }
 
+  /* poste de barbeiro: listras fluindo pra cima, devagar — só
+     background-position, o navegador desloca um gradiente já pronto sem
+     recalcular layout nem repintar nada fora da própria camada */
+  @keyframes pole-fluxo {
+    from { background-position: 0 0; }
+    to   { background-position: 0 -220px; }
+  }
+  .pole-fluxo { animation: pole-fluxo 9s linear infinite; }
+
   /* ponto de status "aberto agora": pulso com halo, sinaliza que é ao vivo */
   @keyframes pulsar-ponto {
     0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent); }
