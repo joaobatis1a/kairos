@@ -5,12 +5,6 @@ import { LINK_CONTATO } from "@/components/landing/contato"
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-32 md:pb-32 md:pt-40">
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-8 h-[420px] w-[820px] max-w-[120vw] -translate-x-1/2 rounded-full bg-primary/[0.14] blur-[130px]" />
-        <div className="absolute left-1/2 top-32 h-[220px] w-[420px] max-w-[90vw] -translate-x-1/2 rounded-full bg-primary/[0.1] blur-[90px]" />
-        <div className="kairos-grain absolute inset-0" />
-      </div>
-
       <div className="relative mx-auto max-w-2xl text-center">
         <p className="revelar texto-dourado text-sm font-bold">Sistema para barbearias</p>
 
