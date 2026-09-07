@@ -1,3 +1,4 @@
+import { LandingBackground } from "@/components/landing/landing-background"
 import { LandingHeader } from "@/components/landing/landing-header"
 import { HeroSection } from "@/components/landing/hero-section"
 import { ManifestoSection } from "@/components/landing/manifesto-section"
@@ -11,6 +12,7 @@ import { SectionDivider } from "@/components/landing/section-divider"
 export function KairosLanding() {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
+      <LandingBackground />
       <LandingHeader />
       <main id="conteudo" tabIndex={-1}>
         <HeroSection />
