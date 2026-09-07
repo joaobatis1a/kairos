@@ -66,9 +66,6 @@ export function LandingPage({
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-b border-primary/30 bg-primary/[0.08] px-4 py-2 text-center text-xs">
             <span className="font-bold text-primary">Demonstração pública</span>
             <span className="text-muted-foreground">Essa barbearia é fake, nada aqui é salvo de verdade.</span>
-            <Link href="/auth/login" className="font-medium underline underline-offset-2 hover:text-primary">
-              Ver painel do dono
-            </Link>
             <Link href="/conta/login" className="font-medium underline underline-offset-2 hover:text-primary">
               Entrar como cliente
             </Link>
