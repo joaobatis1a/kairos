@@ -1,6 +1,19 @@
 # Kairos
 
-Plataforma multi-tenant de agendamento para barbearias, feita em Next.js (App Router) + Supabase.
+**Sistema de agendamento para barbearias** · Next.js · Supabase
+
+[![Demo ao vivo](https://img.shields.io/badge/demo-online-F43F5E?style=flat-square)](https://kairos-demo-rouge.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![License: MIT](https://img.shields.io/badge/license-MIT-F43F5E?style=flat-square)](LICENSE)
+
+O cliente agenda pelo link da barbearia, escolhe serviço, barbeiro e horário sozinho. O dono acompanha agenda, equipe e faturamento num painel só, com confirmação e lembrete automáticos por e-mail.
+
+🔗 **Demo:** [kairos-demo-rouge.vercel.app](https://kairos-demo-rouge.vercel.app)
+
+![Captura de tela do Kairos](docs/img/preview.png)
+
+Plataforma multi-tenant de agendamento para barbearias, feita em Next.js (App Router) + Supabase. Cada barbearia é isolada no banco via Row Level Security, com painel próprio pro dono e pra equipe.
 
 ## Stack
 
@@ -36,7 +49,7 @@ Crie um projeto em [supabase.com](https://supabase.com). No **SQL Editor**, rode
 13. `migration_13_agenda.sql`
 14. `migration_14_agenda_tz.sql`
 
-`migration_01_destaques.sql` é código morto (funcionalidade abandonada) — **não rode**.
+`migration_01_destaques.sql` é código morto (funcionalidade abandonada): **não rode**.
 
 Depois, crie sua conta de manutenção (acesso a `/manutencao`, onde se cria a primeira empresa/barbearia):
 
@@ -50,10 +63,10 @@ Esse e-mail precisa corresponder a um usuário que existe em Supabase Auth (crie
 
 Copie `.env.example` para `.env.local` e preencha:
 
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — em Project Settings > API
-- `NEXT_PUBLIC_SITE_URL` — `http://localhost:3000` em dev
-- `RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TEST_EMAIL` — resend.com (em sandbox, sem domínio verificado, os e-mails de clientes reais caem no `RESEND_TEST_EMAIL`)
-- `CRON_SECRET` — qualquer string aleatória, usada para autenticar o cron de lembretes
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`: em Project Settings > API
+- `NEXT_PUBLIC_SITE_URL`: `http://localhost:3000` em dev
+- `RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TEST_EMAIL`: resend.com (em sandbox, sem domínio verificado, os e-mails de clientes reais caem no `RESEND_TEST_EMAIL`)
+- `CRON_SECRET`: qualquer string aleatória, usada para autenticar o cron de lembretes
 
 ### 4. Rodar
 
@@ -63,17 +76,30 @@ npm run dev
 
 ## Estrutura multi-tenant
 
-- `companies` — cada barbearia (tenant)
-- `profiles` — dono/barbeiro, sempre vinculado a uma `company_id`
-- `clientes` — contas de cliente, compartilhadas entre todas as barbearias (não são por tenant)
-- `maintenance_accounts` — superadmins da plataforma, acessam `/manutencao`
-- `invite_codes` — código de convite de uso único para onboarding de uma empresa
+- `companies`: cada barbearia (tenant)
+- `profiles`: dono/barbeiro, sempre vinculado a uma `company_id`
+- `clientes`: contas de cliente, compartilhadas entre todas as barbearias (não são por tenant)
+- `maintenance_accounts`: superadmins da plataforma, acessam `/manutencao`
+- `invite_codes`: código de convite de uso único para onboarding de uma empresa
 
 Isolamento entre tenants é feito via RLS (Row Level Security) no Postgres, usando a função `current_company_id()` (`lib/supabase/schema.sql`).
 
 ## Buckets de Storage
 
-- `logos` — logo da empresa, pasta `<company_id>/`, só o owner escreve
-- `avatares` — foto de perfil do cliente, pasta `<user_id>/`, só o próprio usuário escreve
+- `logos`: logo da empresa, pasta `<company_id>/`, só o owner escreve
+- `avatares`: foto de perfil do cliente, pasta `<user_id>/`, só o próprio usuário escreve
 
 Ambos são criados e têm as policies definidas em `migration_06_logo_empresa.sql` (logos) e `migration_09_storage.sql` (avatares + criação dos buckets).
+
+## Autor
+
+**João Batista da Silva Neto**
+Desenvolvedor Full-stack (solo)
+
+- GitHub: [@joaobatis1a](https://github.com/joaobatis1a)
+- LinkedIn: [joao-batista-silva-neto](https://linkedin.com/in/joao-batista-silva-neto)
+- E-mail: [profissionalba1is1a@gmail.com](mailto:profissionalba1is1a@gmail.com)
+
+## Licença
+
+Distribuído sob a licença MIT. Veja [`LICENSE`](LICENSE) para mais detalhes.
