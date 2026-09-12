@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
 import { ThemeTogglePainel } from "@/components/painel/theme-toggle-painel"
 import { ScissorMark } from "@/components/scissor-mark"
-import { DEMO_MODE } from "@/lib/demo"
 import {
   Sheet,
   SheetContent,
@@ -185,14 +184,6 @@ function RodapeConta({
 export function PainelTopBar({ slugEmpresa }: { slugEmpresa?: string }) {
   return (
     <div className="sticky top-0 z-30 hidden items-center justify-end gap-1 border-b border-border/60 bg-background px-6 py-2 md:flex">
-      {DEMO_MODE && (
-        <Link
-          href="/conta/login"
-          className="mr-auto text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
-        >
-          Ver como cliente
-        </Link>
-      )}
       <Button variant="ghost" size="sm" asChild disabled={!slugEmpresa} className="text-muted-foreground">
         <Link href={slugEmpresa ? `/b/${slugEmpresa}` : "#"} target="_blank">
           <ExternalLink className="h-4 w-4" /> Ver site
