@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
 import { MockupAgendamento, MockupAgenda, MockupNumeros } from "@/components/landing/sistema-mockups"
 import { cn } from "@/lib/utils"
@@ -49,6 +49,100 @@ const BLOCOS = [
   },
 ]
 
+function Texto({ b }: { b: (typeof BLOCOS)[number] }) {
+  return (
+    <div className="text-sm">
+      <span className="texto-dourado text-xs font-bold tracking-[0.22em] uppercase">{b.quem}</span>
+      <h3 className="mt-4 font-serif text-2xl leading-tight md:text-3xl">{b.titulo}</h3>
+      <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
+      <ul className="mt-7 flex flex-col gap-3">
+        {b.itens.map((item) => (
+          <li key={item} className="flex items-start gap-3 text-muted-foreground">
+            <span className="mt-[0.6em] h-px w-4 shrink-0 bg-primary/60" aria-hidden />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/**
+ * Desktop: o mockup fica fixo na tela enquanto o texto de cada ponto de
+ * vista rola ao lado; o mockup troca (fade + leve subida) quando o passo
+ * correspondente cruza o meio da tela. No celular a lista empilhada abaixo
+ * assume, porque sticky de meia tela não cabe.
+ */
+function PalcoSticky() {
+  const [ativo, setAtivo] = useState(0)
+  const passos = useRef<(HTMLDivElement | null)[]>([])
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          if (e.isIntersecting) setAtivo(Number((e.target as HTMLElement).dataset.i))
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px" },
+    )
+    passos.current.forEach((el) => el && obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
+
+  const Ativo = BLOCOS[ativo].Mockup
+
+  return (
+    <div className="mt-16 hidden grid-cols-2 gap-20 md:grid">
+      <div>
+        {BLOCOS.map((b, i) => (
+          <div
+            key={b.quem}
+            data-i={i}
+            ref={(el) => {
+              passos.current[i] = el
+            }}
+            className={cn(
+              "flex min-h-[78vh] items-center transition-opacity duration-500",
+              ativo === i ? "opacity-100" : "opacity-35",
+            )}
+          >
+            <Texto b={b} />
+          </div>
+        ))}
+      </div>
+
+      <div className="relative">
+        <div className="sticky top-[18vh] flex flex-col gap-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={ativo}
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.98 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Ativo />
+            </motion.div>
+          </AnimatePresence>
+          {/* indicador dos 3 pontos de vista */}
+          <div className="flex items-center justify-center gap-2">
+            {BLOCOS.map((b, i) => (
+              <span
+                key={b.quem}
+                className={cn(
+                  "h-1 rounded-full bg-primary transition-all duration-500",
+                  ativo === i ? "w-8 opacity-100" : "w-2 opacity-30",
+                )}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function SistemaSection() {
   return (
     <section id="sistema" className="relative scroll-mt-20 border-y border-border/60 bg-card/20 py-28 md:py-36">
@@ -68,7 +162,9 @@ export function SistemaSection() {
           </Reveal>
         </div>
 
-        <div className="mt-16 flex flex-col gap-16 md:gap-20">
+        <PalcoSticky />
+
+        <div className="mt-16 flex flex-col gap-16 md:hidden">
           {BLOCOS.map((b, i) => {
             const invertido = i % 2 === 1
             return (
