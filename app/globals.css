@@ -642,3 +642,15 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   .revelar-tarde { animation-fill-mode: backwards; }
 }
+
+/* Régua do verbete (landing): o ponto vai e volta pelas horas do dia. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes regua {
+    0%   { left: 0%; }
+    100% { left: calc(100% - 7px); }
+  }
+  .anim-regua { animation: regua 7s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-regua { left: 62%; }
+}

@@ -17,16 +17,10 @@ export function FinalCtaSection() {
   return (
     <section id="contato" ref={ref} className="relative scroll-mt-20 overflow-hidden px-6 py-28 md:py-36">
       <div className="absolute inset-0">
-        <motion.img
-          style={{ y: fotoY }}
-          src="/images/hero-barbearia.png"
-          alt=""
-          aria-hidden
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-[124%] w-full object-cover object-center opacity-40 mix-blend-luminosity"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background" />
+        <motion.div style={{ y: fotoY }} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary/[0.06]">
+          <KairosMark className="h-[44rem] w-[44rem] max-w-none" />
+        </motion.div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,color-mix(in_oklch,var(--primary)_10%,transparent),transparent)]" />
         <div className="kairos-grain absolute inset-0" />
       </div>
 
