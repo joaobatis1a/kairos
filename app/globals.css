@@ -654,3 +654,14 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .anim-regua { left: 62%; }
 }
+
+/* Faixa de serviços (landing): duas voltas do mesmo conteúdo, o loop emenda
+   em -50%. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes faixa {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  .anim-faixa { animation: faixa 60s linear infinite; }
+  .anim-faixa-reversa { animation-direction: reverse; animation-duration: 75s; }
+}
