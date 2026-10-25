@@ -5,14 +5,14 @@ import { useInView } from "framer-motion"
 import { Link2, CalendarCheck, Users, Bell, Star, ShieldCheck } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useSemCursor } from "@/components/landing/hooks"
-import { Reveal, Eyebrow } from "@/components/landing/reveal"
+import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
 import { cn } from "@/lib/utils"
 
 const RECURSOS = [
   {
     icon: Link2,
     titulo: "Link próprio",
-    texto: "Endereço exclusivo, pronto pra colar na bio do Instagram.",
+    texto: "Endereço exclusivo da sua barbearia, pronto pra colar na bio do Instagram.",
   },
   {
     icon: CalendarCheck,
@@ -64,31 +64,27 @@ function CardRecurso({
       <div
         ref={ref}
         data-ativo={ativo}
-        onPointerMove={(e) => {
-          // o brilho segue o cursor via variáveis CSS: sem re-render por movimento
-          const r = e.currentTarget.getBoundingClientRect()
-          e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`)
-          e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`)
-        }}
         className={cn(
-          "group relative h-full overflow-hidden rounded-2xl border border-border/70 bg-primary/[0.05] p-7 transition-all duration-500",
-          "hover:border-primary/40 hover:bg-primary/[0.09] data-[ativo=true]:border-primary/40 data-[ativo=true]:bg-primary/[0.09]",
+          "group relative flex h-full min-h-56 flex-col justify-between border-2 border-foreground bg-card p-6 transition-all duration-300 md:p-7",
+          "hover:-translate-x-1 hover:-translate-y-1 hover:bg-primary hover:shadow-[8px_8px_0_0_var(--foreground)]",
+          "data-[ativo=true]:-translate-x-1 data-[ativo=true]:-translate-y-1 data-[ativo=true]:bg-primary data-[ativo=true]:shadow-[8px_8px_0_0_var(--foreground)]",
         )}
       >
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background:
-              "radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklch, var(--primary) 20%, transparent), transparent 70%)",
-          }}
-        />
-        <Icon
-          className="relative h-8 w-8 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-data-[ativo=true]:scale-110 group-data-[ativo=true]:-rotate-6"
-          strokeWidth={1.5}
-        />
-        <h3 className="relative mt-5 font-serif text-xl leading-snug">{titulo}</h3>
-        <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{texto}</p>
+        <div className="flex items-start justify-between">
+          <Icon
+            className="h-9 w-9 transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110 group-data-[ativo=true]:rotate-[-8deg] group-data-[ativo=true]:scale-110"
+            strokeWidth={1.6}
+          />
+          <span className="text-xs font-bold tabular-nums text-muted-foreground group-hover:text-primary-foreground group-data-[ativo=true]:text-primary-foreground">
+            {String(indice + 1).padStart(2, "0")}
+          </span>
+        </div>
+        <div className="mt-10">
+          <h3 className="titulo-gigante text-4xl md:text-5xl">{titulo}</h3>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground group-hover:text-primary-foreground/80 group-data-[ativo=true]:text-primary-foreground/80">
+            {texto}
+          </p>
+        </div>
       </div>
     </Reveal>
   )
@@ -96,22 +92,35 @@ function CardRecurso({
 
 export function RecursosSection() {
   return (
-    <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-28 md:py-36">
-      <div className="max-w-xl">
+    <section id="recursos" className="tema-claro relative scroll-mt-20 px-5 py-28 md:px-8 md:py-40">
+      <div className="mx-auto max-w-[92rem]">
         <Reveal>
           <Eyebrow>Também vem junto</Eyebrow>
         </Reveal>
-        <Reveal delay={0.08}>
-          <h2 className="mt-5 font-serif text-[clamp(1.75rem,3.6vw,2.75rem)] font-medium leading-tight tracking-[-0.02em]">
-            O resto que faz falta<span className="texto-dourado">.</span>
-          </h2>
-        </Reveal>
-      </div>
+        <h2 className="titulo-gigante mt-6 text-[clamp(3rem,8vw,8rem)]">
+          <TextReveal
+            delay={0.1}
+            lines={[
+              "O resto que",
+              <em key="2" className="marca-texto font-accent text-[0.92em] font-semibold normal-case italic tracking-[-0.02em]">
+                faz falta.
+              </em>,
+            ]}
+          />
+        </h2>
 
-      <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {RECURSOS.map((r, i) => (
-          <CardRecurso key={r.titulo} icon={r.icon} titulo={r.titulo} texto={r.texto} indice={i} largo={i === 0 || i === 5} />
-        ))}
+        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {RECURSOS.map((r, i) => (
+            <CardRecurso
+              key={r.titulo}
+              icon={r.icon}
+              titulo={r.titulo}
+              texto={r.texto}
+              indice={i}
+              largo={i === 0 || i === 5}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

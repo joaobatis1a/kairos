@@ -2,8 +2,7 @@
 
 import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { Mail, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowUpRight } from "lucide-react"
 import { LINK_CONTATO } from "@/components/landing/contato"
 import { Magnetico } from "@/components/landing/magnetico"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
@@ -12,50 +11,54 @@ import { KairosMark } from "@/components/kairos-mark"
 export function FinalCtaSection() {
   const ref = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const fotoY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"])
+  const marcaY = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+  const marcaRot = useTransform(scrollYProgress, [0, 1], [-8, 8])
 
   return (
-    <section id="contato" ref={ref} className="relative scroll-mt-20 overflow-hidden px-6 py-28 md:py-36">
-      <div className="absolute inset-0">
-        <motion.div style={{ y: fotoY }} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary/[0.06]">
-          <KairosMark className="h-[44rem] w-[44rem] max-w-none" />
-        </motion.div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,color-mix(in_oklch,var(--primary)_10%,transparent),transparent)]" />
-        <div className="kairos-grain absolute inset-0" />
-      </div>
+    <section id="contato" ref={ref} className="tema-vinho relative scroll-mt-20 overflow-hidden px-5 py-28 md:px-8 md:py-44">
+      <motion.div
+        aria-hidden
+        style={{ y: marcaY, rotate: marcaRot }}
+        className="pointer-events-none absolute -right-24 top-1/2 -translate-y-1/2 text-foreground/[0.07]"
+      >
+        <KairosMark className="h-[44rem] w-[44rem] max-w-none" />
+      </motion.div>
 
-      <div className="relative mx-auto max-w-xl rounded-3xl border border-primary/20 bg-background/70 px-8 py-14 text-center shadow-[0_40px_80px_-40px_rgba(0,0,0,0.8)] backdrop-blur-sm md:px-14 md:py-16">
+      <div className="relative mx-auto max-w-[92rem]">
         <Reveal>
-          <KairosMark className="mx-auto h-8 w-8 text-primary/70" />
+          <Eyebrow>A cadeira está livre</Eyebrow>
         </Reveal>
 
-        <Reveal delay={0.1}>
-          <Eyebrow className="mt-6 inline-block">A cadeira está livre</Eyebrow>
-        </Reveal>
-
-        <h2 className="mt-5 font-serif text-[clamp(1.9rem,4.2vw,3rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-          <TextReveal delay={0.15} lines={["Vamos colocar sua", <em key="2" className="texto-dourado font-accent italic">barbearia no kairos?</em>]} />
+        <h2 className="titulo-gigante mt-6 text-[clamp(3.4rem,11vw,11rem)]">
+          <TextReveal
+            delay={0.12}
+            lines={[
+              "Vamos colocar sua",
+              "barbearia no",
+              <span key="3" className="inline-block bg-foreground px-[0.12em] text-background">
+                kairos?
+              </span>,
+            ]}
+          />
         </h2>
 
-        <Reveal delay={0.32}>
-          <p className="mx-auto mt-6 max-w-sm leading-relaxed text-muted-foreground">
-            Conte da sua barbearia no e-mail. Devolvemos o acesso já configurado.
-          </p>
-        </Reveal>
-
         <Reveal delay={0.4}>
-          <div className="mt-8 flex flex-col items-center gap-4">
+          <div className="mt-12 flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-10">
             <Magnetico forca={0.3}>
-              <Button size="lg" asChild className="h-13 rounded-full px-8 text-base font-bold">
-                <a href={LINK_CONTATO} target="_blank" rel="noopener noreferrer">
-                  <Mail className="h-4 w-4" />
-                  Falar com a gente
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </a>
-              </Button>
+              <a
+                href={LINK_CONTATO}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 rounded-full bg-foreground py-2.5 pl-8 pr-2.5 text-lg font-bold text-background ring-2 ring-foreground transition-colors hover:bg-transparent hover:text-foreground"
+              >
+                Falar com a gente
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-background text-foreground transition-transform duration-300 group-hover:rotate-45">
+                  <ArrowUpRight className="h-5 w-5" />
+                </span>
+              </a>
             </Magnetico>
-            <p className="text-xs text-muted-foreground/70">
-              Sem cadastro automático e sem cobrança nenhuma pra conversar.
+            <p className="max-w-xs text-sm font-medium leading-snug">
+              Conte da sua barbearia no e-mail. Devolvemos o acesso já configurado, sem cobrança pra conversar.
             </p>
           </div>
         </Reveal>

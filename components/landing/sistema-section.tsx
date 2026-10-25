@@ -52,13 +52,13 @@ const BLOCOS = [
 function Texto({ b }: { b: (typeof BLOCOS)[number] }) {
   return (
     <div className="text-sm">
-      <span className="texto-dourado text-xs font-bold tracking-[0.22em] uppercase">{b.quem}</span>
-      <h3 className="mt-4 font-serif text-2xl leading-tight md:text-3xl">{b.titulo}</h3>
+      <span className="inline-block bg-primary px-2.5 py-1 text-xs font-bold tracking-[0.22em] text-primary-foreground uppercase">{b.quem}</span>
+      <h3 className="mt-5 text-3xl font-extrabold leading-[1.05] tracking-tight md:text-4xl">{b.titulo}</h3>
       <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
       <ul className="mt-7 flex flex-col gap-3">
         {b.itens.map((item) => (
           <li key={item} className="flex items-start gap-3 text-muted-foreground">
-            <span className="mt-[0.6em] h-px w-4 shrink-0 bg-primary/60" aria-hidden />
+            <span className="mt-[0.55em] h-0.5 w-4 shrink-0 bg-primary" aria-hidden />
             {item}
           </li>
         ))}
@@ -145,14 +145,14 @@ function PalcoSticky() {
 
 export function SistemaSection() {
   return (
-    <section id="sistema" className="relative scroll-mt-20 border-y border-border/60 bg-card/20 py-28 md:py-36">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="sistema" className="tema-escuro relative scroll-mt-20 px-5 py-28 md:px-8 md:py-40">
+      <div className="mx-auto max-w-[92rem]">
         <div className="max-w-2xl">
           <Reveal>
             <Eyebrow>Três pontos de vista</Eyebrow>
           </Reveal>
-          <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Uma tela pra cada um,", <em key="2" className="texto-dourado font-accent italic">sem se atropelar.</em>]} />
+          <h2 className="titulo-gigante mt-6 text-[clamp(3rem,8vw,8rem)]">
+            <TextReveal delay={0.1} lines={["Uma tela pra cada um,", <em key="2" className="font-accent text-[0.92em] font-semibold normal-case italic tracking-[-0.02em] text-primary">sem se atropelar.</em>]} />
           </h2>
           <Reveal delay={0.25}>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
@@ -174,13 +174,13 @@ export function SistemaSection() {
               >
                 <Reveal className={cn(invertido && "md:order-2")} y={36}>
                   <div className="text-sm">
-                    <span className="texto-dourado text-xs font-bold tracking-[0.22em] uppercase">{b.quem}</span>
-                    <h3 className="mt-4 font-serif text-2xl leading-tight md:text-3xl">{b.titulo}</h3>
+                    <span className="inline-block bg-primary px-2.5 py-1 text-xs font-bold tracking-[0.22em] text-primary-foreground uppercase">{b.quem}</span>
+                    <h3 className="mt-5 text-3xl font-extrabold leading-[1.05] tracking-tight md:text-4xl">{b.titulo}</h3>
                     <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
                     <ul className="mt-7 flex flex-col gap-3">
                       {b.itens.map((item) => (
                         <li key={item} className="revelar flex items-start gap-3 text-muted-foreground">
-                          <span className="mt-[0.6em] h-px w-4 shrink-0 bg-primary/60" aria-hidden />
+                          <span className="mt-[0.55em] h-0.5 w-4 shrink-0 bg-primary" aria-hidden />
                           {item}
                         </li>
                       ))}

@@ -11,7 +11,7 @@ const PASSOS = [
   { n: "04", titulo: "A agenda abre", texto: "Sua equipe entra, o link vai pro ar e os clientes começam a marcar." },
 ]
 
-/** Marcador que acende quando a linha de progresso chega nele. */
+/** Passo: o número gigante preenche de cobre quando a linha de progresso chega nele. */
 function Passo({
   passo,
   indice,
@@ -22,24 +22,24 @@ function Passo({
   progresso: MotionValue<number>
 }) {
   const ponto = indice / (PASSOS.length - 1)
-  const escala = useTransform(progresso, [ponto - 0.06, ponto + 0.02], [0, 1])
-  const brilho = useTransform(progresso, [ponto - 0.06, ponto + 0.02], [0, 1])
+  const acende = useTransform(progresso, [ponto - 0.08, ponto + 0.02], [0, 1])
 
   return (
     <Reveal delay={indice * 0.12} className="relative">
-      <div className="flex items-center gap-4 md:block">
-        <span className="relative z-10 flex h-[27px] w-[27px] shrink-0 items-center justify-center rounded-full border border-primary/40 bg-background">
-          {/* halo + anel acendem quando a linha de progresso alcança o passo */}
-          <motion.span style={{ opacity: brilho }} className="absolute -inset-1 rounded-full bg-primary/25 blur-[4px]" />
-          <motion.span
-            style={{ opacity: brilho, scale: escala }}
-            className="absolute inset-0 rounded-full border border-primary"
-          />
-          <span className="relative font-serif text-[11px] text-primary">{indice + 1}</span>
+      <div className="relative">
+        {/* contorno sempre visível; o preenchimento verde sobe por cima */}
+        <span className="titulo-gigante block text-[clamp(5rem,9vw,8.5rem)] text-transparent [-webkit-text-stroke:2px_var(--primary)]">
+          {passo.n}
         </span>
-        <span className="font-serif text-xs tracking-[0.3em] text-primary/40 md:mt-6 md:block">{passo.n}</span>
+        <motion.span
+          aria-hidden
+          style={{ opacity: acende }}
+          className="titulo-gigante absolute inset-0 block text-[clamp(5rem,9vw,8.5rem)] text-primary"
+        >
+          {passo.n}
+        </motion.span>
       </div>
-      <h3 className="mt-4 font-serif text-xl leading-snug md:mt-2">{passo.titulo}</h3>
+      <h3 className="mt-5 text-2xl font-bold leading-snug">{passo.titulo}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{passo.texto}</p>
     </Reveal>
   )
@@ -52,29 +52,35 @@ export function ComoFuncionaSection() {
   const larguraLinha = useTransform(progresso, [0, 1], ["0%", "100%"])
 
   return (
-    <section id="como-funciona" className="relative scroll-mt-20 overflow-hidden py-28 md:py-36">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="max-w-xl">
-          <Reveal>
-            <Eyebrow>Começar</Eyebrow>
-          </Reveal>
-          <h2 className="mt-6 font-serif text-[clamp(2rem,4.6vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.02em]">
-            <TextReveal delay={0.1} lines={["Do primeiro contato", <em key="2" className="texto-dourado font-accent italic">à agenda cheia.</em>]} />
-          </h2>
-          <Reveal delay={0.22}>
-            <p className="mt-6 leading-relaxed text-muted-foreground">
-              Não tem cadastro solto no site: a gente configura a sua barbearia junto com você.
-            </p>
-          </Reveal>
-        </div>
+    <section id="como-funciona" className="tema-escuro relative scroll-mt-20 overflow-hidden px-5 py-28 md:px-8 md:py-40">
+      <div className="mx-auto max-w-[92rem]">
+        <Reveal>
+          <Eyebrow>Começar</Eyebrow>
+        </Reveal>
+        <h2 className="titulo-gigante mt-6 text-[clamp(3rem,8vw,8rem)]">
+          <TextReveal
+            delay={0.1}
+            lines={[
+              "Do primeiro contato",
+              <em key="2" className="font-accent text-[0.92em] font-semibold normal-case italic tracking-[-0.02em] text-primary">
+                à agenda cheia.
+              </em>,
+            ]}
+          />
+        </h2>
+        <Reveal delay={0.22}>
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
+            Não tem cadastro solto no site: a gente configura a sua barbearia junto com você.
+          </p>
+        </Reveal>
 
         <div ref={ref} className="relative mt-20">
           {/* trilho que se preenche conforme a seção entra na tela */}
-          <div className="absolute left-0 right-0 top-[13px] hidden h-px bg-border/70 md:block">
-            <motion.div style={{ width: larguraLinha }} className="h-full bg-primary/80" />
+          <div className="absolute left-0 right-0 top-0 hidden h-0.5 bg-border md:block">
+            <motion.div style={{ width: larguraLinha }} className="h-full bg-primary" />
           </div>
 
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-8">
+          <div className="grid grid-cols-1 gap-14 md:grid-cols-4 md:gap-8 md:pt-10">
             {PASSOS.map((p, i) => (
               <Passo key={p.n} passo={p} indice={i} progresso={progresso} />
             ))}
