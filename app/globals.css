@@ -13,6 +13,7 @@
   --font-serif: var(--font-fredoka), 'Fredoka Fallback', ui-rounded, sans-serif;
   --font-sans: var(--font-nunito), 'Nunito Fallback', ui-rounded, sans-serif;
   /* Só pra ênfase em itálico na landing de vendas — ver comentário em app/layout.tsx */
+  --font-display: var(--font-archivo), 'Arial Narrow', Impact, sans-serif;
   --font-accent: var(--font-bodoni), 'Times New Roman', serif;
   --font-mono: var(--font-geist-mono), 'Geist Mono Fallback';
   --color-sidebar-ring: var(--sidebar-ring);
@@ -664,4 +665,68 @@ html {
   }
   .anim-faixa { animation: faixa 60s linear infinite; }
   .anim-faixa-reversa { animation-direction: reverse; animation-duration: 75s; }
+}
+
+/* ══ Landing: identidade nova ══════════════════════════════════
+   Dois "climas" que se alternam seção a seção (como blocos de cor de
+   ponta a ponta): claro off-white e preto-oliva, com um único acento
+   verde-ácido. Os tokens são sobrescritos só dentro dessas classes, então
+   o painel e o resto do app continuam com o tema deles. */
+.tema-claro,
+.tema-escuro {
+  --primary: #c8f23c;
+  --primary-foreground: #12140d;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+.tema-claro {
+  --background: #efece2;
+  --foreground: #12140d;
+  --card: #f7f5ee;
+  --card-foreground: #12140d;
+  --popover: #f7f5ee;
+  --popover-foreground: #12140d;
+  --muted: #e2dfd2;
+  --muted-foreground: #5a5d4d;
+  --secondary: #e2dfd2;
+  --secondary-foreground: #12140d;
+  --accent: #e2dfd2;
+  --accent-foreground: #12140d;
+  --border: rgb(18 20 13 / 0.18);
+  --input: rgb(18 20 13 / 0.18);
+  --ring: #12140d;
+}
+.tema-escuro {
+  --background: #12140d;
+  --foreground: #edeadd;
+  --card: #1b1e14;
+  --card-foreground: #edeadd;
+  --popover: #1b1e14;
+  --popover-foreground: #edeadd;
+  --muted: #23271a;
+  --muted-foreground: #a3a693;
+  --secondary: #23271a;
+  --secondary-foreground: #edeadd;
+  --accent: #23271a;
+  --accent-foreground: #edeadd;
+  --border: rgb(237 234 221 / 0.14);
+  --input: rgb(237 234 221 / 0.14);
+  --ring: #c8f23c;
+}
+
+/* Título gigante: grotesca condensada pesada, caixa alta, entrelinha curta. */
+.titulo-gigante {
+  font-family: var(--font-display);
+  font-stretch: 62%;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+}
+/* Marca-texto: faixa verde-ácido atrás da palavra, nos blocos claros. */
+.marca-texto {
+  background-image: linear-gradient(transparent 56%, var(--primary) 56% 94%, transparent 94%);
+  padding-inline: 0.08em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
