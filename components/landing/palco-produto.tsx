@@ -39,7 +39,7 @@ export function PalcoProduto() {
   const subida = useTransform(scrollYProgress, [0, 1], [40, 0])
 
   return (
-    <div ref={ref} className="relative mx-auto mt-16 w-full max-w-5xl px-4 [perspective:1600px] md:mt-20">
+    <div ref={ref} className="relative mx-auto mt-20 w-full max-w-5xl [perspective:1600px] md:mt-28">
       <motion.div
         style={{ rotateX: rotacao, scale: escala, y: subida, transformOrigin: "50% 100%" }}
         className="relative"
@@ -47,10 +47,10 @@ export function PalcoProduto() {
         {/* brilho dourado sob o painel */}
         <div
           aria-hidden
-          className="absolute -inset-x-10 -bottom-10 top-1/3 -z-10 rounded-[3rem] bg-primary/15 blur-3xl"
+          className="hidden"
         />
 
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-[0_50px_120px_-40px_rgba(0,0,0,0.95)]">
+        <div className="tema-escuro overflow-hidden rounded-2xl border-2 border-foreground shadow-[14px_14px_0_0_var(--primary)]">
           {/* barra do navegador */}
           <div className="flex items-center gap-1.5 border-b border-border/60 bg-black/20 px-4 py-3">
             <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/25" />
@@ -139,7 +139,7 @@ export function PalcoProduto() {
         </div>
 
         {/* avisos flutuantes */}
-        <div className="anim-flutuar absolute -left-2 top-24 hidden items-center gap-3 rounded-xl border border-primary/30 bg-background/90 px-4 py-3 shadow-2xl backdrop-blur md:flex lg:-left-10">
+        <div className="tema-escuro anim-flutuar absolute -left-2 top-24 hidden items-center gap-3 rounded-xl border-2 border-foreground px-4 py-3 md:flex lg:-left-10">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
             <Bell className="h-4 w-4" />
           </span>
@@ -149,7 +149,7 @@ export function PalcoProduto() {
           </span>
         </div>
         <div
-          className="anim-flutuar absolute -right-2 bottom-20 hidden items-center gap-3 rounded-xl border border-primary/30 bg-background/90 px-4 py-3 shadow-2xl backdrop-blur md:flex lg:-right-10"
+          className="tema-escuro anim-flutuar absolute -right-2 bottom-20 hidden items-center gap-3 rounded-xl border-2 border-foreground px-4 py-3 md:flex lg:-right-10"
           style={{ animationDelay: "-2.5s" }}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
