@@ -19,7 +19,7 @@ const LINKS = [
 
 /** Classe compartilhada por cada "ilha" flutuante (logo, nav, ações) —
  * mesmo tratamento visual, cápsulas separadas em vez de uma barra única. */
-const ILHA = "rounded-full border border-border/50 bg-background/65 backdrop-blur-xl"
+const ILHA = "tema-escuro rounded-full border border-border shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]"
 
 export function LandingHeader() {
   const [ativo, setAtivo] = useState<string | null>(null)
@@ -71,15 +71,15 @@ export function LandingHeader() {
           href="/"
           className={cn(
             ILHA,
-            "flex shrink-0 items-center gap-2 px-4 py-2.5 font-serif text-base tracking-[0.16em] transition-colors hover:bg-background/85 sm:px-5",
+            "flex shrink-0 items-center gap-2 px-4 py-2.5 font-display text-lg font-extrabold uppercase tracking-[0.06em] transition-colors hover:bg-muted sm:px-5",
           )}
         >
-          <KairosMark className="h-4.5 w-4.5 shrink-0 text-primary" />
+          <KairosMark className="h-5 w-5 shrink-0 text-primary" />
           kairos
         </Link>
 
         {/* ilha 2: navegação — só desktop */}
-        <nav className={cn(ILHA, "hidden items-center gap-1 px-2 py-2 md:flex")}>
+        <nav className={cn(ILHA, "isolate hidden items-center gap-1 px-2 py-2 md:flex")}>
           {LINKS.map((l) => {
             const estaAtivo = ativo === l.href
             return (
@@ -88,7 +88,7 @@ export function LandingHeader() {
                 href={l.href}
                 className={cn(
                   "group relative rounded-full px-3.5 py-1.5 text-sm transition-colors duration-300",
-                  estaAtivo ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  estaAtivo ? "font-bold text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {/* pastilha que desliza entre os itens ao trocar de seção */}
@@ -96,7 +96,7 @@ export function LandingHeader() {
                   <motion.span
                     layoutId="nav-ativo"
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    className="absolute inset-0 -z-10 rounded-full bg-primary/12 ring-1 ring-primary/25"
+                    className="absolute inset-0 -z-10 rounded-full bg-primary"
                   />
                 )}
                 {/* traço que cresce a partir do centro no hover dos itens ainda não ativos */}
@@ -124,7 +124,7 @@ export function LandingHeader() {
           </Button>
 
           <Magnetico forca={0.2}>
-            <Button size="sm" asChild className="h-9 rounded-full font-bold">
+            <Button size="sm" asChild className="h-9 rounded-full bg-primary font-bold text-primary-foreground hover:bg-primary/85">
               <a href={LINK_CONTATO} target="_blank" rel="noopener noreferrer">
                 <Mail className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-rotate-12" />
                 Falar com a gente
@@ -155,7 +155,7 @@ export function LandingHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-background/97 pt-24 backdrop-blur-xl md:hidden"
+            className="tema-escuro fixed inset-0 z-40 flex flex-col pt-24 md:hidden"
           >
             <nav className="flex flex-1 flex-col justify-center gap-2 px-8">
               {LINKS.map((l, i) => (
@@ -169,8 +169,8 @@ export function LandingHeader() {
                   transition={{ delay: 0.06 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="group flex items-baseline gap-4 border-b border-border/50 py-5 active:text-primary"
                 >
-                  <KairosMark className="h-4 w-4 shrink-0 self-center text-primary/40" />
-                  <span className="texto-dourado-interativo font-serif text-3xl">
+                  <KairosMark className="h-5 w-5 shrink-0 self-center text-primary" />
+                  <span className="titulo-gigante text-5xl transition-colors group-active:text-primary">
                     {l.label}
                   </span>
                 </motion.a>
