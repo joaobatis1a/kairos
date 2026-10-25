@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import { cadastrarCliente } from "@/app/actions/conta"
 import { toast } from "sonner"
 import { Loader2, ArrowLeft } from "lucide-react"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 import { cn } from "@/lib/utils"
 
 export default function CadastroPage() {
@@ -83,7 +83,7 @@ export default function CadastroPage() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground">
-            <ScissorMark className="h-6 w-6 text-primary" />
+            <KairosMark className="h-6 w-6 text-primary" />
             <span className="font-serif text-xl font-semibold">kairos</span>
           </Link>
           <Link href="/" className="text-muted-foreground hover:text-foreground">

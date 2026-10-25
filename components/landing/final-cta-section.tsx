@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { LINK_CONTATO } from "@/components/landing/contato"
 import { Magnetico } from "@/components/landing/magnetico"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 
 export function FinalCtaSection() {
   const ref = useRef<HTMLElement>(null)
@@ -32,7 +32,7 @@ export function FinalCtaSection() {
 
       <div className="relative mx-auto max-w-xl rounded-3xl border border-primary/20 bg-background/70 px-8 py-14 text-center shadow-[0_40px_80px_-40px_rgba(0,0,0,0.8)] backdrop-blur-sm md:px-14 md:py-16">
         <Reveal>
-          <ScissorMark className="mx-auto h-8 w-8 text-primary/70" />
+          <KairosMark className="mx-auto h-8 w-8 text-primary/70" />
         </Reveal>
 
         <Reveal delay={0.1}>

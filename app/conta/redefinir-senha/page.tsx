@@ -10,7 +10,7 @@ import { PasswordRequisitos, senhaValida } from "@/components/password-requisito
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { redefinirSenha, loginPosRedefinicao } from "@/app/actions/conta"
 import { Loader2 } from "lucide-react"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 
 export default function RedefinirSenhaPage() {
   const router = useRouter()
@@ -54,7 +54,7 @@ export default function RedefinirSenhaPage() {
     <div className="flex min-h-svh w-full items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-6 flex items-center justify-center gap-2 text-foreground">
-          <ScissorMark className="h-6 w-6 text-primary" />
+          <KairosMark className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl font-semibold">kairos</span>
         </Link>
         <Card>

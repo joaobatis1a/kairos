@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 
 const NAVEGACAO = [
   { href: "#sistema", label: "O sistema" },
@@ -11,9 +11,9 @@ const NAVEGACAO = [
 export function LandingFooter() {
   return (
     <footer className="relative overflow-hidden border-t border-border/60 bg-background">
-      {/* tesoura gigante sangrando pelo canto — a marca como assinatura do
+      {/* K gigante sangrando pelo canto — a marca como assinatura do
           rodapé, no lugar do nome repetido em texto */}
-      <ScissorMark
+      <KairosMark
         className="pointer-events-none absolute -right-16 -top-24 h-[380px] w-[380px] rotate-[18deg] text-primary/[0.06] md:h-[460px] md:w-[460px]"
       />
 
@@ -22,7 +22,7 @@ export function LandingFooter() {
           {/* Marca */}
           <div className="col-span-2 md:col-span-2">
             <p className="flex items-center gap-2.5 font-serif text-2xl tracking-[0.2em]">
-              <ScissorMark className="h-6 w-6 shrink-0 text-primary" />
+              <KairosMark className="h-6 w-6 shrink-0 text-primary" />
               kairos
             </p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
