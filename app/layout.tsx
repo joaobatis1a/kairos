@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist_Mono, Nunito, Fredoka, Bodoni_Moda } from 'next/font/google'
+import { Geist_Mono, Nunito, Fredoka, Bodoni_Moda, Archivo } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
@@ -12,6 +12,15 @@ const nunito = Nunito({
   variable: '--font-nunito',
   subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600', '700', '800'],
+})
+/**
+ * Display da landing: Archivo com o eixo de largura (wdth) aberto, pra
+ * usar a versão condensada e pesada em títulos gigantes em caixa alta.
+ */
+const archivo = Archivo({
+  variable: '--font-archivo',
+  subsets: ['latin', 'latin-ext'],
+  axes: ['wdth'],
 })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 const fredoka = Fredoka({
@@ -44,7 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable} ${bodoniModa.variable}`}
+      className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable} ${bodoniModa.variable} ${archivo.variable}`}
     >
       <body className="font-sans antialiased bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="kairos-theme">
