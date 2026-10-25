@@ -635,3 +635,10 @@ html {
   .intro-cortina__marca { animation: intro-marca 1.7s ease-out both; }
   .intro-cortina__corte { animation: intro-corte 1.7s ease-in-out both; }
 }
+
+/* Entradas que esperam a cortina de abertura: o fill `backwards` só segura
+   o estado inicial durante o atraso (no máximo ~2s); depois disso o estado
+   base, visível, é o que vale. */
+@media (prefers-reduced-motion: no-preference) {
+  .revelar-tarde { animation-fill-mode: backwards; }
+}
