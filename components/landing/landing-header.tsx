@@ -7,7 +7,7 @@ import { Mail, ArrowUpRight, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Magnetico } from "@/components/landing/magnetico"
 import { LINK_CONTATO } from "@/components/landing/contato"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
@@ -74,7 +74,7 @@ export function LandingHeader() {
             "flex shrink-0 items-center gap-2 px-4 py-2.5 font-serif text-base tracking-[0.16em] transition-colors hover:bg-background/85 sm:px-5",
           )}
         >
-          <ScissorMark className="h-4.5 w-4.5 shrink-0 text-primary" />
+          <KairosMark className="h-4.5 w-4.5 shrink-0 text-primary" />
           kairos
         </Link>
 
@@ -169,7 +169,7 @@ export function LandingHeader() {
                   transition={{ delay: 0.06 + i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="group flex items-baseline gap-4 border-b border-border/50 py-5 active:text-primary"
                 >
-                  <ScissorMark className="h-4 w-4 shrink-0 self-center text-primary/40" />
+                  <KairosMark className="h-4 w-4 shrink-0 self-center text-primary/40" />
                   <span className="texto-dourado-interativo font-serif text-3xl">
                     {l.label}
                   </span>

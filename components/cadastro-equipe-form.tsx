@@ -13,7 +13,7 @@ import { PasswordInput } from "@/components/password-input"
 import { PasswordRequisitos, senhaValida } from "@/components/password-requisitos"
 import { GoogleButton } from "@/components/google-button"
 import { Loader2, KeyRound, ArrowLeft } from "lucide-react"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -73,7 +73,7 @@ export function CadastroEquipeForm({ emailAtual }: { emailAtual: string | null }
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ScissorMark className="h-6 w-6 text-primary" />
+            <KairosMark className="h-6 w-6 text-primary" />
             <span className="font-serif text-xl font-semibold">kairos</span>
           </div>
           <button

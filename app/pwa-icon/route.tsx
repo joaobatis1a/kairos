@@ -14,10 +14,10 @@ export async function GET() {
         }}
       >
         <svg width="336" height="336" viewBox="0 0 64 64" fill="none">
-          <g stroke="#d4b896" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="19" cy="44" r="7" />
-            <circle cx="19" cy="20" r="7" />
-            <path d="M25 40 48 15M25 24 48 49" />
+          <g fill="#e0a526">
+            <rect x="13" y="9" width="9" height="46" rx="2.5" />
+            <path d="M27 31.5 47.2 8.6a2.1 2.1 0 0 1 3.5 2.3L34 36.5z" />
+            <path d="M27 40.5 35 36 52.6 53.4a2.1 2.1 0 0 1-1.5 3.6h-6.4z" />
           </g>
         </svg>
       </div>

@@ -4,7 +4,7 @@ import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Bell, CalendarDays, Scissors, Star, TrendingUp, Users } from "lucide-react"
 import { Contador } from "@/components/landing/contador"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 
 const AGENDA = [
   { hora: "09:00", nome: "Rafael M.", servico: "Corte + barba", status: "Finalizado" },
@@ -65,9 +65,9 @@ export function PalcoProduto() {
             {/* menu lateral */}
             <aside className="flex flex-col gap-1 border-r border-border/50 bg-background/40 p-2.5 md:p-4">
               <div className="mb-3 hidden items-center gap-2 px-2 font-serif text-sm tracking-[0.18em] md:flex">
-                <ScissorMark className="h-4 w-4 text-primary" /> kairos
+                <KairosMark className="h-4 w-4 text-primary" /> kairos
               </div>
-              <ScissorMark className="mx-auto mb-3 h-5 w-5 text-primary md:hidden" />
+              <KairosMark className="mx-auto mb-3 h-5 w-5 text-primary md:hidden" />
               {[
                 { icon: CalendarDays, nome: "Agenda", ativo: true },
                 { icon: Users, nome: "Equipe" },

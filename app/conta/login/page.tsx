@@ -12,7 +12,7 @@ import { GoogleButton } from "@/components/google-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Loader2, ArrowLeft } from "lucide-react"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 import { DEMO_MODE, DEMO_CLIENTE } from "@/lib/demo"
 
 export default function ContaLoginPage() {
@@ -61,7 +61,7 @@ function ContaLoginForm() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-foreground">
-            <ScissorMark className="h-6 w-6 text-primary" />
+            <KairosMark className="h-6 w-6 text-primary" />
             <span className="font-serif text-xl font-semibold">kairos</span>
           </Link>
           <Link href="/" className="text-muted-foreground hover:text-foreground">

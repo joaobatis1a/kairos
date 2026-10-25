@@ -10,7 +10,7 @@ import type { Profile } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { SinoNotificacoes } from "@/components/painel/sino-notificacoes"
 import { ThemeTogglePainel } from "@/components/painel/theme-toggle-painel"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 import {
   Sheet,
   SheetContent,
@@ -206,7 +206,7 @@ export function PainelNav({ perfil, nomeNegocio, slugEmpresa }: { perfil: Profil
       {/* Sidebar fixa no desktop */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-border/60 bg-card/40 md:flex">
         <div className="flex items-center gap-2 px-5 py-5">
-          <ScissorMark className="h-5 w-5 shrink-0 text-primary" />
+          <KairosMark className="h-5 w-5 shrink-0 text-primary" />
           <span className="flex-1 truncate font-serif text-lg">{nome}</span>
         </div>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
@@ -247,7 +247,7 @@ function MenuMobile({
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background px-4 py-3 md:hidden">
       <div className="flex items-center gap-2">
-        <ScissorMark className="h-5 w-5 text-primary" />
+        <KairosMark className="h-5 w-5 text-primary" />
         <span className="font-serif font-semibold">{nome}</span>
       </div>
 

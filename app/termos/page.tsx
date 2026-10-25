@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ScissorMark } from "@/components/scissor-mark"
+import { KairosMark } from "@/components/kairos-mark"
 
 export const metadata: Metadata = {
   title: "Termos de Uso",
@@ -11,7 +11,7 @@ export default function TermosPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2 text-foreground">
-        <ScissorMark className="h-5 w-5 text-primary" />
+        <KairosMark className="h-5 w-5 text-primary" />
         <span className="font-serif text-lg font-semibold">kairos</span>
       </Link>
 
