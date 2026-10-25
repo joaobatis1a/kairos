@@ -90,13 +90,13 @@ export function PalcoProduto() {
             <div className="min-w-0 p-4 md:p-6">
               <div className="grid grid-cols-3 gap-2.5 md:gap-4">
                 {[
-                  { rotulo: "Hoje", valor: 12, sufixo: " cortes" },
+                  { rotulo: "Cortes", valor: 12 },
                   { rotulo: "Faturamento", valor: 1840, prefixo: "R$ " },
                   { rotulo: "Avaliação", valor: 5, sufixo: ",0", estrela: true },
                 ].map((k) => (
-                  <div key={k.rotulo} className="rounded-xl border border-border/60 bg-background/40 p-3 md:p-4">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{k.rotulo}</p>
-                    <p className="mt-1.5 flex items-center gap-1 font-serif text-lg md:text-2xl">
+                  <div key={k.rotulo} className="min-w-0 rounded-xl border border-border/60 bg-background/40 p-2.5 md:p-4">
+                    <p className="truncate text-[9px] uppercase tracking-[0.14em] text-muted-foreground md:text-[10px] md:tracking-[0.2em]">{k.rotulo}</p>
+                    <p className="mt-1.5 flex items-center gap-1 whitespace-nowrap font-serif text-base md:text-2xl">
                       <Contador valor={k.valor} prefixo={k.prefixo} sufixo={k.sufixo} />
                       {k.estrela && <Star className="h-3.5 w-3.5 fill-primary text-primary" />}
                     </p>
