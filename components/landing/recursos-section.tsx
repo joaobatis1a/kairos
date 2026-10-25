@@ -46,11 +46,13 @@ function CardRecurso({
   titulo,
   texto,
   indice,
+  largo,
 }: {
   icon: LucideIcon
   titulo: string
   texto: string
   indice: number
+  largo?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const semCursor = useSemCursor()
@@ -58,21 +60,35 @@ function CardRecurso({
   const ativo = semCursor && noCentro
 
   return (
-    <Reveal delay={0.06 * indice}>
+    <Reveal delay={0.06 * indice} className={largo ? "lg:col-span-2" : undefined}>
       <div
         ref={ref}
         data-ativo={ativo}
+        onPointerMove={(e) => {
+          // o brilho segue o cursor via variáveis CSS: sem re-render por movimento
+          const r = e.currentTarget.getBoundingClientRect()
+          e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`)
+          e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`)
+        }}
         className={cn(
-          "group h-full rounded-2xl border border-border/70 bg-primary/[0.05] p-7 transition-all duration-500",
+          "group relative h-full overflow-hidden rounded-2xl border border-border/70 bg-primary/[0.05] p-7 transition-all duration-500",
           "hover:border-primary/40 hover:bg-primary/[0.09] data-[ativo=true]:border-primary/40 data-[ativo=true]:bg-primary/[0.09]",
         )}
       >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            background:
+              "radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklch, var(--primary) 20%, transparent), transparent 70%)",
+          }}
+        />
         <Icon
-          className="h-8 w-8 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-data-[ativo=true]:scale-110 group-data-[ativo=true]:-rotate-6"
+          className="relative h-8 w-8 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 group-data-[ativo=true]:scale-110 group-data-[ativo=true]:-rotate-6"
           strokeWidth={1.5}
         />
-        <h3 className="mt-5 font-serif text-xl leading-snug">{titulo}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{texto}</p>
+        <h3 className="relative mt-5 font-serif text-xl leading-snug">{titulo}</h3>
+        <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{texto}</p>
       </div>
     </Reveal>
   )
@@ -80,7 +96,7 @@ function CardRecurso({
 
 export function RecursosSection() {
   return (
-    <section id="recursos" className="mx-auto max-w-5xl scroll-mt-20 px-6 py-28 md:py-36">
+    <section id="recursos" className="mx-auto max-w-6xl scroll-mt-20 px-6 py-28 md:py-36">
       <div className="max-w-xl">
         <Reveal>
           <Eyebrow>Também vem junto</Eyebrow>
@@ -92,9 +108,9 @@ export function RecursosSection() {
         </Reveal>
       </div>
 
-      <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {RECURSOS.map((r, i) => (
-          <CardRecurso key={r.titulo} icon={r.icon} titulo={r.titulo} texto={r.texto} indice={i} />
+          <CardRecurso key={r.titulo} icon={r.icon} titulo={r.titulo} texto={r.texto} indice={i} largo={i === 0 || i === 5} />
         ))}
       </div>
     </section>
