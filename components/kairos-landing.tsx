@@ -1,3 +1,5 @@
+import { IntroCortina } from "@/components/landing/intro-cortina"
+import { ProgressoRolagem } from "@/components/landing/progresso-rolagem"
 import { LandingBackground } from "@/components/landing/landing-background"
 import { LandingHeader } from "@/components/landing/landing-header"
 import { HeroSection } from "@/components/landing/hero-section"
@@ -12,6 +14,8 @@ import { SectionDivider } from "@/components/landing/section-divider"
 export function KairosLanding() {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
+      <IntroCortina />
+      <ProgressoRolagem />
       <LandingBackground />
       <LandingHeader />
       <main id="conteudo" tabIndex={-1}>
