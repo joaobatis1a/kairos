@@ -3,6 +3,7 @@
 import { useRef } from "react"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useSemCursor } from "@/components/landing/hooks"
+import { KairosMark } from "@/components/kairos-mark"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
 
 const TROCAS = [
@@ -53,16 +54,35 @@ export function ManifestoSection() {
           transition={{ duration: 1.25, ease: [0.16, 1, 0.3, 1] }}
           className="md:col-span-5"
         >
-          <div className="relative aspect-[4/5] overflow-hidden rounded-sm">
-            <motion.img
-              style={{ y: fotoY }}
-              src="/images/barbeiro-trabalho.png"
-              alt="Barbeiro fazendo a barba de um cliente com navalha"
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-[116%] w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+          <div className="relative flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-sm border border-primary/20 bg-card/60 p-7 md:p-9">
+            {/* marca gigante sangrando pelo canto, andando devagar com o scroll */}
+            <motion.div style={{ y: fotoY }} className="pointer-events-none absolute -right-10 -top-6 text-primary/[0.09]">
+              <KairosMark className="h-[22rem] w-[22rem]" />
+            </motion.div>
+
+            <p className="relative text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
+              Verbete · grego antigo
+            </p>
+
+            <div className="relative">
+              <p className="texto-dourado font-accent text-6xl italic leading-none md:text-7xl">καιρός</p>
+              <p className="mt-3 font-serif text-sm tracking-[0.2em] text-muted-foreground">kairós, substantivo</p>
+              <p className="mt-6 max-w-[16rem] font-serif text-xl leading-snug">
+                O momento certo. A oportunidade que passa uma vez só.
+              </p>
+            </div>
+
+            {/* régua do dia: um ponto percorre as horas, marcando o instante */}
+            <div className="relative">
+              <div className="relative h-px bg-border">
+                <span className="anim-regua absolute -top-[3px] h-[7px] w-[7px] rounded-full bg-primary shadow-[0_0_14px_var(--primary)]" />
+              </div>
+              <div className="mt-3 flex justify-between text-[10px] tabular-nums text-muted-foreground/70">
+                {["09h", "11h", "13h", "15h", "17h", "19h"].map((h) => (
+                  <span key={h}>{h}</span>
+                ))}
+              </div>
+            </div>
             <div className="kairos-grain absolute inset-0" />
           </div>
         </motion.div>
