@@ -58,11 +58,11 @@ export function TextReveal({
   )
 }
 
-/** Rótulo pequeno acima dos títulos: quadradinho cobre + caixa alta. */
+/** Rótulo pequeno acima dos títulos: fio dourado + caixa alta espaçada. */
 export function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.24em] ${className ?? ""}`}>
-      <span aria-hidden className="h-2.5 w-2.5 border border-foreground bg-primary" />
+    <span className={`inline-flex items-center gap-3 text-xs font-medium uppercase tracking-[0.28em] text-primary ${className ?? ""}`}>
+      <span aria-hidden className="h-px w-8 bg-primary" />
       {children}
     </span>
   )

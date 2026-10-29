@@ -14,7 +14,7 @@ export function LandingFooter() {
       <div className="relative mx-auto max-w-[92rem]">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4 md:gap-8">
           <div className="col-span-2">
-            <p className="flex items-center gap-2.5 text-2xl font-extrabold uppercase tracking-[0.06em]">
+            <p className="flex items-center gap-2.5 text-2xl font-light tracking-[0.04em]">
               <KairosMark className="h-7 w-7 shrink-0 text-primary" />
               kairos
             </p>
@@ -22,13 +22,13 @@ export function LandingFooter() {
               Sistema de agendamento para barbearias. Seus clientes marcam sozinhos, sua equipe
               trabalha com a agenda em dia.
             </p>
-            <p className="mt-5 font-accent text-xl font-semibold italic text-primary">
+            <p className="mt-5 font-accent text-xl font-medium italic text-primary">
               Bom corte começa com boa agenda.
             </p>
           </div>
 
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">Navegar</p>
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary">Navegar</p>
             <ul className="mt-5 flex flex-col gap-3">
               {NAVEGACAO.map((n) => (
                 <li key={n.href}>
@@ -41,7 +41,7 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">Acesso</p>
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary">Acesso</p>
             <ul className="mt-5 flex flex-col gap-3">
               <li>
                 <Link href="/auth/login" className="text-sm text-muted-foreground transition-colors hover:text-primary">
@@ -55,7 +55,7 @@ export function LandingFooter() {
         {/* nome gigante sangrando pela base da página */}
         <p
           aria-hidden
-          className="titulo-gigante mt-14 select-none text-center text-[clamp(8rem,31vw,34rem)] leading-[0.74] tracking-[-0.01em] text-foreground/[0.07]"
+          className="titulo-fino mt-14 select-none text-center text-[clamp(8rem,31vw,34rem)] leading-[0.8] tracking-[-0.05em] text-foreground/[0.06]"
         >
           kairos
         </p>

@@ -10,7 +10,17 @@ type Particula = { x: number; y: number; r: number; vy: number; vx: number; a: n
  * sem imagem. Segue o cursor com atraso (a luz "acompanha"), pausa fora da
  * tela e, com movimento reduzido, desenha um único quadro parado.
  */
-export function FundoOuro() {
+export function FundoOuro({
+  origem = "topo",
+  forca = 1,
+  poeira = 1,
+}: {
+  /** De onde vem a luz: do alto (hero) ou de baixo (fechamento). */
+  origem?: "topo" | "base"
+  forca?: number
+  /** Multiplicador da quantidade de partículas. */
+  poeira?: number
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -45,7 +55,7 @@ export function FundoOuro() {
       canvas.width = Math.round(largura * dpr)
       canvas.height = Math.round(altura * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const total = Math.round(Math.min(90, (largura * altura) / 14000))
+      const total = Math.round(Math.min(90, (largura * altura) / 14000) * poeira)
       particulas = Array.from({ length: total }, criar)
     }
 
@@ -56,14 +66,15 @@ export function FundoOuro() {
       luzX += (alvoX - luzX) * 0.04
       const cx = largura * luzX
       const respira = reduzido ? 1 : 0.92 + Math.sin(t / 2600) * 0.08
-      const grande = ctx.createRadialGradient(cx, -altura * 0.1, 0, cx, -altura * 0.1, altura * 1.15)
-      grande.addColorStop(0, `rgba(201,162,75,${0.34 * respira})`)
-      grande.addColorStop(0.45, `rgba(201,162,75,${0.1 * respira})`)
+      const oy = origem === "topo" ? -altura * 0.1 : altura * 1.1
+      const grande = ctx.createRadialGradient(cx, oy, 0, cx, oy, altura * 1.15)
+      grande.addColorStop(0, `rgba(201,162,75,${0.34 * forca * respira})`)
+      grande.addColorStop(0.45, `rgba(201,162,75,${0.1 * forca * respira})`)
       grande.addColorStop(1, "rgba(201,162,75,0)")
       ctx.fillStyle = grande
       ctx.fillRect(0, 0, largura, altura)
 
-      const brasa = ctx.createRadialGradient(largura * 0.12, altura * 0.95, 0, largura * 0.12, altura * 0.95, altura * 0.6)
+      const brasa = ctx.createRadialGradient(largura * 0.12, altura * (origem === "topo" ? 0.95 : 0.05), 0, largura * 0.12, altura * (origem === "topo" ? 0.95 : 0.05), altura * 0.6)
       brasa.addColorStop(0, `rgba(176,120,48,${0.16 * respira})`)
       brasa.addColorStop(1, "rgba(176,120,48,0)")
       ctx.fillStyle = brasa
@@ -121,7 +132,7 @@ export function FundoOuro() {
       redim.disconnect()
       window.removeEventListener("pointermove", aoMover)
     }
-  }, [])
+  }, [origem, forca, poeira])
 
   return <canvas ref={canvasRef} aria-hidden className="absolute inset-0 h-full w-full" />
 }

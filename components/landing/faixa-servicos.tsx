@@ -1,48 +1,34 @@
-import { KairosMark } from "@/components/kairos-mark"
-
 const SERVICOS = ["Corte", "Barba", "Degradê", "Sobrancelha", "Pigmentação", "Pézinho", "Hidratação", "Navalhado"]
 
 /**
- * Faixa que corre sem parar logo abaixo do hero: os serviços de uma
- * barbearia em letra gigante, separados pela marca. Duas linhas em sentidos
- * opostos (uma cheia, uma só contorno). Animação em CSS (compositor),
- * parada pra quem pede menos movimento.
+ * Faixa que corre devagar logo abaixo do hero: os serviços de uma barbearia
+ * em letra fina, separados por um ponto dourado. Animação em CSS
+ * (compositor), parada pra quem pede menos movimento.
  */
-function Linha({ reverso, contorno }: { reverso?: boolean; contorno?: boolean }) {
+export function FaixaServicos() {
   const itens = (
     <span className="flex shrink-0 items-center">
       {SERVICOS.map((s) => (
         <span key={s} className="flex items-center">
-          <span
-            className={
-              contorno
-                ? "titulo-gigante px-6 text-[clamp(4rem,9vw,8rem)] text-transparent [-webkit-text-stroke:2px_var(--primary)]"
-                : "titulo-gigante px-6 text-[clamp(4rem,9vw,8rem)]"
-            }
-          >
-            {s}
-          </span>
-          <KairosMark className="h-[clamp(2rem,4vw,3.5rem)] w-[clamp(2rem,4vw,3.5rem)] text-primary" />
+          <span className="titulo-fino px-8 text-[clamp(2.4rem,5vw,4.5rem)] text-foreground/70">{s}</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
         </span>
       ))}
     </span>
   )
 
   return (
-    <div className="overflow-hidden whitespace-nowrap">
-      <div className={`anim-faixa ${reverso ? "anim-faixa-reversa" : ""} flex w-max will-change-transform`}>
+    <div
+      aria-hidden
+      className="tema-escuro relative select-none overflow-hidden whitespace-nowrap border-y border-foreground/10 py-8 md:py-12"
+    >
+      <div className="anim-faixa flex w-max will-change-transform">
         {itens}
         {itens}
       </div>
-    </div>
-  )
-}
-
-export function FaixaServicos() {
-  return (
-    <div aria-hidden className="tema-escuro relative flex select-none flex-col gap-2 py-8 md:gap-3 md:py-12">
-      <Linha />
-      <Linha reverso contorno />
+      {/* bordas que apagam a faixa */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent md:w-48" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent md:w-48" />
     </div>
   )
 }

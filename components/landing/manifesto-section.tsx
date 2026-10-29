@@ -1,10 +1,18 @@
 "use client"
 
 import { useRef } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { KairosMark } from "@/components/kairos-mark"
-import { useSemCursor } from "@/components/landing/hooks"
-import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion"
+import { Reveal, Eyebrow } from "@/components/landing/reveal"
+
+/** Palavras da frase; `ouro` marca as que viram itálico dourado. */
+const PALAVRAS: { t: string; ouro?: boolean }[] = [
+  { t: "Seu" },
+  { t: "tempo" },
+  { t: "volta" },
+  { t: "para" },
+  { t: "a" },
+  { t: "cadeira.", ouro: true },
+]
 
 const TROCAS = [
   { antes: "Responder WhatsApp entre um corte e outro", depois: "O cliente agenda sozinho, a qualquer hora" },
@@ -12,110 +20,116 @@ const TROCAS = [
   { antes: "Fechar o mês no chute", depois: "Faturamento e comissão de cada barbeiro, sem conta" },
 ]
 
-/** Linha da lista: preenche de cobre no hover e, no celular, ao cruzar o centro. */
-function LinhaTroca({ antes, depois, indice }: { antes: string; depois: string; indice: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const semCursor = useSemCursor()
-  const noCentro = useInView(ref, { margin: "-45% 0px -45% 0px" })
-  const ativo = semCursor && noCentro
+const arred = (n: number) => Math.round(n * 100) / 100
+
+/** Mostrador: anéis finos, 60 marcas e um ponteiro que gira devagar. */
+function Mostrador() {
+  const marcas = Array.from({ length: 60 }, (_, i) => {
+    const ang = (i / 60) * Math.PI * 2
+    const longa = i % 5 === 0
+    const r1 = 392
+    const r2 = longa ? 368 : 380
+    return {
+      i,
+      longa,
+      x1: arred(400 + Math.sin(ang) * r1),
+      y1: arred(400 - Math.cos(ang) * r1),
+      x2: arred(400 + Math.sin(ang) * r2),
+      y2: arred(400 - Math.cos(ang) * r2),
+    }
+  })
 
   return (
-    <Reveal delay={0.12 + indice * 0.12}>
-      <div
-        ref={ref}
-        data-ativo={ativo}
-        className="group relative -mx-4 border-t border-foreground/25 px-4 py-6 transition-colors duration-300 hover:bg-primary data-[ativo=true]:bg-primary md:py-7"
-      >
-        <p className="text-sm text-muted-foreground line-through decoration-foreground/40 group-hover:text-primary-foreground/70 group-data-[ativo=true]:text-primary-foreground/70">
-          {antes}
-        </p>
-        <p className="mt-2 flex items-start gap-3 text-xl font-bold leading-snug md:text-2xl">
-          <span className="mt-[0.2em] text-2xl leading-none transition-transform duration-300 group-hover:translate-x-1.5 group-data-[ativo=true]:translate-x-1.5">
-            →
-          </span>
-          {depois}
-        </p>
-      </div>
-    </Reveal>
+    <svg
+      viewBox="0 0 800 800"
+      aria-hidden
+      className="pointer-events-none absolute left-1/2 top-1/2 h-[min(150vw,120vh)] w-[min(150vw,120vh)] max-w-none -translate-x-1/2 -translate-y-1/2 text-primary opacity-[0.22]"
+    >
+      <defs>
+        <linearGradient id="ponteiro-ouro" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.9" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <circle cx="400" cy="400" r="396" fill="none" stroke="currentColor" strokeWidth="1" />
+      <circle cx="400" cy="400" r="300" fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="2 7" />
+      <circle cx="400" cy="400" r="200" fill="none" stroke="currentColor" strokeWidth="0.6" />
+      <circle cx="400" cy="400" r="4" fill="currentColor" />
+      {marcas.map((m) => (
+        <line key={m.i} x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2} stroke="currentColor" strokeWidth={m.longa ? 1.6 : 0.8} />
+      ))}
+      <g className="anim-girar origin-center" style={{ transformOrigin: "400px 400px", animationDuration: "60s" }}>
+        <rect x="399" y="8" width="2" height="392" fill="url(#ponteiro-ouro)" />
+      </g>
+    </svg>
   )
 }
 
-/** Verbete: o significado do nome, num adesivo inclinado que se endireita no hover. */
-function Verbete() {
+/** Palavra: de apagada a acesa conforme o progresso chega nela. */
+function Palavra({
+  palavra,
+  indice,
+  progresso,
+}: {
+  palavra: (typeof PALAVRAS)[number]
+  indice: number
+  progresso: MotionValue<number>
+}) {
+  const ini = (indice / PALAVRAS.length) * 0.85
+  const opacity = useTransform(progresso, [ini, ini + 0.14], [0.16, 1])
+
   return (
-    <motion.div
-      initial={{ rotate: -4, opacity: 0, y: 40 }}
-      whileInView={{ rotate: -3, opacity: 1, y: 0 }}
-      whileHover={{ rotate: 0, scale: 1.02 }}
-      viewport={{ once: true, margin: "-90px" }}
-      transition={{ type: "spring", stiffness: 140, damping: 16 }}
-      className="tema-escuro relative flex aspect-[4/5] flex-col justify-between overflow-hidden border border-foreground/25 p-7 shadow-[0_30px_80px_-24px_rgb(201_162_75/0.45)] md:p-9"
+    <motion.span
+      style={{ opacity }}
+      className={palavra.ouro ? "font-accent font-medium italic text-primary" : undefined}
     >
-      <KairosMark className="pointer-events-none absolute -right-12 -top-8 h-[22rem] w-[22rem] text-primary/[0.1]" />
-
-      <p className="relative text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-        Verbete · grego antigo
-      </p>
-
-      <div className="relative">
-        <p className="font-accent text-7xl font-semibold italic leading-none text-primary md:text-8xl">καιρός</p>
-        <p className="mt-3 text-sm uppercase tracking-[0.2em] text-muted-foreground">kairós, substantivo</p>
-        <p className="mt-6 max-w-[17rem] text-xl font-bold leading-snug">
-          O momento certo. A oportunidade que passa uma vez só.
-        </p>
-      </div>
-
-      {/* régua do dia: um ponto percorre as horas, marcando o instante */}
-      <div className="relative">
-        <div className="relative h-px bg-foreground/30">
-          <span className="anim-regua absolute -top-[4px] h-[9px] w-[9px] rounded-full bg-primary" />
-        </div>
-        <div className="mt-3 flex justify-between text-[10px] tabular-nums text-muted-foreground">
-          {["09h", "11h", "13h", "15h", "17h", "19h"].map((h) => (
-            <span key={h}>{h}</span>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+      {palavra.t}{" "}
+    </motion.span>
   )
 }
 
 export function ManifestoSection() {
   const ref = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const topoY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"])
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.75", "center 0.45"] })
 
   return (
-    <section ref={ref} className="tema-claro relative overflow-hidden px-5 py-28 md:px-8 md:py-40">
-      <motion.div aria-hidden style={{ y: topoY }} className="fundo-risca pointer-events-none absolute -inset-y-[8%] inset-x-0" />
+    <section ref={ref} className="tema-claro relative overflow-hidden px-5 py-32 md:px-8 md:py-48">
+      <Mostrador />
+      {/* a borda do mostrador some no preto, sem corte */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,var(--background)_78%)]"
+      />
 
-      <div className="relative mx-auto grid max-w-[92rem] grid-cols-1 items-center gap-16 md:grid-cols-12 md:gap-14">
-        <div className="md:col-span-5 md:pr-6">
-          <Verbete />
-        </div>
-
-        <div className="md:col-span-7">
+      <div className="relative mx-auto max-w-[92rem]">
+        <div className="mx-auto max-w-5xl text-center">
           <Reveal>
-            <Eyebrow>O que muda</Eyebrow>
+            <Eyebrow>καιρός · o momento certo</Eyebrow>
           </Reveal>
 
-          <h2 className="titulo-fino mt-6 text-[clamp(2.8rem,6vw,6rem)]">
-            <TextReveal
-              delay={0.1}
-              lines={[
-                "Seu tempo volta",
-                <em key="2" className="marca-texto font-accent text-[0.92em] font-medium italic">
-                  para a cadeira.
-                </em>,
-              ]}
-            />
+          <h2 className="titulo-fino mt-10 text-[clamp(3rem,9vw,9rem)]">
+            {PALAVRAS.map((p, i) => (
+              <Palavra key={p.t} palavra={p} indice={i} progresso={scrollYProgress} />
+            ))}
           </h2>
 
-          <div className="mt-12 flex flex-col border-b border-foreground/25">
-            {TROCAS.map((t, i) => (
-              <LinhaTroca key={t.antes} antes={t.antes} depois={t.depois} indice={i} />
-            ))}
-          </div>
+          <Reveal delay={0.1}>
+            <p className="mx-auto mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
+              Kairós, em grego antigo, é a oportunidade que passa uma vez só. É o que uma agenda cheia e bem cuidada faz por
+              você: o horário certo, na cadeira certa.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="mt-24 grid grid-cols-1 border-t border-foreground/15 md:mt-32 md:grid-cols-3">
+          {TROCAS.map((t, i) => (
+            <Reveal key={t.antes} delay={0.1 + i * 0.1}>
+              <div className="h-full border-b border-foreground/15 py-8 md:border-b-0 md:border-r md:px-8 md:py-10 md:first:pl-0 md:last:border-r-0">
+                <p className="text-sm text-muted-foreground line-through decoration-foreground/30">{t.antes}</p>
+                <p className="mt-4 text-2xl font-light leading-snug tracking-tight md:text-[1.7rem]">{t.depois}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
