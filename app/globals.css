@@ -667,65 +667,66 @@ html {
 }
 
 /* ══ Landing: identidade nova ══════════════════════════════════
-   Paleta de barbearia de alto padrão: osso (papel de cartão de visita),
-   verde-garrafa (couro e madeira escura), vinho (poste de barbeiro) e um
-   cobre de acento. Dois "climas" que se alternam seção a seção, mais um
-   bloco de vinho no fechamento. Os tokens são sobrescritos só dentro
-   destas classes, então o painel e o resto do app mantêm o tema deles. */
+   Preto e ouro, como a marca sempre foi, mas num preto de verdade (grafite
+   quente, nunca azulado) e um ouro de acabamento fosco, sem brilho oleoso.
+   Três "climas": grafite, preto e o bloco dourado do fechamento. Os tokens
+   são sobrescritos só dentro destas classes, então o painel e o resto do
+   app mantêm o tema deles. (Os nomes ficaram da fase anterior.) */
 .tema-claro,
 .tema-escuro,
 .tema-vinho {
-  --primary: #c9763a;
-  --primary-foreground: #140f0b;
+  --primary: #c9a24b;
+  --primary-foreground: #0a0908;
   background-color: var(--background);
   color: var(--foreground);
 }
 .tema-claro {
-  --background: #ece5d6;
-  --foreground: #17130f;
-  --card: #f5efe2;
-  --card-foreground: #17130f;
-  --popover: #f5efe2;
-  --popover-foreground: #17130f;
-  --muted: #ddd4c1;
-  --muted-foreground: #5f5649;
-  --secondary: #ddd4c1;
-  --secondary-foreground: #17130f;
-  --accent: #ddd4c1;
-  --accent-foreground: #17130f;
-  --border: rgb(23 19 15 / 0.2);
-  --input: rgb(23 19 15 / 0.2);
-  --ring: #17130f;
+  --background: #12100d;
+  --foreground: #ece5d6;
+  --card: #1a1713;
+  --card-foreground: #ece5d6;
+  --popover: #1a1713;
+  --popover-foreground: #ece5d6;
+  --muted: #221e18;
+  --muted-foreground: #a89f8f;
+  --secondary: #221e18;
+  --secondary-foreground: #ece5d6;
+  --accent: #221e18;
+  --accent-foreground: #ece5d6;
+  --border: rgb(236 229 214 / 0.14);
+  --input: rgb(236 229 214 / 0.14);
+  --ring: #c9a24b;
 }
 .tema-escuro {
-  --background: #0e221b;
+  --background: #0a0908;
   --foreground: #ece5d6;
-  --card: #153026;
+  --card: #14120f;
   --card-foreground: #ece5d6;
-  --popover: #153026;
+  --popover: #14120f;
   --popover-foreground: #ece5d6;
-  --muted: #1b3b2f;
-  --muted-foreground: #a9b8ad;
-  --secondary: #1b3b2f;
+  --muted: #1c1914;
+  --muted-foreground: #a89f8f;
+  --secondary: #1c1914;
   --secondary-foreground: #ece5d6;
-  --accent: #1b3b2f;
+  --accent: #1c1914;
   --accent-foreground: #ece5d6;
-  --border: rgb(236 229 214 / 0.16);
-  --input: rgb(236 229 214 / 0.16);
-  --ring: #c9763a;
+  --border: rgb(236 229 214 / 0.14);
+  --input: rgb(236 229 214 / 0.14);
+  --ring: #c9a24b;
 }
+/* O fechamento é o único bloco dourado da página: texto preto sobre ouro. */
 .tema-vinho {
-  --background: #5a1620;
-  --foreground: #f1e8d8;
-  --card: #6e1d29;
-  --card-foreground: #f1e8d8;
-  --muted: #6e1d29;
-  --muted-foreground: #d9bfb4;
-  --border: rgb(241 232 216 / 0.25);
-  --input: rgb(241 232 216 / 0.25);
-  --ring: #f1e8d8;
-  --primary: #f1e8d8;
-  --primary-foreground: #5a1620;
+  --background: #c9a24b;
+  --foreground: #0a0908;
+  --card: #d6b35f;
+  --card-foreground: #0a0908;
+  --muted: #d6b35f;
+  --muted-foreground: #3d3118;
+  --border: rgb(10 9 8 / 0.3);
+  --input: rgb(10 9 8 / 0.3);
+  --ring: #0a0908;
+  --primary: #0a0908;
+  --primary-foreground: #c9a24b;
 }
 
 /* Risca de alfaiataria: listras finíssimas verticais, como as de um terno
@@ -734,16 +735,16 @@ html {
   background-image: repeating-linear-gradient(
     90deg,
     transparent 0 55px,
-    color-mix(in srgb, var(--foreground) 7%, transparent) 55px 56px
+    color-mix(in srgb, var(--foreground) 5%, transparent) 55px 56px
   );
 }
-/* Faixa do poste de barbeiro: diagonais vinho, osso e verde-garrafa. */
+/* Faixa do poste de barbeiro, em preto e ouro. */
 .faixa-poste {
   background-image: repeating-linear-gradient(
     -45deg,
-    #5a1620 0 22px,
-    #ece5d6 22px 44px,
-    #0e221b 44px 66px,
+    #0a0908 0 22px,
+    #c9a24b 22px 44px,
+    #0a0908 44px 66px,
     #ece5d6 66px 88px
   );
   background-size: 124px 124px;
@@ -764,9 +765,17 @@ html {
   line-height: 0.86;
   letter-spacing: -0.005em;
 }
-/* Marca-texto: faixa de cobre atrás da palavra, nos blocos claros. */
+/* Título fino: o contrário do gigante, leve e em caixa normal (hero). */
+.titulo-fino {
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+/* Destaque: a palavra fica em ouro com um fio por baixo (no fundo escuro um
+   marca-texto cheio brigaria com o texto claro). */
 .marca-texto {
-  background-image: linear-gradient(transparent 56%, var(--primary) 56% 94%, transparent 94%);
+  color: var(--primary);
+  background-image: linear-gradient(transparent 90%, color-mix(in srgb, var(--primary) 55%, transparent) 90% 96%, transparent 96%);
   padding-inline: 0.08em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
