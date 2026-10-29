@@ -24,7 +24,7 @@ function LinhaTroca({ antes, depois, indice }: { antes: string; depois: string; 
       <div
         ref={ref}
         data-ativo={ativo}
-        className="group relative -mx-4 border-t-2 border-foreground px-4 py-6 transition-colors duration-300 hover:bg-primary data-[ativo=true]:bg-primary md:py-7"
+        className="group relative -mx-4 border-t border-foreground/25 px-4 py-6 transition-colors duration-300 hover:bg-primary data-[ativo=true]:bg-primary md:py-7"
       >
         <p className="text-sm text-muted-foreground line-through decoration-foreground/40 group-hover:text-primary-foreground/70 group-data-[ativo=true]:text-primary-foreground/70">
           {antes}
@@ -49,7 +49,7 @@ function Verbete() {
       whileHover={{ rotate: 0, scale: 1.02 }}
       viewport={{ once: true, margin: "-90px" }}
       transition={{ type: "spring", stiffness: 140, damping: 16 }}
-      className="tema-escuro relative flex aspect-[4/5] flex-col justify-between overflow-hidden border-2 border-foreground p-7 shadow-[12px_12px_0_0_var(--primary)] md:p-9"
+      className="tema-escuro relative flex aspect-[4/5] flex-col justify-between overflow-hidden border border-foreground/25 p-7 shadow-[0_30px_80px_-24px_rgb(201_162_75/0.45)] md:p-9"
     >
       <KairosMark className="pointer-events-none absolute -right-12 -top-8 h-[22rem] w-[22rem] text-primary/[0.1]" />
 
@@ -99,19 +99,19 @@ export function ManifestoSection() {
             <Eyebrow>O que muda</Eyebrow>
           </Reveal>
 
-          <h2 className="titulo-gigante mt-6 text-[clamp(3rem,7.4vw,7.5rem)]">
+          <h2 className="titulo-fino mt-6 text-[clamp(2.8rem,6vw,6rem)]">
             <TextReveal
               delay={0.1}
               lines={[
                 "Seu tempo volta",
-                <em key="2" className="marca-texto font-accent text-[0.92em] font-semibold normal-case italic tracking-[-0.02em]">
+                <em key="2" className="marca-texto font-accent text-[0.92em] font-medium italic">
                   para a cadeira.
                 </em>,
               ]}
             />
           </h2>
 
-          <div className="mt-12 flex flex-col border-b-2 border-foreground">
+          <div className="mt-12 flex flex-col border-b border-foreground/25">
             {TROCAS.map((t, i) => (
               <LinhaTroca key={t.antes} antes={t.antes} depois={t.depois} indice={i} />
             ))}

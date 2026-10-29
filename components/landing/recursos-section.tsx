@@ -65,9 +65,9 @@ function CardRecurso({
         ref={ref}
         data-ativo={ativo}
         className={cn(
-          "group relative flex h-full min-h-56 flex-col justify-between border-2 border-foreground bg-card p-6 transition-all duration-300 md:p-7",
-          "hover:-translate-x-1 hover:-translate-y-1 hover:bg-primary hover:shadow-[8px_8px_0_0_var(--foreground)]",
-          "data-[ativo=true]:-translate-x-1 data-[ativo=true]:-translate-y-1 data-[ativo=true]:bg-primary data-[ativo=true]:shadow-[8px_8px_0_0_var(--foreground)]",
+          "group relative flex h-full min-h-56 flex-col justify-between border border-foreground/25 bg-card p-6 transition-all duration-300 md:p-7",
+          "hover:-translate-y-1.5 hover:bg-primary hover:shadow-[0_24px_60px_-20px_rgb(201_162_75/0.55)]",
+          "data-[ativo=true]:-translate-y-1.5 data-[ativo=true]:bg-primary data-[ativo=true]:shadow-[0_24px_60px_-20px_rgb(201_162_75/0.55)]",
         )}
       >
         <div className="flex items-start justify-between">
@@ -80,7 +80,7 @@ function CardRecurso({
           </span>
         </div>
         <div className="mt-10">
-          <h3 className="titulo-gigante text-4xl md:text-5xl">{titulo}</h3>
+          <h3 className="titulo-fino text-3xl md:text-4xl">{titulo}</h3>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground group-hover:text-primary-foreground/80 group-data-[ativo=true]:text-primary-foreground/80">
             {texto}
           </p>
@@ -97,12 +97,12 @@ export function RecursosSection() {
         <Reveal>
           <Eyebrow>Também vem junto</Eyebrow>
         </Reveal>
-        <h2 className="titulo-gigante mt-6 text-[clamp(3rem,8vw,8rem)]">
+        <h2 className="titulo-fino mt-6 text-[clamp(2.8rem,6.6vw,6.6rem)]">
           <TextReveal
             delay={0.1}
             lines={[
               "O resto que",
-              <em key="2" className="marca-texto font-accent text-[0.92em] font-semibold normal-case italic tracking-[-0.02em]">
+              <em key="2" className="marca-texto font-accent text-[0.92em] font-medium italic">
                 faz falta.
               </em>,
             ]}

@@ -29,7 +29,7 @@ export function FinalCtaSection() {
           <Eyebrow>A cadeira está livre</Eyebrow>
         </Reveal>
 
-        <h2 className="titulo-gigante mt-6 text-[clamp(3.4rem,11vw,11rem)]">
+        <h2 className="titulo-fino mt-6 text-[clamp(3rem,9vw,9rem)]">
           <TextReveal
             delay={0.12}
             lines={[
