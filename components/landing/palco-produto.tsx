@@ -50,7 +50,7 @@ export function PalcoProduto() {
           className="hidden"
         />
 
-        <div className="tema-escuro overflow-hidden rounded-2xl border-2 border-foreground shadow-[14px_14px_0_0_var(--primary)]">
+        <div className="tema-escuro overflow-hidden rounded-2xl border border-foreground/25 shadow-[0_40px_120px_-30px_rgb(201_162_75/0.5)]">
           {/* barra do navegador */}
           <div className="flex items-center gap-1.5 border-b border-border/60 bg-black/20 px-4 py-3">
             <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/25" />
@@ -139,7 +139,7 @@ export function PalcoProduto() {
         </div>
 
         {/* avisos flutuantes */}
-        <div className="tema-escuro anim-flutuar absolute -left-2 top-24 hidden items-center gap-3 rounded-xl border-2 border-foreground px-4 py-3 md:flex lg:-left-10">
+        <div className="tema-escuro anim-flutuar absolute -left-2 top-24 hidden items-center gap-3 rounded-xl border border-foreground/25 px-4 py-3 md:flex lg:-left-10">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
             <Bell className="h-4 w-4" />
           </span>
@@ -149,7 +149,7 @@ export function PalcoProduto() {
           </span>
         </div>
         <div
-          className="tema-escuro anim-flutuar absolute -right-2 bottom-20 hidden items-center gap-3 rounded-xl border-2 border-foreground px-4 py-3 md:flex lg:-right-10"
+          className="tema-escuro anim-flutuar absolute -right-2 bottom-20 hidden items-center gap-3 rounded-xl border border-foreground/25 px-4 py-3 md:flex lg:-right-10"
           style={{ animationDelay: "-2.5s" }}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
