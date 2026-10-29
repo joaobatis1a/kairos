@@ -1,201 +1,204 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion"
+import { useRef, useState } from "react"
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion"
+import { ArrowUpRight } from "lucide-react"
 import { Reveal, TextReveal, Eyebrow } from "@/components/landing/reveal"
 import { MockupAgendamento, MockupAgenda, MockupNumeros } from "@/components/landing/sistema-mockups"
 import { cn } from "@/lib/utils"
-
-/**
- * Coluna do mockup: entra subindo e, depois disso, deriva devagar contra o
- * texto conforme a página rola — é o que dá sensação de profundidade.
- */
-function ColunaMockup({ children, invertido }: { children: React.ReactNode; invertido: boolean }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], ["6%", "-6%"])
-
-  return (
-    <div ref={ref} className={cn("revelar relative", invertido && "md:order-1")}>
-      <motion.div style={{ y }}>{children}</motion.div>
-    </div>
-  )
-}
 
 const BLOCOS = [
   {
     quem: "O cliente",
     titulo: "Agenda sozinho, no link da sua barbearia",
-    texto:
-      "Ele entra, escolhe o serviço, o profissional e o horário livre, sem app pra instalar e sem conversa por mensagem.",
+    texto: "Ele entra, escolhe o serviço, o profissional e o horário livre, sem app pra instalar e sem conversa por mensagem.",
     itens: ["Horários ocupados somem em tempo real", "Escolha de barbeiro e forma de pagamento", "Confirmação por e-mail automática"],
     Mockup: MockupAgendamento,
   },
   {
     quem: "A equipe",
     titulo: "Abre o painel e já sabe o dia inteiro",
-    texto:
-      "O barbeiro enxerga só os próprios atendimentos; o dono vê a casa inteira e move o que precisar.",
+    texto: "O barbeiro enxerga só os próprios atendimentos; o dono vê a casa inteira e move o que precisar.",
     itens: ["Confirmar, finalizar ou cancelar em um clique", "Acesso separado por cargo", "Atualiza sozinho, sem recarregar"],
     Mockup: MockupAgenda,
   },
   {
     quem: "Você",
     titulo: "Fecha o mês sem abrir uma planilha",
-    texto:
-      "Faturamento do dia, da semana e do mês. Quanto cada barbeiro rendeu e o que os clientes acharam do atendimento.",
+    texto: "Faturamento do dia, da semana e do mês. Quanto cada barbeiro rendeu e o que os clientes acharam do atendimento.",
     itens: ["Ranking de barbeiros por receita", "Serviços mais pedidos", "Avaliações do cliente após cada corte"],
     Mockup: MockupNumeros,
   },
 ]
 
-function Texto({ b }: { b: (typeof BLOCOS)[number] }) {
+function Cabecalho() {
   return (
-    <div className="text-sm">
-      <span className="inline-block bg-primary px-2.5 py-1 text-xs font-bold tracking-[0.22em] text-primary-foreground uppercase">{b.quem}</span>
-      <h3 className="mt-5 text-3xl font-extrabold leading-[1.05] tracking-tight md:text-4xl">{b.titulo}</h3>
-      <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
-      <ul className="mt-7 flex flex-col gap-3">
-        {b.itens.map((item) => (
-          <li key={item} className="flex items-start gap-3 text-muted-foreground">
-            <span className="mt-[0.55em] h-0.5 w-4 shrink-0 bg-primary" aria-hidden />
-            {item}
-          </li>
-        ))}
-      </ul>
+    <div>
+      <Reveal>
+        <Eyebrow>Três pontos de vista</Eyebrow>
+      </Reveal>
+      <h2 className="titulo-fino mt-6 text-[clamp(2.6rem,5.2vw,5.6rem)]">
+        <TextReveal
+          delay={0.1}
+          lines={[
+            "Uma tela pra cada um,",
+            <em key="2" className="font-accent font-medium italic text-primary">
+              sem se atropelar.
+            </em>,
+          ]}
+        />
+      </h2>
+    </div>
+  )
+}
+
+/** Moldura de vidro em volta do mockup. */
+function Vidro({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-3xl border border-foreground/15 bg-foreground/[0.04] p-2 shadow-[0_50px_140px_-40px_rgb(201_162_75/0.35)] backdrop-blur-sm md:p-3">
+      {children}
     </div>
   )
 }
 
 /**
- * Desktop: o mockup fica fixo na tela enquanto o texto de cada ponto de
- * vista rola ao lado; o mockup troca (fade + leve subida) quando o passo
- * correspondente cruza o meio da tela. No celular a lista empilhada abaixo
- * assume, porque sticky de meia tela não cabe.
+ * Desktop: o palco fica fixo na tela durante 3 telas de rolagem. À esquerda,
+ * a lista dos pontos de vista (o ativo abre e fica dourado); à direita, o
+ * mockup correspondente troca com fade. A rolagem decide quem está ativo.
+ * No celular sticky de tela cheia não cabe: vale a lista empilhada.
  */
-function PalcoSticky() {
+function PalcoDesktop() {
+  const ref = useRef<HTMLDivElement>(null)
   const [ativo, setAtivo] = useState(0)
-  const passos = useRef<(HTMLDivElement | null)[]>([])
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entradas) => {
-        for (const e of entradas) {
-          if (e.isIntersecting) setAtivo(Number((e.target as HTMLElement).dataset.i))
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    )
-    passos.current.forEach((el) => el && obs.observe(el))
-    return () => obs.disconnect()
-  }, [])
-
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] })
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setAtivo(Math.min(BLOCOS.length - 1, Math.max(0, Math.floor(v * BLOCOS.length))))
+  })
   const Ativo = BLOCOS[ativo].Mockup
 
   return (
-    <div className="mt-16 hidden grid-cols-2 gap-20 md:grid">
-      <div>
-        {BLOCOS.map((b, i) => (
-          <div
-            key={b.quem}
-            data-i={i}
-            ref={(el) => {
-              passos.current[i] = el
-            }}
-            className={cn(
-              "flex min-h-[78vh] items-center transition-opacity duration-500",
-              ativo === i ? "opacity-100" : "opacity-35",
-            )}
-          >
-            <Texto b={b} />
-          </div>
-        ))}
-      </div>
+    <div ref={ref} className="relative hidden h-[330vh] md:block">
+      <div className="sticky top-0 flex h-screen items-center">
+        <div className="mx-auto grid w-full max-w-[92rem] grid-cols-12 items-center gap-14 px-8 pt-16">
+          <div className="col-span-5">
+            <Cabecalho />
 
-      <div className="relative">
-        <div className="sticky top-[18vh] flex flex-col gap-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={ativo}
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.98 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Ativo />
-            </motion.div>
-          </AnimatePresence>
-          {/* indicador dos 3 pontos de vista */}
-          <div className="flex items-center justify-center gap-2">
-            {BLOCOS.map((b, i) => (
-              <span
-                key={b.quem}
-                className={cn(
-                  "h-1 rounded-full bg-primary transition-all duration-500",
-                  ativo === i ? "w-8 opacity-100" : "w-2 opacity-30",
-                )}
-              />
-            ))}
+            <ul className="mt-10">
+              {BLOCOS.map((b, i) => {
+                const aberto = ativo === i
+                return (
+                  <li key={b.quem} className="border-t border-foreground/15 last:border-b">
+                    <div className="flex items-center justify-between gap-4 py-4">
+                      <span
+                        className={cn(
+                          "text-lg transition-colors duration-500",
+                          aberto ? "text-primary" : "text-foreground/45",
+                        )}
+                      >
+                        <span className="mr-4 text-xs tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                        {b.quem}
+                      </span>
+                      <ArrowUpRight
+                        className={cn(
+                          "h-4 w-4 transition-all duration-500",
+                          aberto ? "rotate-45 text-primary" : "text-foreground/30",
+                        )}
+                      />
+                    </div>
+                    <div
+                      className={cn(
+                        "grid transition-[grid-template-rows] duration-500",
+                        aberto ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                      )}
+                    >
+                      <div className="overflow-hidden">
+                        <p className="max-w-md pb-3 text-xl font-light leading-snug tracking-tight">{b.titulo}</p>
+                        <p className="max-w-md pb-5 text-sm leading-relaxed text-muted-foreground">{b.texto}</p>
+                      </div>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          <div className="col-span-7">
+            <Vidro>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={ativo}
+                  initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -16, scale: 0.98 }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Ativo />
+                </motion.div>
+              </AnimatePresence>
+            </Vidro>
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
+              {BLOCOS[ativo].itens.map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span aria-hidden className="h-1 w-1 rounded-full bg-primary" />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function ListaMobile() {
+  return (
+    <div className="mt-14 flex flex-col gap-20 md:hidden">
+      {BLOCOS.map((b, i) => (
+        <Reveal key={b.quem}>
+          <div>
+            <p className="flex items-center gap-3 text-sm text-primary">
+              <span className="text-xs tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+              {b.quem}
+            </p>
+            <h3 className="mt-4 text-3xl font-light leading-[1.1] tracking-tight">{b.titulo}</h3>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{b.texto}</p>
+            <div className="mt-8">
+              <Vidro>
+                <b.Mockup />
+              </Vidro>
+            </div>
+            <ul className="mt-5 flex flex-col gap-2 text-sm text-muted-foreground">
+              {b.itens.map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span aria-hidden className="mt-[0.6em] h-1 w-1 shrink-0 rounded-full bg-primary" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+      ))}
     </div>
   )
 }
 
 export function SistemaSection() {
   return (
-    <section id="sistema" className="tema-escuro relative scroll-mt-20 px-5 py-28 md:px-8 md:py-40">
-      <div className="mx-auto max-w-[92rem]">
-        <div className="max-w-2xl">
-          <Reveal>
-            <Eyebrow>Três pontos de vista</Eyebrow>
-          </Reveal>
-          <h2 className="titulo-fino mt-6 text-[clamp(2.8rem,6.6vw,6.6rem)]">
-            <TextReveal delay={0.1} lines={["Uma tela pra cada um,", <em key="2" className="font-accent text-[0.92em] font-medium italic text-primary">sem se atropelar.</em>]} />
-          </h2>
-          <Reveal delay={0.25}>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Cliente, equipe e dono usam o kairos ao mesmo tempo, cada um vendo só o que
-              precisa ver.
-            </p>
-          </Reveal>
+    <section id="sistema" className="tema-escuro relative scroll-mt-20 px-5 pt-28 md:px-0 md:pt-24">
+      {/* luz dourada que atravessa o palco */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_75%_40%,rgb(201_162_75/0.1),transparent_70%)]"
+      />
+      <div className="relative">
+        <div className="md:hidden">
+          <Cabecalho />
         </div>
-
-        <PalcoSticky />
-
-        <div className="mt-16 flex flex-col gap-16 md:hidden">
-          {BLOCOS.map((b, i) => {
-            const invertido = i % 2 === 1
-            return (
-              <div
-                key={b.quem}
-                className="grid grid-cols-1 items-center gap-12 md:grid-cols-2 md:gap-20"
-              >
-                <Reveal className={cn(invertido && "md:order-2")} y={36}>
-                  <div className="text-sm">
-                    <span className="inline-block bg-primary px-2.5 py-1 text-xs font-bold tracking-[0.22em] text-primary-foreground uppercase">{b.quem}</span>
-                    <h3 className="mt-5 text-3xl font-extrabold leading-[1.05] tracking-tight md:text-4xl">{b.titulo}</h3>
-                    <p className="mt-4 max-w-md leading-relaxed text-muted-foreground">{b.texto}</p>
-                    <ul className="mt-7 flex flex-col gap-3">
-                      {b.itens.map((item) => (
-                        <li key={item} className="revelar flex items-start gap-3 text-muted-foreground">
-                          <span className="mt-[0.55em] h-0.5 w-4 shrink-0 bg-primary" aria-hidden />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </Reveal>
-
-                <ColunaMockup invertido={invertido}>
-                  <b.Mockup />
-                </ColunaMockup>
-              </div>
-            )
-          })}
-        </div>
+        <ListaMobile />
+        <PalcoDesktop />
       </div>
+      <div className="pb-24 md:hidden" />
     </section>
   )
 }

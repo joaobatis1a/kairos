@@ -19,12 +19,10 @@ export function KairosLanding() {
       <main id="conteudo" tabIndex={-1}>
         <HeroSection />
         <FaixaServicos />
-        <div aria-hidden className="faixa-poste h-4 md:h-5" />
         <ManifestoSection />
         <SistemaSection />
         <RecursosSection />
         <ComoFuncionaSection />
-        <div aria-hidden className="faixa-poste h-4 md:h-5" />
         <FinalCtaSection />
       </main>
       <LandingFooter />
