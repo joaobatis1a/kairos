@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist_Mono, Nunito, Fredoka, Bodoni_Moda, Archivo } from 'next/font/google'
+import { Geist_Mono, Jost, Cormorant, Cinzel } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
@@ -8,39 +8,24 @@ import { PwaRegister } from '@/components/pwa-register'
 import { DEMO_MODE } from '@/lib/demo'
 import './globals.css'
 
-const nunito = Nunito({
-  variable: '--font-nunito',
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700', '800'],
-})
 /**
- * Display da landing: Archivo com o eixo de largura (wdth) aberto, pra
- * usar a versão condensada e pesada em títulos gigantes em caixa alta.
+ * Tipografia da marca, pensada pro universo da barbearia:
+ * - Jost: corpo e títulos do sistema. Geométrica herdeira da Futura, a letra
+ *   dos letreiros e cartazes de barbearia clássica, e legível em interface.
+ * - Cormorant: títulos grandes e itálicos de efeito. Serifa de traço fino
+ *   como fio de navalha, com números alinhados só onde pedimos.
+ * - Cinzel: capitulares romanas pro letreiro e o nome, como letra gravada
+ *   em folha de ouro (e conversa com a origem grega do nome).
  */
-const archivo = Archivo({
-  variable: '--font-archivo',
+const jost = Jost({ variable: '--font-jost', subsets: ['latin', 'latin-ext'] })
+const cormorant = Cormorant({
+  variable: '--font-cormorant',
   subsets: ['latin', 'latin-ext'],
-  axes: ['wdth'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
 })
+const cinzel = Cinzel({ variable: '--font-cinzel', subsets: ['latin', 'latin-ext'], weight: ['400', '500', '600'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
-const fredoka = Fredoka({
-  variable: '--font-fredoka',
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-})
-/**
- * Fonte de destaque só pra palavras de efeito dentro de títulos da landing
- * de vendas (`<em className="font-accent italic">`) — itálico de verdade
- * (Fredoka não tem, virava itálico sintético feio). Didona de alto
- * contraste: o traço fino/grosso lembra o fio de uma navalha, sem cair no
- * combo clichê "serifada + creme + terracota".
- */
-const bodoniModa = Bodoni_Moda({
-  variable: '--font-bodoni',
-  subsets: ['latin', 'latin-ext'],
-  weight: ['600'],
-  style: ['italic'],
-})
 
 export const metadata: Metadata = {
   title: DEMO_MODE ? 'Kairos: demonstração' : 'Kairos',
@@ -53,7 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${nunito.variable} ${geistMono.variable} ${fredoka.variable} ${bodoniModa.variable} ${archivo.variable}`}
+      className={`${jost.variable} ${cormorant.variable} ${cinzel.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="kairos-theme">
