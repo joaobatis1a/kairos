@@ -5,16 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Ver app/layout.tsx: Jost no corpo e nos títulos do sistema, Cormorant nos
-     títulos de efeito, Cinzel no letreiro. `--font-serif` continua existindo
-     (e não é serifada) só porque a classe `font-serif` já é usada como
-     "fonte de título" em todo o projeto. */
-  --font-heading: var(--font-jost), 'Jost', 'Futura', ui-sans-serif, sans-serif;
-  --font-serif: var(--font-jost), 'Jost', 'Futura', ui-sans-serif, sans-serif;
-  --font-sans: var(--font-jost), 'Jost', 'Futura', ui-sans-serif, sans-serif;
-  --font-display: var(--font-cormorant), 'Cormorant', 'Times New Roman', serif;
-  --font-accent: var(--font-cormorant), 'Cormorant', 'Times New Roman', serif;
-  --font-letreiro: var(--font-cinzel), 'Cinzel', 'Trajan Pro', serif;
+  /* Ver app/layout.tsx: Barlow no corpo e nos títulos do sistema, Big
+     Shoulders Display nos títulos de efeito. `--font-serif` continua
+     existindo (e não é serifada) só porque a classe `font-serif` já é usada
+     como "fonte de título" em todo o projeto. */
+  --font-heading: var(--font-barlow), 'Barlow', ui-sans-serif, sans-serif;
+  --font-serif: var(--font-barlow), 'Barlow', ui-sans-serif, sans-serif;
+  --font-sans: var(--font-barlow), 'Barlow', ui-sans-serif, sans-serif;
+  --font-display: var(--font-big-shoulders), 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --font-accent: var(--font-barlow), 'Barlow', ui-sans-serif, sans-serif;
+  --font-letreiro: var(--font-big-shoulders), 'Big Shoulders Display', 'Arial Narrow', sans-serif;
   --font-mono: var(--font-geist-mono), 'Geist Mono Fallback';
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -674,16 +674,16 @@ html {
 .kairos-osso {
   background-color: var(--background);
   color: var(--foreground);
-  --ouro: #d4aa55;
+  --ouro: #b8893b;
   --ouro-claro: #f3dda0;
   --ouro-escuro: #8c6a24;
 }
 .kairos-noite {
-  --background: #0b0a09;
-  --foreground: #efe6d2;
-  --card: #14110e;
-  --card-foreground: #efe6d2;
-  --popover: #14110e;
+  --background: #0e0d0b;
+  --foreground: #e9e1cf;
+  --card: #1a1815;
+  --card-foreground: #e9e1cf;
+  --popover: #1a1815;
   --popover-foreground: #efe6d2;
   --muted: #1c1813;
   --muted-foreground: #a39883;
@@ -693,9 +693,9 @@ html {
   --accent-foreground: #efe6d2;
   --border: rgb(239 230 210 / 0.12);
   --input: rgb(239 230 210 / 0.12);
-  --ring: #d4aa55;
-  --primary: #d4aa55;
-  --primary-foreground: #0b0a09;
+  --ring: #b8893b;
+  --primary: #b8893b;
+  --primary-foreground: #0e0d0b;
 }
 .kairos-osso {
   --background: #efe6d2;

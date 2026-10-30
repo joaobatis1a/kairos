@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Geist_Mono, Jost, Cormorant, Cinzel } from 'next/font/google'
+import { Geist_Mono, Barlow, Big_Shoulders } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { MotionProvider } from '@/components/motion-provider'
@@ -9,22 +9,25 @@ import { DEMO_MODE } from '@/lib/demo'
 import './globals.css'
 
 /**
- * Tipografia da marca, pensada pro universo da barbearia:
- * - Jost: corpo e títulos do sistema. Geométrica herdeira da Futura, a letra
- *   dos letreiros e cartazes de barbearia clássica, e legível em interface.
- * - Cormorant: títulos grandes e itálicos de efeito. Serifa de traço fino
- *   como fio de navalha, com números alinhados só onde pedimos.
- * - Cinzel: capitulares romanas pro letreiro e o nome, como letra gravada
- *   em folha de ouro (e conversa com a origem grega do nome).
+ * Tipografia da marca (escolhida pelo dono entre 5 opções):
+ * - Barlow: corpo e títulos do sistema. Grotesca inspirada em placas e
+ *   sinalização, legível em interface e com itálico de verdade.
+ * - Big Shoulders (Display): títulos de efeito, condensada de letreiro de rua,
+ *   usada em caixa alta.
  */
-const jost = Jost({ variable: '--font-jost', subsets: ['latin', 'latin-ext'] })
-const cormorant = Cormorant({
-  variable: '--font-cormorant',
+const barlow = Barlow({
+  variable: '--font-barlow',
   subsets: ['latin', 'latin-ext'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   style: ['normal', 'italic'],
 })
-const cinzel = Cinzel({ variable: '--font-cinzel', subsets: ['latin', 'latin-ext'], weight: ['400', '500', '600'] })
+// Família variável com eixo de tamanho óptico: em título grande ela assume
+// sozinha o desenho "Display" (font-optical-sizing: auto).
+const bigShoulders = Big_Shoulders({
+  variable: '--font-big-shoulders',
+  subsets: ['latin', 'latin-ext'],
+  axes: ['opsz'],
+})
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -38,7 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${jost.variable} ${cormorant.variable} ${cinzel.variable} ${geistMono.variable}`}
+      className={`${barlow.variable} ${bigShoulders.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased bg-background">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="kairos-theme">
