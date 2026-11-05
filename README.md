@@ -93,7 +93,7 @@ Ambos são criados e têm as policies definidas em `migration_06_logo_empresa.sq
 
 ## Autor
 
-**João Batista da Silva Neto**
+**João Batista Neto**
 Desenvolvedor Full-stack (solo)
 
 - GitHub: [@joaobatis1a](https://github.com/joaobatis1a)
